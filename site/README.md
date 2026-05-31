@@ -2,17 +2,17 @@
 
 This folder contains the static files ready to deploy to GitHub Pages.
 
-## Cách triển khai lên hana-summer-lms.github.io
+## Cách triển khai (hiện tại dùng)
 
-### Cách 1: Tạo repo riêng (Khuyến nghị - URL đẹp nhất)
+Repo đang được deploy tại:
 
-1. Tạo một repository mới trên GitHub với tên chính xác:
-   ```
-   hana-summer-lms.github.io
-   ```
-   (Dưới tài khoản `alerondt-hanario`)
+**https://hana-summer-lms.github.io**
 
-2. Copy toàn bộ nội dung thư mục `site/` này vào repo mới.
+### Hướng dẫn triển khai / cập nhật
+
+1. Đảm bảo bạn đang ở repo: `alerondt-hanario/hana-summer-lms.github.io`
+
+2. Copy toàn bộ nội dung thư mục `site/` này vào repo.
 
 3. Push lên branch `main`.
 
@@ -20,7 +20,7 @@ This folder contains the static files ready to deploy to GitHub Pages.
    - Source: **Deploy from a branch**
    - Branch: `main`
    - Folder: `/ (root)`
-   - Save
+   - **Custom domain**: để trống (đang dùng tên mặc định)
 
 5. Sau vài phút, trang sẽ live tại:
    **https://hana-summer-lms.github.io**
