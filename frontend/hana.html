@@ -47,6 +47,10 @@
     <span>You are offline. Changes will sync when back online.</span>
     <span class="mx-2">•</span>
     <span id="offline-count">0 unsynced</span>
+    <button onclick="processOfflineQueue()" 
+            class="ml-3 px-3 py-0.5 bg-white/20 hover:bg-white/30 rounded-2xl text-xs font-semibold">
+      Sync now
+    </button>
   </div>
 
   <!-- Top Bar -->
@@ -258,6 +262,122 @@
     let todayTasks = [];           // Real data loaded from Supabase
     let isLoadingTasks = false;
 
+    // ==================== OFFLINE QUEUE (for B + C) ====================
+    let pendingActions = [];       // Actions waiting to sync to Supabase
+
+    function loadQueueFromStorage() {
+      try {
+        const saved = localStorage.getItem('hana_offline_queue');
+        pendingActions = saved ? JSON.parse(saved) : [];
+      } catch (e) {
+        pendingActions = [];
+      }
+      updateOfflineBanner();
+    }
+
+    function saveQueueToStorage() {
+      localStorage.setItem('hana_offline_queue', JSON.stringify(pendingActions));
+      updateOfflineBanner();
+    }
+
+    function addToOfflineQueue(action) {
+      pendingActions.push({
+        id: Date.now() + '-' + Math.random().toString(36).substr(2, 9),
+        timestamp: new Date().toISOString(),
+        ...action
+      });
+      saveQueueToStorage();
+      console.log('%c[Offline] Action queued:', 'color:#f59e0b', action);
+    }
+
+    async function processOfflineQueue() {
+      if (!navigator.onLine || pendingActions.length === 0 || !supabaseClient) return;
+
+      console.log('%c[Offline] Processing queue...', 'color:#3b82f6', pendingActions.length, 'items');
+
+      const queueCopy = [...pendingActions];
+      const successfulIds = [];
+
+      for (const action of queueCopy) {
+        try {
+          let success = false;
+
+          if (action.type === 'log_water') {
+            const { error } = await supabaseClient.from('daily_activities').insert({
+              activity_date: new Date().toISOString().split('T')[0],
+              activity_type: 'water_intake',
+              value: action.amount,
+              note: 'from offline queue',
+              is_synced: true,
+              synced_at: new Date().toISOString()
+            });
+            success = !error;
+          }
+
+          else if (action.type === 'complete_pomodoro') {
+            const { error } = await supabaseClient.from('daily_activities').insert({
+              activity_date: new Date().toISOString().split('T')[0],
+              activity_type: 'pomodoro_complete',
+              value: 25,
+              note: 'Pomodoro session completed',
+              is_synced: true,
+              synced_at: new Date().toISOString()
+            });
+            success = !error;
+          }
+
+          else if (action.type === 'submit_task') {
+            const { error } = await supabaseClient.from('submissions').insert({
+              task_id: action.taskId,
+              student_answer: action.answer,
+              submitted_at: action.timestamp,
+              is_synced: true,
+              synced_at: new Date().toISOString()
+            });
+            success = !error;
+          }
+
+          if (success) {
+            successfulIds.push(action.id);
+            console.log('%c[Offline] Synced action:', 'color:#22c55e', action.type);
+          }
+        } catch (err) {
+          console.warn('[Offline] Failed to sync action, will retry later:', err.message);
+        }
+      }
+
+      // Remove successfully synced items
+      pendingActions = pendingActions.filter(a => !successfulIds.includes(a.id));
+      saveQueueToStorage();
+
+      if (successfulIds.length > 0) {
+        showToast(`${successfulIds.length} offline actions synced!`, 'success');
+      }
+    }
+
+    function updateOfflineBanner() {
+      const banner = document.getElementById('offline-banner');
+      const countEl = document.getElementById('offline-count');
+
+      if (!countEl) return;
+
+      if (pendingActions.length > 0) {
+        countEl.textContent = `${pendingActions.length} unsynced`;
+        if (banner) banner.classList.remove('hidden');
+      } else {
+        countEl.textContent = '0 unsynced';
+      }
+    }
+
+    function showToast(message, type = 'info') {
+      const toast = document.createElement('div');
+      const bg = type === 'success' ? 'bg-emerald-700' : 'bg-zinc-800';
+      toast.className = `fixed bottom-6 left-1/2 -translate-x-1/2 ${bg} text-white px-5 py-2 rounded-3xl text-sm shadow-lg z-[999]`;
+      toast.textContent = message;
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 2200);
+    }
+
     // ==================== LANGUAGE ====================
     const translations = {
       vi: {
@@ -324,12 +444,41 @@
       }
     }
 
-    function finishPomodoro() {
+    async function finishPomodoro() {
       clearInterval(pomoInterval);
       isPomoRunning = false;
+
+      const today = new Date().toISOString().split('T')[0];
+
+      const action = {
+        type: 'complete_pomodoro',
+        date: today
+      };
+
+      try {
+        if (navigator.onLine && supabaseClient) {
+          const { error } = await supabaseClient.from('daily_activities').insert({
+            activity_date: today,
+            activity_type: 'pomodoro_complete',
+            value: 25,
+            note: 'Completed focus session',
+            is_synced: true,
+            synced_at: new Date().toISOString()
+          });
+          if (error) throw error;
+          showToast('Pomodoro saved! Great job 🎉', 'success');
+        } else {
+          throw new Error('Offline');
+        }
+      } catch (err) {
+        addToOfflineQueue(action);
+        showToast('Pomodoro saved offline (will sync later)', 'info');
+      }
+
       alert("Great job, Hana! You completed a focus session 🎉\n\nNow take a 5-minute break.");
-      // TODO: log to Supabase + local queue
       resetPomodoro();
+
+      setTimeout(processOfflineQueue, 800);
     }
 
     function resetPomodoro() {
@@ -348,16 +497,45 @@
       document.getElementById('water-bar').style.width = pct + '%';
     }
 
-    function logWater(amount) {
+    async function logWater(amount) {
       waterMl = Math.min(waterMl + amount, 1200);
       updateWaterUI();
 
-      // TODO: Save to local queue + sync to Supabase
-      const toast = document.createElement('div');
-      toast.className = 'fixed bottom-6 left-1/2 -translate-x-1/2 bg-sky-800 text-white px-5 py-2 rounded-3xl text-sm shadow-lg';
-      toast.textContent = `+${amount}ml recorded. Good job!`;
-      document.body.appendChild(toast);
-      setTimeout(() => toast.remove(), 1600);
+      const today = new Date().toISOString().split('T')[0];
+
+      const action = {
+        type: 'log_water',
+        amount: amount,
+        date: today
+      };
+
+      // Optimistic UI already done above
+
+      try {
+        if (navigator.onLine && supabaseClient) {
+          const { error } = await supabaseClient.from('daily_activities').insert({
+            activity_date: today,
+            activity_type: 'water_intake',
+            value: amount,
+            note: '',
+            is_synced: true,
+            synced_at: new Date().toISOString()
+          });
+
+          if (error) throw error;
+
+          showToast(`+${amount}ml saved`, 'success');
+        } else {
+          throw new Error('Offline');
+        }
+      } catch (err) {
+        // Queue for later
+        addToOfflineQueue(action);
+        showToast(`+${amount}ml saved offline (will sync later)`, 'info');
+      }
+
+      // Always try to process queue in background
+      setTimeout(processOfflineQueue, 800);
     }
 
     // ==================== MISSIONS (from Supabase) ====================
@@ -433,23 +611,52 @@
       modal.classList.add('hidden');
     }
 
-    function submitTask() {
+    async function submitTask() {
       const answer = document.getElementById('student-answer').value.trim();
       if (!answer) {
         alert("Please write something before submitting!");
         return;
       }
 
-      // TODO (Phase B): Save real submission to Supabase + call AI
-      alert("Submitted successfully! AI teacher will review your writing.");
+      const task = todayTasks[currentTaskIndex];
+      if (!task) return;
+
+      const today = new Date().toISOString();
+      const action = {
+        type: 'submit_task',
+        taskId: task.id,
+        answer: answer,
+        timestamp: today
+      };
 
       closeTaskModal();
 
-      // Temporary: mark as done locally
-      if (todayTasks[currentTaskIndex]) {
-        todayTasks[currentTaskIndex].status = 'done';
-      }
+      // Optimistically mark as done in UI
+      task.status = 'done';
       renderMissions();
+
+      try {
+        if (navigator.onLine && supabaseClient) {
+          const { error } = await supabaseClient.from('submissions').insert({
+            task_id: task.id,
+            student_answer: answer,
+            submitted_at: today,
+            is_synced: true,
+            synced_at: today
+          });
+
+          if (error) throw error;
+
+          showToast('Bài đã nộp thành công! AI sẽ chấm sớm.', 'success');
+        } else {
+          throw new Error('Offline');
+        }
+      } catch (err) {
+        addToOfflineQueue(action);
+        showToast('Bài đã lưu offline. Sẽ tự động nộp khi có mạng.', 'info');
+      }
+
+      setTimeout(processOfflineQueue, 800);
     }
 
     function showAllTasks() {
@@ -464,21 +671,40 @@
       // TODO: Save to approval_requests table + trigger Telegram via Edge Function or GAS
     }
 
-    // ==================== OFFLINE DETECTION ====================
+    // ==================== OFFLINE DETECTION + AUTO SYNC ====================
     function initOfflineDetection() {
       const banner = document.getElementById('offline-banner');
-      
-      function updateStatus() {
+
+      function updateOnlineStatus() {
         if (!navigator.onLine) {
+          if (banner) {
+            banner.classList.remove('hidden');
+            banner.classList.add('flex', 'items-center', 'justify-center', 'gap-x-2');
+          }
+        } else {
+          // When coming back online, try to sync
+          setTimeout(processOfflineQueue, 1200);
+          if (banner && pendingActions.length === 0) {
+            banner.classList.add('hidden');
+          }
+        }
+        updateOfflineBanner();
+      }
+
+      window.addEventListener('online', updateOnlineStatus);
+      window.addEventListener('offline', () => {
+        if (banner) {
           banner.classList.remove('hidden');
           banner.classList.add('flex', 'items-center', 'justify-center', 'gap-x-2');
-        } else {
-          banner.classList.add('hidden');
         }
+      });
+
+      // Try to sync on load
+      if (navigator.onLine) {
+        setTimeout(processOfflineQueue, 2000);
       }
-      window.addEventListener('online', updateStatus);
-      window.addEventListener('offline', updateStatus);
-      updateStatus();
+
+      updateOnlineStatus();
     }
 
     // ==================== SUPABASE ====================
@@ -583,13 +809,16 @@
       updateWaterUI();
       updatePomoUI();
 
-      // Offline detection
+      // Load any previously queued offline actions
+      loadQueueFromStorage();
+
+      // Offline detection + auto sync
       initOfflineDetection();
 
       // Initialize Supabase (this will trigger loadTodayTasks)
       initSupabase();
 
-      console.log('%c[Hana Dashboard] Initialized', 'color:#c2410f');
+      console.log('%c[Hana Dashboard] Initialized with Offline Queue support', 'color:#c2410f');
     }
 
     window.onload = init;
