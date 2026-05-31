@@ -39,9 +39,16 @@
     </div>
 
     <div class="p-8">
-      <div class="mb-8">
-        <h1 class="text-4xl font-semibold heading tracking-tight">Good evening, Bố Mẹ</h1>
-        <p class="text-zinc-400 mt-1">Here's what Hana has been up to today.</p>
+      <div class="mb-8 flex items-center justify-between">
+        <div>
+          <h1 class="text-4xl font-semibold heading tracking-tight">Chào Bố Mẹ 👋</h1>
+          <p class="text-zinc-400 mt-1">Theo dõi hoạt động và tiến độ học tập của Hana hôm nay.</p>
+        </div>
+        <button onclick="loadAllData()" 
+                class="flex items-center gap-x-2 px-4 py-2 bg-zinc-800 hover:bg-zinc-700 rounded-2xl text-sm font-medium">
+          <i class="fa-solid fa-sync"></i>
+          <span>Refresh</span>
+        </button>
       </div>
 
       <!-- Quick Stats -->
@@ -53,13 +60,13 @@
         </div>
         <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-5 stat-card">
           <div class="text-xs text-zinc-400">WATER INTAKE</div>
-          <div class="text-4xl font-semibold mt-1 tabular-nums">680 <span class="text-xl font-normal text-zinc-400">/ 1200</span></div>
-          <div class="text-amber-400 text-xs mt-1">57% of daily goal</div>
+          <div id="water-intake-stat" class="text-4xl font-semibold mt-1 tabular-nums">— <span class="text-xl font-normal text-zinc-400">/ 1200</span></div>
+          <div class="text-amber-400 text-xs mt-1">Today's total</div>
         </div>
         <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-5 stat-card">
           <div class="text-xs text-zinc-400">FOCUS SESSIONS</div>
-          <div class="text-4xl font-semibold mt-1">3 <span class="text-xl font-normal text-zinc-400">/ 6</span></div>
-          <div class="text-emerald-400 text-xs mt-1">+1 since yesterday</div>
+          <div id="pomo-stat" class="text-4xl font-semibold mt-1">— <span class="text-xl font-normal text-zinc-400">/ 6</span></div>
+          <div class="text-emerald-400 text-xs mt-1">Completed today</div>
         </div>
         <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-5 stat-card">
           <div class="text-xs text-zinc-400">WARNINGS (LAST 7 DAYS)</div>
@@ -77,24 +84,27 @@
               <div class="text-xs font-semibold text-emerald-400 tracking-widest">LIVE CONFIG</div>
               <div class="font-semibold text-xl">Daily Rules</div>
             </div>
-            <button onclick="saveConfig()" class="text-xs px-4 py-2 bg-emerald-600 hover:bg-emerald-500 rounded-2xl font-medium">Save &amp; Sync</button>
+            <button onclick="saveConfig()" class="text-xs px-4 py-2 bg-emerald-600 hover:bg-emerald-500 rounded-2xl font-medium flex items-center gap-x-1">
+              <i class="fa-solid fa-save"></i>
+              <span>Save &amp; Sync</span>
+            </button>
           </div>
 
           <div class="space-y-4 text-sm">
             <div class="grid grid-cols-3 gap-x-4 items-center">
               <div class="text-zinc-400">Pomodoro Focus</div>
-              <input type="number" value="25" class="col-span-2 bg-zinc-950 border border-zinc-700 rounded-2xl px-4 py-2 text-sm">
+              <input id="config-pomo" type="number" value="25" class="col-span-2 bg-zinc-950 border border-zinc-700 rounded-2xl px-4 py-2 text-sm">
             </div>
             <div class="grid grid-cols-3 gap-x-4 items-center">
-              <div class="text-zinc-400">Screen Limit</div>
-              <input type="number" value="120" class="col-span-2 bg-zinc-950 border border-zinc-700 rounded-2xl px-4 py-2 text-sm">
+              <div class="text-zinc-400">Screen Limit (min)</div>
+              <input id="config-screen" type="number" value="120" class="col-span-2 bg-zinc-950 border border-zinc-700 rounded-2xl px-4 py-2 text-sm">
             </div>
             <div class="grid grid-cols-3 gap-x-4 items-center">
-              <div class="text-zinc-400">Water Goal</div>
-              <input type="number" value="1200" class="col-span-2 bg-zinc-950 border border-zinc-700 rounded-2xl px-4 py-2 text-sm">
+              <div class="text-zinc-400">Water Goal (ml)</div>
+              <input id="config-water" type="number" value="1200" class="col-span-2 bg-zinc-950 border border-zinc-700 rounded-2xl px-4 py-2 text-sm">
             </div>
           </div>
-          <p class="text-[10px] text-zinc-500 mt-4">Changes will be pushed to Hana’s device within 2 minutes.</p>
+          <p class="text-[10px] text-zinc-500 mt-4">Hana sẽ nhận cấu hình mới trong vòng ~1-2 phút.</p>
         </div>
 
         <!-- Device Monitoring -->
@@ -102,59 +112,66 @@
           <div class="flex items-center justify-between mb-4">
             <div>
               <div class="text-xs font-semibold text-red-400 tracking-widest">DEVICE MONITORING</div>
-              <div class="font-semibold text-xl">Last 24 hours • SLM Analysis</div>
+              <div class="font-semibold text-xl">Recent Activity • SLM Analysis</div>
             </div>
-            <span class="text-xs px-3 py-1 bg-red-900 text-red-300 rounded-2xl">3 warnings</span>
+            <span id="warning-count" class="text-xs px-3 py-1 bg-red-900 text-red-300 rounded-2xl">0 warnings</span>
           </div>
 
-          <div class="overflow-x-auto rounded-2xl border border-zinc-800 text-sm">
+          <div class="overflow-x-auto rounded-2xl border border-zinc-800 text-sm max-h-[260px] overflow-y-auto">
             <table class="w-full">
-              <thead class="bg-zinc-950 text-xs text-zinc-400">
+              <thead class="bg-zinc-950 text-xs text-zinc-400 sticky top-0">
                 <tr>
                   <th class="text-left px-4 py-2 font-normal">Time</th>
-                  <th class="text-left px-4 py-2 font-normal">Active Window</th>
-                  <th class="text-left px-4 py-2 font-normal">Status</th>
+                  <th class="text-left px-4 py-2 font-normal">Active Window / Activity</th>
+                  <th class="text-left px-4 py-2 font-normal">SLM Result</th>
                 </tr>
               </thead>
-              <tbody class="divide-y divide-zinc-800 text-xs">
-                <tr>
-                  <td class="px-4 py-2.5 font-mono text-zinc-400">14:42</td>
-                  <td class="px-4 py-2.5">Google Docs — Summer Holiday Essay</td>
-                  <td><span class="text-emerald-400">OK</span></td>
-                </tr>
-                <tr class="warning-row">
-                  <td class="px-4 py-2.5 font-mono text-zinc-400">14:18</td>
-                  <td class="px-4 py-2.5">Roblox — Adopt Me</td>
-                  <td><span class="text-red-400 font-semibold">DISTRACTED</span></td>
-                </tr>
-                <tr class="warning-row">
-                  <td class="px-4 py-2.5 font-mono text-zinc-400">13:55</td>
-                  <td class="px-4 py-2.5">YouTube Shorts</td>
-                  <td><span class="text-red-400 font-semibold">DISTRACTED</span></td>
-                </tr>
+              <tbody id="device-logs-body" class="divide-y divide-zinc-800 text-xs">
+                <!-- Populated dynamically by JavaScript -->
               </tbody>
             </table>
           </div>
+          <div id="device-logs-empty" class="hidden text-center text-zinc-500 text-xs py-4">No device logs yet.</div>
+        </div>
+
+        <!-- Academic Portfolio -->
+        <div class="xl:col-span-7 bg-zinc-900 border border-zinc-800 rounded-3xl p-6">
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <div class="text-xs font-semibold text-indigo-400 tracking-widest">ACADEMIC PORTFOLIO</div>
+              <div class="font-semibold text-xl">Recent Submissions</div>
+            </div>
+          </div>
+
+          <div id="submissions-body" class="space-y-3 text-sm">
+            <!-- Populated by JS -->
+          </div>
+          <div id="submissions-empty" class="hidden text-center text-zinc-500 text-xs py-4">No submissions yet today.</div>
         </div>
 
         <!-- Calendar / Schedule Overview -->
-        <div class="xl:col-span-12 bg-zinc-900 border border-zinc-800 rounded-3xl p-6">
+        <div class="xl:col-span-5 bg-zinc-900 border border-zinc-800 rounded-3xl p-6">
           <div class="flex items-center justify-between mb-4">
             <div>
               <div class="text-xs font-semibold text-amber-400 tracking-widest">PROGRAM OVERVIEW</div>
-              <div class="font-semibold text-xl">Hana’s Learning Schedule</div>
-            </div>
-            <div class="flex gap-1 text-xs">
-              <button class="px-4 py-1.5 bg-zinc-800 hover:bg-zinc-700 rounded-2xl">Day</button>
-              <button class="px-4 py-1.5 bg-zinc-800 hover:bg-zinc-700 rounded-2xl">Week</button>
-              <button class="px-4 py-1.5 bg-amber-600 text-white rounded-2xl font-medium">Month</button>
+              <div class="font-semibold text-xl">Learning Progress</div>
             </div>
           </div>
 
-          <div class="text-sm text-zinc-400">Week view and monthly heatmap will be implemented here. This area will show overall learning progress across the summer.</div>
-          <div class="mt-4 h-40 border border-zinc-800 rounded-2xl flex items-center justify-center text-xs text-zinc-500">
-            [ Calendar Heatmap + Weekly Summary — To be built ]
+          <div class="text-sm text-zinc-400 mb-3">Today's focus &amp; completion rate will appear here.</div>
+          
+          <div class="grid grid-cols-2 gap-3 text-center">
+            <div class="bg-zinc-950 border border-zinc-800 rounded-2xl p-4">
+              <div class="text-xs text-zinc-400">Tasks Completed</div>
+              <div id="tasks-completed" class="text-3xl font-semibold mt-1 text-emerald-400">—</div>
+            </div>
+            <div class="bg-zinc-950 border border-zinc-800 rounded-2xl p-4">
+              <div class="text-xs text-zinc-400">Pending Tasks</div>
+              <div id="tasks-pending" class="text-3xl font-semibold mt-1 text-orange-400">—</div>
+            </div>
           </div>
+
+          <div class="mt-4 text-[10px] text-zinc-500">Full weekly &amp; monthly view coming soon.</div>
         </div>
 
       </div>
@@ -170,38 +187,217 @@
     let supabaseClient = null;
 
     function initSupabase() {
-      if (!SUPABASE_URL || SUPABASE_URL.includes('YOUR_')) {
-        console.warn('Supabase not configured yet.');
-        return;
-      }
       supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
       console.log('%c[Parents] Supabase client initialized', 'color:#22c55e');
-      
-      // Test connection
-      testConnection();
+      loadAllData();
     }
 
-    async function testConnection() {
+    // ==================== MAIN DATA LOADER ====================
+    async function loadAllData() {
+      if (!supabaseClient) return;
+
+      console.log('%c[Parents] Loading all dashboard data...', 'color:#3b82f6');
+
+      await Promise.all([
+        loadCurrentConfig(),
+        loadTodayStats(),
+        loadDeviceLogs(),
+        loadRecentSubmissions()
+      ]);
+
+      document.querySelector('.text-zinc-500').textContent = 
+        `Last updated: ${new Date().toLocaleTimeString('vi-VN')}`;
+    }
+
+    // ==================== LIVE CONFIG ====================
+    async function loadCurrentConfig() {
       try {
+        const today = new Date().toISOString().split('T')[0];
         const { data, error } = await supabaseClient
           .from('daily_configs')
           .select('*')
-          .order('config_date', { ascending: false })
-          .limit(1);
+          .eq('config_date', today)
+          .single();
 
-        if (error) throw error;
-        console.log('%c[Parents] Successfully connected to Supabase. Latest config:', 'color:#22c55e', data);
+        if (data) {
+          document.getElementById('config-pomo').value = data.pomo_focus_minutes || 25;
+          document.getElementById('config-screen').value = data.screen_limit_minutes || 120;
+          document.getElementById('config-water').value = data.water_goal_ml || 1200;
+        }
       } catch (err) {
-        console.error('[Parents] Supabase connection error:', err.message);
+        console.log('No config for today yet, using defaults.');
       }
     }
 
-    function saveConfig() {
-      alert("Configuration saved and will sync to Hana's device shortly.");
-      // TODO: implement real update to Supabase + notify Hana
+    async function saveConfig() {
+      const pomo = parseInt(document.getElementById('config-pomo').value) || 25;
+      const screen = parseInt(document.getElementById('config-screen').value) || 120;
+      const water = parseInt(document.getElementById('config-water').value) || 1200;
+
+      const today = new Date().toISOString().split('T')[0];
+
+      try {
+        const { error } = await supabaseClient
+          .from('daily_configs')
+          .upsert({
+            config_date: today,
+            pomo_focus_minutes: pomo,
+            pomo_break_minutes: 5,
+            water_goal_ml: water,
+            water_reminder_interval_minutes: 90,
+            screen_limit_minutes: screen
+          });
+
+        if (error) throw error;
+
+        alert("Cấu hình đã lưu thành công! Hana sẽ nhận được thay đổi sớm.");
+      } catch (err) {
+        console.error(err);
+        alert("Lỗi khi lưu cấu hình: " + err.message);
+      }
     }
 
-    // Auto init
+    // ==================== TODAY'S STATS ====================
+    async function loadTodayStats() {
+      const today = new Date().toISOString().split('T')[0];
+
+      try {
+        // Water intake
+        const { data: waterData } = await supabaseClient
+          .from('daily_activities')
+          .select('value')
+          .eq('activity_date', today)
+          .eq('activity_type', 'water_intake');
+
+        const totalWater = (waterData || []).reduce((sum, row) => sum + (row.value || 0), 0);
+
+        // Pomodoro count
+        const { data: pomoData } = await supabaseClient
+          .from('daily_activities')
+          .select('id')
+          .eq('activity_date', today)
+          .eq('activity_type', 'pomodoro_complete');
+
+        const pomoCount = (pomoData || []).length;
+
+        // Update UI (we'll keep screen time as placeholder for now)
+        document.querySelector('#water-intake-stat').innerHTML = 
+          `${totalWater} <span class="text-xl font-normal text-zinc-400">/ 1200</span>`;
+        document.querySelector('#pomo-stat').innerHTML = 
+          `${pomoCount} <span class="text-xl font-normal text-zinc-400">/ 6</span>`;
+
+      } catch (err) {
+        console.error('Error loading today stats:', err);
+      }
+    }
+
+    // ==================== DEVICE LOGS ====================
+    async function loadDeviceLogs() {
+      const tbody = document.getElementById('device-logs-body');
+      const empty = document.getElementById('device-logs-empty');
+      tbody.innerHTML = '';
+
+      try {
+        const { data, error } = await supabaseClient
+          .from('device_logs')
+          .select('*')
+          .order('timestamp', { ascending: false })
+          .limit(12);
+
+        if (error) throw error;
+
+        if (!data || data.length === 0) {
+          empty.classList.remove('hidden');
+          return;
+        }
+
+        empty.classList.add('hidden');
+
+        let warningCount = 0;
+
+        data.forEach(log => {
+          const time = new Date(log.timestamp).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+          const isWarning = log.warning_level === 'warning' || log.warning_level === 'critical';
+
+          if (isWarning) warningCount++;
+
+          const row = document.createElement('tr');
+          row.className = isWarning ? 'warning-row' : '';
+          row.innerHTML = `
+            <td class="px-4 py-2.5 font-mono text-zinc-400">${time}</td>
+            <td class="px-4 py-2.5">${log.active_window || 'Unknown'}</td>
+            <td class="px-4 py-2.5">
+              ${isWarning 
+                ? `<span class="text-red-400 font-semibold">${log.slm_report || 'DISTRACTED'}</span>` 
+                : `<span class="text-emerald-400">${log.slm_report || 'OK'}</span>`}
+            </td>
+          `;
+          tbody.appendChild(row);
+        });
+
+        document.getElementById('warning-count').innerHTML = 
+          `${warningCount} warnings`;
+        document.getElementById('warning-count').className = 
+          warningCount > 0 
+            ? 'text-xs px-3 py-1 bg-red-900 text-red-300 rounded-2xl' 
+            : 'text-xs px-3 py-1 bg-emerald-900 text-emerald-300 rounded-2xl';
+
+      } catch (err) {
+        console.error('Error loading device logs:', err);
+        empty.classList.remove('hidden');
+      }
+    }
+
+    // ==================== RECENT SUBMISSIONS (Portfolio) ====================
+    async function loadRecentSubmissions() {
+      const container = document.getElementById('submissions-body');
+      const empty = document.getElementById('submissions-empty');
+      container.innerHTML = '';
+
+      try {
+        const { data, error } = await supabaseClient
+          .from('submissions')
+          .select(`
+            id, task_id, student_answer, submitted_at,
+            tasks (title, subject)
+          `)
+          .order('submitted_at', { ascending: false })
+          .limit(5);
+
+        if (error) throw error;
+
+        if (!data || data.length === 0) {
+          empty.classList.remove('hidden');
+          return;
+        }
+
+        empty.classList.add('hidden');
+
+        data.forEach(sub => {
+          const time = new Date(sub.submitted_at).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+          const taskTitle = sub.tasks?.title || 'Unknown task';
+
+          const div = document.createElement('div');
+          div.className = 'border border-zinc-700 bg-zinc-950 rounded-2xl p-4';
+          div.innerHTML = `
+            <div class="flex justify-between text-xs mb-1">
+              <div><span class="font-semibold">${sub.tasks?.subject || ''}</span> — ${taskTitle}</div>
+              <div class="text-zinc-500">${time}</div>
+            </div>
+            <div class="text-zinc-300 line-clamp-2 text-xs">
+              ${sub.student_answer?.substring(0, 140)}...
+            </div>
+          `;
+          container.appendChild(div);
+        });
+
+      } catch (err) {
+        console.error('Error loading submissions:', err);
+        empty.classList.remove('hidden');
+      }
+    }
+
+    // Initial load
     initSupabase();
   </script>
 </body>
