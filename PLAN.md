@@ -6,6 +6,30 @@
 
 ---
 
+## Architecture Decision Record (31/05/2026)
+
+### Quyết định cuối cùng sau khi thảo luận:
+
+| Quyết định | Nội dung |
+|------------|----------|
+| **Frontend** | Option A — Pure HTML + Tailwind CDN + Vanilla JS (siêu nhẹ) |
+| **Phát triển** | Xây song song cả 2 dashboards ngay từ đầu |
+| **Backend chính** | **Supabase** làm nguồn sự thật (Postgres + Realtime) |
+| **Google Sheets + GAS** | Giữ ở mức **tối thiểu** chỉ để: Dán đề bài (NotebookLM) + Chỉnh config nhanh |
+| **Calendar** | Hana: Lịch ngày + checklist đơn giản<br>Parents: Ngày + Tuần + Tháng + thống kê tổng thể |
+| **Offline** | **Offline-first** + Sync queue (IndexedDB) — yêu cầu bắt buộc |
+| **Ngôn ngữ** | Song ngữ (Tiếng Việt + English) |
+| **Telegram** | Giữ lại làm kênh phê duyệt + thông báo |
+| **Auth** | Giữ đơn giản tối đa (sẽ quyết định chi tiết sau khi tạo Supabase) |
+
+**Lý do chọn Supabase thay vì Google thuần:**
+- Dữ liệu bài học + log thiết bị cần DB thật sự mạnh.
+- Muốn offline-first an toàn.
+- Dễ làm calendar + thống kê cho bố mẹ.
+- Vẫn giữ được sự tiện lợi khi dán đề bài từ NotebookLM qua Google Sheets (giữ phần nhỏ).
+
+---
+
 ## 1. Mục tiêu tổng thể (từ Blueprint)
 
 Xây dựng **2 Dashboard Web** nhẹ, thân thiện, dễ nhúng:

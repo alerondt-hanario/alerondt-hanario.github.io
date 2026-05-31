@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hana • Summer LMS</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Nunito:wght@600;700&amp;display=swap');
+    
+    body { font-family: 'Inter', system_ui, sans-serif; }
+    .heading { font-family: 'Nunito', 'Inter', system_ui, sans-serif; }
+    
+    .soft-card {
+      transition: transform .2s cubic-bezier(0.4,0,0.2,1), box-shadow .2s;
+    }
+    .soft-card:hover { transform: translateY(-1px); }
+    
+    .child-btn {
+      font-size: 15px;
+      padding: 12px 20px;
+      border-radius: 20px;
+      font-weight: 600;
+    }
+
+    .pomo-circle {
+      transition: stroke-dashoffset 0.4s linear;
+    }
+
+    .nav-active {
+      background-color: #fff;
+      box-shadow: 0 1px 3px rgb(0 0 0 / 0.1);
+      font-weight: 600;
+    }
+
+    .offline-banner {
+      background: linear-gradient(to right, #f59e0b, #d97706);
+    }
+  </style>
+</head>
+<body class="bg-[#FFF8F0] text-zinc-800">
+  
+  <!-- Offline Indicator -->
+  <div id="offline-banner" class="hidden offline-banner text-white text-center text-sm py-1.5 font-medium">
+    <i class="fa-solid fa-wifi mr-2"></i>
+    <span>You are offline. Changes will sync when back online.</span>
+    <span class="mx-2">•</span>
+    <span id="offline-count">0 unsynced</span>
+  </div>
+
+  <!-- Top Bar -->
+  <div class="bg-white border-b border-orange-100">
+    <div class="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
+      <div class="flex items-center gap-x-3">
+        <div class="w-10 h-10 bg-gradient-to-br from-orange-400 to-rose-500 rounded-2xl flex items-center justify-center shadow-inner">
+          <i class="fa-solid fa-sun text-white text-2xl"></i>
+        </div>
+        <div>
+          <span class="font-bold text-2xl tracking-tighter">Hana Summer</span>
+          <span class="text-orange-500 text-sm font-semibold">LMS</span>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-x-4 text-sm">
+        <!-- Language Switch -->
+        <div class="flex items-center bg-orange-100 rounded-3xl p-0.5 text-xs">
+          <button onclick="setLang('vi')" id="lang-vi"
+            class="px-3 py-1 rounded-3xl bg-white font-semibold shadow-sm">VI</button>
+          <button onclick="setLang('en')" id="lang-en"
+            class="px-3 py-1 rounded-3xl text-orange-600">EN</button>
+        </div>
+
+        <div class="text-right">
+          <div class="font-semibold">Hana</div>
+          <div class="text-[10px] text-orange-600 -mt-0.5">Student • Age 9</div>
+        </div>
+        <div class="w-9 h-9 bg-orange-200 rounded-2xl overflow-hidden ring-2 ring-orange-300">
+          <img src="https://i.pravatar.cc/36?img=28" class="w-full h-full object-cover">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="max-w-5xl mx-auto px-6 pt-6 pb-12">
+
+    <!-- Greeting -->
+    <div class="mb-6">
+      <h1 class="heading text-4xl font-bold text-orange-900" id="greeting">
+        Chào Hana! <span class="text-3xl">🌸</span>
+      </h1>
+      <p class="text-orange-700 mt-1" id="greeting-sub">
+        Hôm nay là <strong>Thứ Bảy, 31 tháng 5, 2026</strong>
+      </p>
+    </div>
+
+    <!-- Screen Time Summary -->
+    <div class="bg-white rounded-3xl border border-orange-200 p-5 mb-6 soft-card">
+      <div class="flex items-center justify-between">
+        <div>
+          <div class="text-xs font-semibold tracking-[0.5px] text-orange-600">ON-SCREEN TIME TODAY</div>
+          <div class="flex items-baseline gap-x-1 mt-1">
+            <span class="text-4xl font-semibold tabular-nums" id="screen-used">47</span>
+            <span class="text-xl text-orange-300">/ 120</span>
+            <span class="text-sm text-orange-600 ml-1">minutes</span>
+          </div>
+        </div>
+        <div class="text-right">
+          <div class="text-emerald-600 text-sm font-semibold">73 phút còn lại</div>
+          <div class="text-[10px] text-emerald-500">Good job staying focused!</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+      <!-- Today's Missions -->
+      <div class="lg:col-span-7 bg-white rounded-3xl border border-orange-200 p-6 soft-card">
+        <div class="flex items-center justify-between mb-4">
+          <div>
+            <div class="text-xs font-bold tracking-widest text-orange-500">TODAY'S MISSIONS</div>
+            <div class="text-2xl font-semibold heading text-orange-900">Nhiệm vụ hôm nay</div>
+          </div>
+          <div class="px-4 py-1 bg-orange-100 text-orange-700 rounded-2xl text-xs font-semibold">2 / 3 completed</div>
+        </div>
+
+        <div class="space-y-3" id="missions-list">
+          <!-- Populated by JS -->
+        </div>
+
+        <button onclick="showAllTasks()"
+          class="mt-4 w-full text-sm py-3 text-orange-600 hover:text-orange-700 font-medium flex items-center justify-center gap-x-2">
+          <span>View all tasks in the bank</span>
+          <i class="fa-solid fa-arrow-right"></i>
+        </button>
+      </div>
+
+      <!-- Pomodoro -->
+      <div class="lg:col-span-5 bg-white rounded-3xl border border-violet-200 p-6 soft-card">
+        <div class="text-xs font-bold tracking-widest text-violet-500">FOCUS SESSION</div>
+        <div class="text-2xl font-semibold heading text-violet-900 mt-0.5">Pomodoro 25 phút</div>
+
+        <div class="flex justify-center my-6">
+          <div class="relative w-40 h-40">
+            <svg class="w-40 h-40 -rotate-90" viewBox="0 0 120 120">
+              <circle cx="60" cy="60" r="52" fill="none" stroke="#EDE9FE" stroke-width="10"/>
+              <circle id="pomo-progress" cx="60" cy="60" r="52" fill="none" 
+                      stroke="#7C3AED" stroke-width="10" stroke-linecap="round"
+                      stroke-dasharray="326.56" stroke-dashoffset="81.64"/>
+            </svg>
+            <div class="absolute inset-0 flex flex-col items-center justify-center">
+              <div id="pomo-time" class="text-5xl font-semibold tabular-nums text-violet-700 tracking-[-2px]">22:41</div>
+              <div class="text-violet-400 text-xs font-bold tracking-[1px]">FOCUS</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex gap-2">
+          <button onclick="togglePomodoro()" id="pomo-btn"
+            class="flex-1 bg-violet-600 hover:bg-violet-700 active:bg-violet-800 text-white font-semibold py-3.5 rounded-2xl text-sm flex items-center justify-center gap-x-2">
+            <i class="fa-solid fa-play mr-1" id="pomo-icon"></i>
+            <span id="pomo-btn-text">START</span>
+          </button>
+          <button onclick="resetPomodoro()" 
+            class="px-6 border border-violet-200 hover:bg-violet-50 text-violet-600 rounded-2xl font-medium text-sm">Reset</button>
+        </div>
+      </div>
+
+      <!-- Water Tracker -->
+      <div class="lg:col-span-12 bg-white rounded-3xl border border-sky-200 p-6 soft-card">
+        <div class="flex items-center justify-between mb-3">
+          <div>
+            <div class="text-xs font-bold tracking-widest text-sky-600">WATER INTAKE</div>
+            <div class="text-2xl font-semibold heading text-sky-900">Mục tiêu: 1200 ml</div>
+          </div>
+          <div class="text-right">
+            <span id="water-current" class="text-4xl font-semibold text-sky-600">680</span>
+            <span class="text-sky-400">/ 1200 ml</span>
+          </div>
+        </div>
+
+        <div class="h-3.5 bg-sky-100 rounded-full overflow-hidden mb-4">
+          <div id="water-bar" class="h-3.5 bg-gradient-to-r from-sky-400 to-sky-600 transition-all duration-300" style="width: 56.6%"></div>
+        </div>
+
+        <div class="grid grid-cols-3 gap-3">
+          <button onclick="logWater(200)" class="child-btn bg-sky-600 text-white flex items-center justify-center gap-x-2 hover:bg-sky-700">
+            <i class="fa-solid fa-glass-water"></i> <span>200 ml</span>
+          </button>
+          <button onclick="logWater(300)" class="child-btn bg-sky-600 text-white flex items-center justify-center gap-x-2 hover:bg-sky-700">
+            <i class="fa-solid fa-glass-water"></i> <span>300 ml</span>
+          </button>
+          <button onclick="logWater(500)" class="child-btn bg-sky-700 text-white flex items-center justify-center gap-x-2 hover:bg-sky-800">
+            <i class="fa-solid fa-glass-water"></i> <span>Big cup 500ml</span>
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Request Change -->
+    <div class="mt-6 flex justify-end">
+      <button onclick="showRequestModal()"
+        class="flex items-center gap-x-3 px-6 py-3.5 rounded-2xl border border-amber-300 bg-white hover:bg-amber-50 text-amber-700 font-semibold text-sm">
+        <i class="fa-solid fa-handshake"></i>
+        <span>Ask parents for more screen time</span>
+        <span class="text-[10px] px-2 py-0.5 bg-amber-100 rounded-xl">VI</span>
+      </button>
+    </div>
+
+  </div>
+
+  <!-- Task Modal -->
+  <div id="task-modal" onclick="if (event.target.id==='task-modal') closeTaskModal()" 
+       class="hidden fixed inset-0 bg-black/50 flex items-end lg:items-center justify-center z-50">
+    <div onclick="event.stopImmediatePropagation()" 
+         class="bg-white w-full lg:w-[520px] lg:rounded-3xl rounded-t-3xl p-6 lg:m-4">
+      <div class="flex justify-between items-start">
+        <div>
+          <div id="modal-subject" class="font-bold text-xl text-orange-900"></div>
+          <div id="modal-title" class="text-sm text-orange-600"></div>
+        </div>
+        <button onclick="closeTaskModal()" class="text-3xl text-zinc-300 hover:text-zinc-400 leading-none">&times;</button>
+      </div>
+
+      <div class="mt-4 text-xs uppercase font-semibold text-orange-500 tracking-wider">Assignment</div>
+      <div id="modal-content" class="mt-1.5 bg-orange-50 border border-orange-100 rounded-2xl p-4 text-sm"></div>
+
+      <div class="mt-5">
+        <div class="text-xs uppercase font-semibold text-orange-500 tracking-wider mb-1.5">Your writing</div>
+        <textarea id="student-answer" rows="7" 
+          class="w-full border border-orange-200 rounded-2xl p-4 text-sm focus:border-orange-400 outline-none"
+          placeholder="Write your paragraph here... (60-80 words)"></textarea>
+      </div>
+
+      <div class="flex gap-3 mt-5">
+        <button onclick="closeTaskModal()" class="flex-1 py-3 border rounded-2xl font-semibold">Cancel</button>
+        <button onclick="submitTask()" class="flex-1 py-3 bg-orange-600 text-white rounded-2xl font-semibold">Submit to AI Teacher</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    // ==================== CONFIG (will be replaced with real keys later) ====================
+    const SUPABASE_URL = 'YOUR_SUPABASE_URL';
+    const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+    // let supabase = null; // Will initialize after setup
+
+    // ==================== STATE ====================
+    let currentLang = 'vi';
+    let waterMl = 680;
+    let pomoSeconds = 25 * 60;
+    let pomoInterval = null;
+    let isPomoRunning = false;
+
+    const missions = [
+      { id: "ENG_WR_001", subject: "English", title: "My Summer Holiday", status: "done", words: "68" },
+      { id: "VIE_WR_002", subject: "Tiếng Việt", title: "Một ngày hè vui nhất", status: "todo" }
+    ];
+
+    // ==================== LANGUAGE ====================
+    const translations = {
+      vi: {
+        greeting: "Chào Hana! 🌸",
+        today: "Hôm nay là <strong>Thứ Bảy, 31 tháng 5, 2026</strong>",
+        missionsTitle: "Nhiệm vụ hôm nay",
+        waterTitle: "Mục tiêu: 1200 ml",
+        focus: "Phiên tập trung",
+        askMoreTime: "Xin Bố Mẹ cho con thêm giờ máy tính"
+      },
+      en: {
+        greeting: "Hi Hana! 🌸",
+        today: "Today is <strong>Saturday, May 31, 2026</strong>",
+        missionsTitle: "Today's Missions",
+        waterTitle: "Daily Goal: 1200 ml",
+        focus: "Focus Session",
+        askMoreTime: "Ask parents for more screen time"
+      }
+    };
+
+    function setLang(lang) {
+      currentLang = lang;
+      document.getElementById('lang-vi').classList.toggle('nav-active', lang === 'vi');
+      document.getElementById('lang-en').classList.toggle('nav-active', lang === 'en');
+      
+      const t = translations[lang];
+      document.getElementById('greeting').innerHTML = t.greeting;
+      document.getElementById('greeting-sub').innerHTML = t.today;
+      
+      // Update other dynamic texts if needed
+    }
+
+    // ==================== POMODORO ====================
+    function updatePomoUI() {
+      const mins = Math.floor(pomoSeconds / 60);
+      const secs = pomoSeconds % 60;
+      document.getElementById('pomo-time').textContent = 
+        `${mins.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')}`;
+
+      const total = 25 * 60;
+      const progress = (pomoSeconds / total) * 326.56;
+      document.getElementById('pomo-progress').setAttribute('stroke-dashoffset', 326.56 - progress);
+    }
+
+    function togglePomodoro() {
+      const btnText = document.getElementById('pomo-btn-text');
+      const icon = document.getElementById('pomo-icon');
+
+      if (!isPomoRunning) {
+        isPomoRunning = true;
+        btnText.textContent = 'PAUSE';
+        icon.classList.replace('fa-play', 'fa-pause');
+        
+        pomoInterval = setInterval(() => {
+          pomoSeconds--;
+          updatePomoUI();
+          if (pomoSeconds <= 0) finishPomodoro();
+        }, 1000);
+      } else {
+        clearInterval(pomoInterval);
+        isPomoRunning = false;
+        btnText.textContent = 'RESUME';
+        icon.classList.replace('fa-pause', 'fa-play');
+      }
+    }
+
+    function finishPomodoro() {
+      clearInterval(pomoInterval);
+      isPomoRunning = false;
+      alert("Great job, Hana! You completed a focus session 🎉\n\nNow take a 5-minute break.");
+      // TODO: log to Supabase + local queue
+      resetPomodoro();
+    }
+
+    function resetPomodoro() {
+      clearInterval(pomoInterval);
+      isPomoRunning = false;
+      pomoSeconds = 25 * 60;
+      document.getElementById('pomo-btn-text').textContent = 'START';
+      document.getElementById('pomo-icon').classList.replace('fa-pause', 'fa-play');
+      updatePomoUI();
+    }
+
+    // ==================== WATER ====================
+    function updateWaterUI() {
+      document.getElementById('water-current').textContent = waterMl;
+      const pct = Math.min((waterMl / 1200) * 100, 100);
+      document.getElementById('water-bar').style.width = pct + '%';
+    }
+
+    function logWater(amount) {
+      waterMl = Math.min(waterMl + amount, 1200);
+      updateWaterUI();
+
+      // TODO: Save to local queue + sync to Supabase
+      const toast = document.createElement('div');
+      toast.className = 'fixed bottom-6 left-1/2 -translate-x-1/2 bg-sky-800 text-white px-5 py-2 rounded-3xl text-sm shadow-lg';
+      toast.textContent = `+${amount}ml recorded. Good job!`;
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 1600);
+    }
+
+    // ==================== MISSIONS ====================
+    function renderMissions() {
+      const container = document.getElementById('missions-list');
+      container.innerHTML = '';
+
+      missions.forEach((m, index) => {
+        const isDone = m.status === 'done';
+        const el = document.createElement('div');
+        el.className = `border ${isDone ? 'border-emerald-200 bg-emerald-50' : 'border-orange-200 bg-orange-50'} rounded-2xl p-4 flex gap-4 cursor-pointer`;
+        el.innerHTML = `
+          <div class="mt-0.5">
+            <i class="fa-solid ${isDone ? 'fa-check-circle text-emerald-500' : 'fa-pen text-orange-500'} text-3xl"></i>
+          </div>
+          <div class="flex-1">
+            <div class="flex items-center gap-x-2">
+              <span class="font-semibold">${m.subject}</span>
+              ${isDone ? `<span class="text-[10px] bg-white px-2 py-px rounded text-emerald-600 font-medium">DONE</span>` : ''}
+            </div>
+            <div class="text-sm text-orange-700 mt-0.5">${m.title}</div>
+            ${isDone ? `<div class="text-xs text-emerald-600 mt-0.5">${m.words} words submitted</div>` : ''}
+          </div>
+        `;
+        if (!isDone) {
+          el.onclick = () => openTaskModal(index);
+        }
+        container.appendChild(el);
+      });
+    }
+
+    // ==================== TASK MODAL ====================
+    let currentTaskIndex = 0;
+
+    function openTaskModal(index) {
+      const task = missions[index];
+      currentTaskIndex = index;
+      document.getElementById('modal-subject').textContent = task.subject;
+      document.getElementById('modal-title').textContent = task.title;
+      document.getElementById('modal-content').textContent = task.id === "ENG_WR_001" 
+        ? "Write a paragraph (60-80 words) about your plans for this summer holiday."
+        : "Hãy kể về một ngày hè mà con cảm thấy vui nhất. Ít nhất 80 từ.";
+      document.getElementById('student-answer').value = '';
+      document.getElementById('task-modal').classList.remove('hidden');
+      document.getElementById('task-modal').classList.add('flex');
+    }
+
+    function closeTaskModal() {
+      const modal = document.getElementById('task-modal');
+      modal.classList.remove('flex');
+      modal.classList.add('hidden');
+    }
+
+    function submitTask() {
+      const answer = document.getElementById('student-answer').value.trim();
+      if (!answer) {
+        alert("Please write something before submitting!");
+        return;
+      }
+      // TODO: Save to local queue + call Supabase
+      alert("Submitted successfully! AI teacher will review your writing.");
+      closeTaskModal();
+      // Mark as done in demo
+      missions[currentTaskIndex].status = 'done';
+      renderMissions();
+    }
+
+    function showAllTasks() {
+      alert("This will open the full task bank from Supabase (to be implemented).");
+    }
+
+    // ==================== REQUEST CHANGE ====================
+    function showRequestModal() {
+      const reason = prompt("Why do you want more screen time?\n(Write your reason in Vietnamese or English)");
+      if (!reason) return;
+      alert(`Request sent to parents via Telegram.\n\nReason: ${reason}\n\nThey will reply soon.`);
+      // TODO: Save to approval_requests table + trigger Telegram via Edge Function or GAS
+    }
+
+    // ==================== OFFLINE DETECTION ====================
+    function initOfflineDetection() {
+      const banner = document.getElementById('offline-banner');
+      
+      function updateStatus() {
+        if (!navigator.onLine) {
+          banner.classList.remove('hidden');
+          banner.classList.add('flex', 'items-center', 'justify-center', 'gap-x-2');
+        } else {
+          banner.classList.add('hidden');
+        }
+      }
+      window.addEventListener('online', updateStatus);
+      window.addEventListener('offline', updateStatus);
+      updateStatus();
+    }
+
+    // ==================== INIT ====================
+    function init() {
+      // Language
+      document.getElementById('lang-vi').classList.add('nav-active');
+      
+      // Render missions
+      renderMissions();
+
+      // Water
+      updateWaterUI();
+
+      // Pomodoro
+      updatePomoUI();
+
+      // Offline
+      initOfflineDetection();
+
+      // TODO: Initialize Supabase client here
+      // supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+      console.log('%c[Hana Dashboard] Ready for Supabase connection', 'color:#c2410f');
+    }
+
+    window.onload = init;
+  </script>
+</body>
+</html>

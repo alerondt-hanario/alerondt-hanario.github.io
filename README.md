@@ -30,14 +30,19 @@ HanaApplication/
 - [PLAN.md](./PLAN.md) — Kế hoạch phát triển Dashboard chi tiết (đọc trước)
 - Bản thiết kế kiến trúc gốc: `docs/architecture/Hana_Summer_LMS_Architecture_Blueprint.pdf`
 
-## 🚀 Trạng thái hiện tại
+## 🚀 Trạng thái hiện tại (31/05/2026)
 
-- [x] Đã clone repo và di chuyển về đúng vị trí `Documents/YTF-Productions/HanaApplication`
-- [x] Đã đọc và phân tích toàn bộ 10 trang blueprint
-- [x] Đã tạo PLAN.md với 2 dashboard, API contract, phase phát triển
-- [ ] Chọn tech stack frontend (pure HTML vs Vite)
-- [ ] Khởi tạo Google Sheets + GAS backend
-- [ ] Xây dựng UI
+- [x] Đã đọc toàn bộ 10 trang blueprint
+- [x] **Kiến trúc cuối cùng đã chốt**: Hybrid (Supabase làm trung tâm + Google Sheets tối thiểu) + Offline-first + Làm song song 2 dashboards
+- [x] Tạo `frontend/hana.html` và `frontend/parents.html` (Pure HTML + Tailwind CDN — Option A)
+- [x] Tạo schema Supabase + hướng dẫn setup chi tiết
+- [x] Đã commit + push commit đầu tiên
+
+**Để xem demo ngay:**
+```bash
+open frontend/hana.html
+open frontend/parents.html
+```
 
 ## Yêu cầu tiếp theo (từ anh)
 

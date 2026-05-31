@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Parents • Hana Summer LMS</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <style>
+    body { font-family: 'Inter', system_ui, sans-serif; }
+    .heading { font-family: 'Nunito', 'Inter', system_ui, sans-serif; }
+    .stat-card { transition: transform .2s ease; }
+    .warning-row { background-color: #FEF2F2; }
+  </style>
+</head>
+<body class="bg-zinc-950 text-zinc-200">
+  <div class="max-w-7xl mx-auto">
+    <!-- Top Bar -->
+    <div class="border-b border-zinc-800 bg-zinc-900 px-8 py-5 flex items-center justify-between">
+      <div class="flex items-center gap-x-3">
+        <div class="w-9 h-9 bg-gradient-to-br from-zinc-400 to-zinc-600 rounded-2xl flex items-center justify-center">
+          <i class="fa-solid fa-shield-halved text-white"></i>
+        </div>
+        <div>
+          <span class="font-semibold text-xl">Hana Summer LMS</span>
+          <span class="text-xs text-zinc-500 ml-2">Parent Dashboard</span>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-x-4 text-sm">
+        <div class="px-4 py-1 bg-emerald-900 text-emerald-400 rounded-3xl text-xs font-medium flex items-center gap-x-1">
+          <i class="fa-solid fa-circle text-[8px]"></i> <span>Live sync active</span>
+        </div>
+        <div class="text-right">
+          <div class="font-medium">Bố Mẹ • YTF</div>
+          <div class="text-xs text-zinc-500">Last sync: just now</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="p-8">
+      <div class="mb-8">
+        <h1 class="text-4xl font-semibold heading tracking-tight">Good evening, Bố Mẹ</h1>
+        <p class="text-zinc-400 mt-1">Here's what Hana has been up to today.</p>
+      </div>
+
+      <!-- Quick Stats -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-5 stat-card">
+          <div class="text-xs text-zinc-400">SCREEN TIME TODAY</div>
+          <div class="text-4xl font-semibold mt-1 tabular-nums">47 <span class="text-xl font-normal text-zinc-400">/ 120</span></div>
+          <div class="text-emerald-400 text-xs mt-1">39% of limit</div>
+        </div>
+        <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-5 stat-card">
+          <div class="text-xs text-zinc-400">WATER INTAKE</div>
+          <div class="text-4xl font-semibold mt-1 tabular-nums">680 <span class="text-xl font-normal text-zinc-400">/ 1200</span></div>
+          <div class="text-amber-400 text-xs mt-1">57% of daily goal</div>
+        </div>
+        <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-5 stat-card">
+          <div class="text-xs text-zinc-400">FOCUS SESSIONS</div>
+          <div class="text-4xl font-semibold mt-1">3 <span class="text-xl font-normal text-zinc-400">/ 6</span></div>
+          <div class="text-emerald-400 text-xs mt-1">+1 since yesterday</div>
+        </div>
+        <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-5 stat-card">
+          <div class="text-xs text-zinc-400">WARNINGS (LAST 7 DAYS)</div>
+          <div class="text-4xl font-semibold mt-1 text-red-400">7</div>
+          <div class="text-red-400 text-xs mt-1">Mainly YouTube &amp; games</div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 xl:grid-cols-12 gap-6">
+        
+        <!-- Live Configuration -->
+        <div class="xl:col-span-5 bg-zinc-900 border border-zinc-800 rounded-3xl p-6">
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <div class="text-xs font-semibold text-emerald-400 tracking-widest">LIVE CONFIG</div>
+              <div class="font-semibold text-xl">Daily Rules</div>
+            </div>
+            <button onclick="saveConfig()" class="text-xs px-4 py-2 bg-emerald-600 hover:bg-emerald-500 rounded-2xl font-medium">Save &amp; Sync</button>
+          </div>
+
+          <div class="space-y-4 text-sm">
+            <div class="grid grid-cols-3 gap-x-4 items-center">
+              <div class="text-zinc-400">Pomodoro Focus</div>
+              <input type="number" value="25" class="col-span-2 bg-zinc-950 border border-zinc-700 rounded-2xl px-4 py-2 text-sm">
+            </div>
+            <div class="grid grid-cols-3 gap-x-4 items-center">
+              <div class="text-zinc-400">Screen Limit</div>
+              <input type="number" value="120" class="col-span-2 bg-zinc-950 border border-zinc-700 rounded-2xl px-4 py-2 text-sm">
+            </div>
+            <div class="grid grid-cols-3 gap-x-4 items-center">
+              <div class="text-zinc-400">Water Goal</div>
+              <input type="number" value="1200" class="col-span-2 bg-zinc-950 border border-zinc-700 rounded-2xl px-4 py-2 text-sm">
+            </div>
+          </div>
+          <p class="text-[10px] text-zinc-500 mt-4">Changes will be pushed to Hana’s device within 2 minutes.</p>
+        </div>
+
+        <!-- Device Monitoring -->
+        <div class="xl:col-span-7 bg-zinc-900 border border-zinc-800 rounded-3xl p-6">
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <div class="text-xs font-semibold text-red-400 tracking-widest">DEVICE MONITORING</div>
+              <div class="font-semibold text-xl">Last 24 hours • SLM Analysis</div>
+            </div>
+            <span class="text-xs px-3 py-1 bg-red-900 text-red-300 rounded-2xl">3 warnings</span>
+          </div>
+
+          <div class="overflow-x-auto rounded-2xl border border-zinc-800 text-sm">
+            <table class="w-full">
+              <thead class="bg-zinc-950 text-xs text-zinc-400">
+                <tr>
+                  <th class="text-left px-4 py-2 font-normal">Time</th>
+                  <th class="text-left px-4 py-2 font-normal">Active Window</th>
+                  <th class="text-left px-4 py-2 font-normal">Status</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-zinc-800 text-xs">
+                <tr>
+                  <td class="px-4 py-2.5 font-mono text-zinc-400">14:42</td>
+                  <td class="px-4 py-2.5">Google Docs — Summer Holiday Essay</td>
+                  <td><span class="text-emerald-400">OK</span></td>
+                </tr>
+                <tr class="warning-row">
+                  <td class="px-4 py-2.5 font-mono text-zinc-400">14:18</td>
+                  <td class="px-4 py-2.5">Roblox — Adopt Me</td>
+                  <td><span class="text-red-400 font-semibold">DISTRACTED</span></td>
+                </tr>
+                <tr class="warning-row">
+                  <td class="px-4 py-2.5 font-mono text-zinc-400">13:55</td>
+                  <td class="px-4 py-2.5">YouTube Shorts</td>
+                  <td><span class="text-red-400 font-semibold">DISTRACTED</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Calendar / Schedule Overview -->
+        <div class="xl:col-span-12 bg-zinc-900 border border-zinc-800 rounded-3xl p-6">
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <div class="text-xs font-semibold text-amber-400 tracking-widest">PROGRAM OVERVIEW</div>
+              <div class="font-semibold text-xl">Hana’s Learning Schedule</div>
+            </div>
+            <div class="flex gap-1 text-xs">
+              <button class="px-4 py-1.5 bg-zinc-800 hover:bg-zinc-700 rounded-2xl">Day</button>
+              <button class="px-4 py-1.5 bg-zinc-800 hover:bg-zinc-700 rounded-2xl">Week</button>
+              <button class="px-4 py-1.5 bg-amber-600 text-white rounded-2xl font-medium">Month</button>
+            </div>
+          </div>
+
+          <div class="text-sm text-zinc-400">Week view and monthly heatmap will be implemented here. This area will show overall learning progress across the summer.</div>
+          <div class="mt-4 h-40 border border-zinc-800 rounded-2xl flex items-center justify-center text-xs text-zinc-500">
+            [ Calendar Heatmap + Weekly Summary — To be built ]
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function saveConfig() {
+      alert("Configuration saved and will sync to Hana's device shortly.");
+    }
+
+    console.log('%c[Parents Dashboard] Skeleton ready. Will connect to Supabase + offline sync next.', 'color:#52525b');
+  </script>
+</body>
+</html>
