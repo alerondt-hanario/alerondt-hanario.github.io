@@ -161,12 +161,48 @@
     </div>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
-    function saveConfig() {
-      alert("Configuration saved and will sync to Hana's device shortly.");
+    // ==================== SUPABASE CONFIG ====================
+    const SUPABASE_URL = 'https://oytgbhytkddjlygafxjf.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im95dGdiaHl0a2Rkamx5Z2FmeGpmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAyMzUyNjIsImV4cCI6MjA5NTgxMTI2Mn0.ez0NvMJsZKrjRp5d71LxbPUfYjermDw2FoiC7jcH4lY';
+
+    let supabaseClient = null;
+
+    function initSupabase() {
+      if (!SUPABASE_URL || SUPABASE_URL.includes('YOUR_')) {
+        console.warn('Supabase not configured yet.');
+        return;
+      }
+      supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      console.log('%c[Parents] Supabase client initialized', 'color:#22c55e');
+      
+      // Test connection
+      testConnection();
     }
 
-    console.log('%c[Parents Dashboard] Skeleton ready. Will connect to Supabase + offline sync next.', 'color:#52525b');
+    async function testConnection() {
+      try {
+        const { data, error } = await supabaseClient
+          .from('daily_configs')
+          .select('*')
+          .order('config_date', { ascending: false })
+          .limit(1);
+
+        if (error) throw error;
+        console.log('%c[Parents] Successfully connected to Supabase. Latest config:', 'color:#22c55e', data);
+      } catch (err) {
+        console.error('[Parents] Supabase connection error:', err.message);
+      }
+    }
+
+    function saveConfig() {
+      alert("Configuration saved and will sync to Hana's device shortly.");
+      // TODO: implement real update to Supabase + notify Hana
+    }
+
+    // Auto init
+    initSupabase();
   </script>
 </body>
 </html>
