@@ -44,6 +44,18 @@ open frontend/hana.html
 open frontend/parents.html
 ```
 
+### Triển khai GitHub Pages (hana-summer-lms.github.io)
+
+Đã chuẩn bị sẵn cấu trúc sạch tại thư mục `site/`.
+
+**Cách triển khai nhanh nhất (URL đẹp):**
+
+1. Tạo repo mới tên chính xác: `hana-summer-lms.github.io`
+2. Copy toàn bộ nội dung trong `site/` vào repo đó
+3. Bật GitHub Pages (Settings → Pages → Deploy from branch `main`)
+
+Chi tiết xem file: `site/README.md`
+
 ## Yêu cầu tiếp theo (từ anh)
 
 Mở [PLAN.md](./PLAN.md) và trả lời 5 câu hỏi ở phần cuối để mình bắt đầu xây dựng ngay.
