@@ -44,22 +44,23 @@ open frontend/hana.html
 open frontend/parents.html
 ```
 
-### Triển khai GitHub Pages
+### Triển khai GitHub Pages (Current Status)
 
-Trang hiện đang được deploy tại:
+**Working URL (current):**
 
-**https://hana-summer-lms.github.io**
+**https://alerondt-hanario.github.io/hana-summer-lms.github.io**
 
-- Landing page: https://hana-summer-lms.github.io
-- Dashboard cho Hana: https://hana-summer-lms.github.io/hana.html
-- Dashboard cho Bố Mẹ: https://hana-summer-lms.github.io/parents.html
+- Landing page: https://alerondt-hanario.github.io/hana-summer-lms.github.io
+- Dashboard cho Hana: https://alerondt-hanario.github.io/hana-summer-lms.github.io/hana.html
+- Dashboard cho Bố Mẹ: https://alerondt-hanario.github.io/hana-summer-lms.github.io/parents.html
+
+**Note:** Due to GitHub Pages rules, the clean `https://hana-summer-lms.github.io` is not available unless the GitHub username is changed to `hana-summer-lms`. We are using the correct working URL above.
 
 Đã chuẩn bị sẵn cấu trúc tại thư mục `site/`.
 
 Để cập nhật:
 1. Copy nội dung `site/` vào repo `hana-summer-lms.github.io`
 2. Push lên `main`
-3. GitHub Pages sẽ tự động cập nhật (không cần custom domain lúc này)
 
 Chi tiết xem file: `site/README.md`
 

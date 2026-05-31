@@ -2,28 +2,29 @@
 
 This folder contains the static files ready to deploy to GitHub Pages.
 
-## Cách triển khai (hiện tại dùng)
+## Current Deployment
 
-Repo đang được deploy tại:
+**Live URL:**
 
-**https://hana-summer-lms.github.io**
+**https://alerondt-hanario.github.io/hana-summer-lms.github.io**
 
-### Hướng dẫn triển khai / cập nhật
+- Full site: https://alerondt-hanario.github.io/hana-summer-lms.github.io
+- Hana Dashboard: .../hana.html
+- Parents Dashboard: .../parents.html
 
-1. Đảm bảo bạn đang ở repo: `alerondt-hanario/hana-summer-lms.github.io`
+**Important:** The clean domain `https://hana-summer-lms.github.io` is not available because the GitHub username is `alerondt-hanario`. GitHub Pages only gives the short form when the username matches the repo name.
 
-2. Copy toàn bộ nội dung thư mục `site/` này vào repo.
+### How to update / redeploy
 
-3. Push lên branch `main`.
+1. Make sure you're working in the repo `alerondt-hanario/hana-summer-lms.github.io`
 
-4. Vào repo → **Settings → Pages**:
-   - Source: **Deploy from a branch**
-   - Branch: `main`
-   - Folder: `/ (root)`
-   - **Custom domain**: để trống (đang dùng tên mặc định)
+2. Copy the entire contents of this `site/` folder into the root of that repo.
 
-5. Sau vài phút, trang sẽ live tại:
-   **https://hana-summer-lms.github.io**
+3. Commit and push to the `main` branch.
+
+4. GitHub Pages will automatically update from the `main` branch (Source = `/ (root)`).
+
+No custom domain is currently set.
 
 ### Cách 2: Deploy từ repo hiện tại (hanaapp)
 
