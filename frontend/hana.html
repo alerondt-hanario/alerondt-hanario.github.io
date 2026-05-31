@@ -90,7 +90,7 @@
         Chào Hana! <span class="text-3xl">🌸</span>
       </h1>
       <p class="text-orange-700 mt-1" id="greeting-sub">
-        Hôm nay là <strong>Thứ Bảy, 31 tháng 5, 2026</strong>
+        Hôm nay là <strong id="today-date">Loading date...</strong>
       </p>
     </div>
 
@@ -255,10 +255,8 @@
     let pomoInterval = null;
     let isPomoRunning = false;
 
-    const missions = [
-      { id: "ENG_WR_001", subject: "English", title: "My Summer Holiday", status: "done", words: "68" },
-      { id: "VIE_WR_002", subject: "Tiếng Việt", title: "Một ngày hè vui nhất", status: "todo" }
-    ];
+    let todayTasks = [];           // Real data loaded from Supabase
+    let isLoadingTasks = false;
 
     // ==================== LANGUAGE ====================
     const translations = {
@@ -362,28 +360,49 @@
       setTimeout(() => toast.remove(), 1600);
     }
 
-    // ==================== MISSIONS ====================
+    // ==================== MISSIONS (from Supabase) ====================
     function renderMissions() {
       const container = document.getElementById('missions-list');
       container.innerHTML = '';
 
-      missions.forEach((m, index) => {
-        const isDone = m.status === 'done';
+      if (isLoadingTasks) {
+        container.innerHTML = `
+          <div class="border border-orange-200 bg-orange-50 rounded-2xl p-4 text-center text-orange-600">
+            <i class="fa-solid fa-spinner fa-spin mr-2"></i> Loading today's missions...
+          </div>
+        `;
+        return;
+      }
+
+      if (todayTasks.length === 0) {
+        container.innerHTML = `
+          <div class="border border-orange-200 bg-orange-50 rounded-2xl p-5 text-center">
+            <div class="text-orange-600 font-medium">No missions today 🎉</div>
+            <div class="text-sm text-orange-500 mt-1">Great job! You can rest or ask parents to add more tasks.</div>
+          </div>
+        `;
+        return;
+      }
+
+      todayTasks.forEach((task, index) => {
+        const isDone = task.status === 'done';
         const el = document.createElement('div');
         el.className = `border ${isDone ? 'border-emerald-200 bg-emerald-50' : 'border-orange-200 bg-orange-50'} rounded-2xl p-4 flex gap-4 cursor-pointer`;
+        
         el.innerHTML = `
           <div class="mt-0.5">
             <i class="fa-solid ${isDone ? 'fa-check-circle text-emerald-500' : 'fa-pen text-orange-500'} text-3xl"></i>
           </div>
           <div class="flex-1">
             <div class="flex items-center gap-x-2">
-              <span class="font-semibold">${m.subject}</span>
+              <span class="font-semibold">${task.subject}</span>
               ${isDone ? `<span class="text-[10px] bg-white px-2 py-px rounded text-emerald-600 font-medium">DONE</span>` : ''}
             </div>
-            <div class="text-sm text-orange-700 mt-0.5">${m.title}</div>
-            ${isDone ? `<div class="text-xs text-emerald-600 mt-0.5">${m.words} words submitted</div>` : ''}
+            <div class="text-sm text-orange-700 mt-0.5">${task.title}</div>
+            ${isDone ? `<div class="text-xs text-emerald-600 mt-0.5">Submitted</div>` : ''}
           </div>
         `;
+
         if (!isDone) {
           el.onclick = () => openTaskModal(index);
         }
@@ -395,13 +414,14 @@
     let currentTaskIndex = 0;
 
     function openTaskModal(index) {
-      const task = missions[index];
+      const task = todayTasks[index];
+      if (!task) return;
+
       currentTaskIndex = index;
       document.getElementById('modal-subject').textContent = task.subject;
       document.getElementById('modal-title').textContent = task.title;
-      document.getElementById('modal-content').textContent = task.id === "ENG_WR_001" 
-        ? "Write a paragraph (60-80 words) about your plans for this summer holiday."
-        : "Hãy kể về một ngày hè mà con cảm thấy vui nhất. Ít nhất 80 từ.";
+      document.getElementById('modal-content').textContent = task.content || "No content available.";
+      
       document.getElementById('student-answer').value = '';
       document.getElementById('task-modal').classList.remove('hidden');
       document.getElementById('task-modal').classList.add('flex');
@@ -419,11 +439,16 @@
         alert("Please write something before submitting!");
         return;
       }
-      // TODO: Save to local queue + call Supabase
+
+      // TODO (Phase B): Save real submission to Supabase + call AI
       alert("Submitted successfully! AI teacher will review your writing.");
+
       closeTaskModal();
-      // Mark as done in demo
-      missions[currentTaskIndex].status = 'done';
+
+      // Temporary: mark as done locally
+      if (todayTasks[currentTaskIndex]) {
+        todayTasks[currentTaskIndex].status = 'done';
+      }
       renderMissions();
     }
 
@@ -465,8 +490,9 @@
       supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
       console.log('%c[Hana] Supabase client initialized successfully', 'color:#22c55e');
 
-      // Test connection + load today's config
+      // Load real data
       loadTodayConfig();
+      loadTodayTasks();           // ← Task A: Load missions from Supabase
     }
 
     async function loadTodayConfig() {
@@ -494,24 +520,73 @@
       }
     }
 
+    // Load today's tasks from Supabase (Task A)
+    async function loadTodayTasks() {
+      if (!supabaseClient) return;
+
+      isLoadingTasks = true;
+      renderMissions(); // show loading state
+
+      try {
+        const today = new Date().toISOString().split('T')[0];
+
+        const { data, error } = await supabaseClient
+          .from('tasks')
+          .select('id, subject, title, content, system_prompt, scheduled_date, status')
+          .eq('scheduled_date', today)
+          .order('id', { ascending: true });
+
+        if (error) throw error;
+
+        // Map database status to our UI status
+        todayTasks = (data || []).map(task => ({
+          id: task.id,
+          subject: task.subject,
+          title: task.title,
+          content: task.content,
+          system_prompt: task.system_prompt,
+          status: (task.status === 'submitted' || task.status === 'graded') ? 'done' : 'todo'
+        }));
+
+        console.log('%c[Hana] Loaded today\'s tasks from Supabase:', 'color:#22c55e', todayTasks);
+
+      } catch (err) {
+        console.error('[Hana] Failed to load tasks:', err.message);
+        todayTasks = [];
+      } finally {
+        isLoadingTasks = false;
+        renderMissions();
+      }
+    }
+
     // ==================== INIT ====================
     function init() {
       // Language
       document.getElementById('lang-vi').classList.add('nav-active');
-      
-      // Render missions
+
+      // Initial render (will show loading state for missions)
       renderMissions();
 
-      // Water
-      updateWaterUI();
+      // Set dynamic today date
+      const dateEl = document.getElementById('today-date');
+      if (dateEl) {
+        const today = new Date();
+        dateEl.textContent = today.toLocaleDateString('vi-VN', { 
+          weekday: 'long', 
+          day: 'numeric', 
+          month: 'long', 
+          year: 'numeric' 
+        });
+      }
 
-      // Pomodoro
+      // Water & Pomodoro
+      updateWaterUI();
       updatePomoUI();
 
-      // Offline
+      // Offline detection
       initOfflineDetection();
 
-      // Initialize Supabase
+      // Initialize Supabase (this will trigger loadTodayTasks)
       initSupabase();
 
       console.log('%c[Hana Dashboard] Initialized', 'color:#c2410f');
