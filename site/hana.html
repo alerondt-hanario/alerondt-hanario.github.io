@@ -210,7 +210,9 @@
           <span>/</span>
           <span>Hana's Life OS</span>
           <span>/</span>
-          <span class="text-orange-500">Dashboard</span>
+          <a href="hana.html" class="hover:text-orange-500 transition-all font-bold text-orange-500">Dashboard</a>
+          <span>/</span>
+          <a href="rewards.html" class="hover:text-orange-500 transition-all font-semibold">Ngân hàng Quà</a>
         </div>
       </div>
 
@@ -1087,6 +1089,48 @@
       if (stars < 0) stars = 0;
       localStorage.setItem('hana_stars', stars);
       document.getElementById('stars-balance').textContent = stars.toLocaleString('vi-VN');
+
+      // Log detailed transactions to localStorage
+      try {
+        const transactions = JSON.parse(localStorage.getItem('hana_star_transactions') || '[]');
+        const todayStr = new Date().toISOString().split('T')[0];
+        
+        let reasonVi = "Hoạt động tích lũy";
+        let reasonEn = "Activity reward";
+        
+        const sourceId = typeof elementOrId === 'string' ? elementOrId : (elementOrId?.id || '');
+        if (sourceId === 'top-pomo-progress') {
+          reasonVi = "Hoàn thành phiên Pomodoro";
+          reasonEn = "Completed Pomodoro session";
+        } else if (sourceId === 'water-current') {
+          reasonVi = "Uống nước lọc đầy đủ";
+          reasonEn = "Logged water intake";
+        } else if (sourceId === 'steps-count') {
+          reasonVi = "Đạt mốc vận động cơ thể";
+          reasonEn = "Steps count milestone";
+        } else if (sourceId === 'desk-submit-btn') {
+          reasonVi = "Nộp bài cho cô giáo AI";
+          reasonEn = "Submitted task to AI Teacher";
+        } else if (sourceId === 'journal-text') {
+          reasonVi = "Viết nhật ký cảm xúc";
+          reasonEn = "Logged daily reflections";
+        } else if (sourceId.startsWith('tl-check') || sourceId === 'star-bank-card' || !sourceId) {
+          reasonVi = amount >= 0 ? "Hoàn thành mục timeline" : "Hủy hoàn thành mục timeline";
+          reasonEn = amount >= 0 ? "Completed timeline item" : "Unchecked timeline item";
+        }
+
+        transactions.push({
+          id: Date.now() + '-' + Math.random().toString(36).substr(2, 9),
+          date: todayStr,
+          timestamp: new Date().toISOString(),
+          amount: amount,
+          reasonVi: reasonVi,
+          reasonEn: reasonEn
+        });
+        localStorage.setItem('hana_star_transactions', JSON.stringify(transactions));
+      } catch (e) {
+        console.warn('[Stars Log Error]', e);
+      }
 
       // Floating points particle animation
       let target = typeof elementOrId === 'string' ? document.getElementById(elementOrId) : elementOrId;
