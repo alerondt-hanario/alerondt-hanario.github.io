@@ -37,9 +37,137 @@
     .offline-banner {
       background: linear-gradient(to right, #f59e0b, #d97706);
     }
+    
+    @keyframes wave {
+      0%, 100% { transform: rotate(0deg); }
+      20%, 60% { transform: rotate(15deg); }
+      40%, 80% { transform: rotate(-10deg); }
+    }
+    .animate-wave {
+      animation: wave 2s infinite ease-in-out;
+    }
+    
+    @keyframes flipIn {
+      from { transform: rotateX(-90deg); opacity: 0; }
+      to { transform: rotateX(0deg); opacity: 1; }
+    }
+    
+    .flip-card {
+      background: #FFFBF7;
+      border: 2px solid #FED7AA;
+      border-radius: 16px;
+      box-shadow: 0 10px 15px -3px rgba(251, 146, 60, 0.1), 0 4px 6px -4px rgba(251, 146, 60, 0.1);
+      color: #7C2D12;
+      perspective: 1000px;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      font-family: 'Nunito', sans-serif;
+    }
+    
+    .flip-card span {
+      animation: flipIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
+    }
+    
+    .flip-card-divider {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 50%;
+      height: 2px;
+      background: #FED7AA;
+      box-shadow: 0 1px 1px rgba(0,0,0,0.05);
+    }
+    
+    .blur-focus {
+      filter: blur(5px);
+      opacity: 0.35;
+      pointer-events: none;
+      user-select: none;
+    }
+
+    /* Desk Clock styles */
+    .desk-clock-container {
+      background: linear-gradient(135deg, #2D1B0F 0%, #170E08 100%);
+      border: 3.5px solid #F59E0B; /* Amber metallic border */
+      box-shadow: 
+        0 12px 24px -10px rgba(245, 158, 11, 0.3),
+        inset 0 1px 5px rgba(255, 255, 255, 0.1),
+        0 2px 4px rgba(0, 0, 0, 0.4);
+      position: relative;
+      overflow: hidden;
+    }
+    .desk-clock-glow {
+      color: #FBBF24; /* Amber-400 glowing digit */
+      text-shadow: 0 0 8px rgba(251, 191, 36, 0.65), 0 0 18px rgba(251, 191, 36, 0.3);
+    }
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.25; }
+    }
+    .clock-blink {
+      animation: blink 1s infinite;
+    }
+
+    /* Floating Background Blobs */
+    .bg-blob {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.12;
+      mix-blend-mode: multiply;
+      pointer-events: none;
+      animation: floatAround 25s infinite alternate ease-in-out;
+    }
+    .blob-1 {
+      width: 300px;
+      height: 300px;
+      background-color: #FDBA74; /* orange-300 */
+      top: 10%;
+      left: 10%;
+      animation-delay: 0s;
+    }
+    .blob-2 {
+      width: 400px;
+      height: 400px;
+      background-color: #FDA4AF; /* rose-300 */
+      bottom: 10%;
+      right: 15%;
+      animation-delay: -5s;
+      animation-duration: 35s;
+    }
+    .blob-3 {
+      width: 350px;
+      height: 350px;
+      background-color: #C084FC; /* purple-300 */
+      top: 50%;
+      left: 45%;
+      animation-delay: -10s;
+      animation-duration: 30s;
+    }
+    @keyframes floatAround {
+      0% {
+        transform: translate(0, 0) scale(1);
+      }
+      50% {
+        transform: translate(40px, -60px) scale(1.15);
+      }
+      100% {
+        transform: translate(-30px, 30px) scale(0.9);
+      }
+    }
   </style>
 </head>
-<body class="bg-[#FFF8F0] text-zinc-800">
+<body class="bg-[#FFF8F0] text-zinc-800 relative">
+  
+  <!-- Ambient background blobs -->
+  <div class="pointer-events-none fixed inset-0 overflow-hidden z-[-1]">
+    <div class="bg-blob blob-1"></div>
+    <div class="bg-blob blob-2"></div>
+    <div class="bg-blob blob-3"></div>
+  </div>
   
   <!-- Offline Indicator -->
   <div id="offline-banner" class="hidden offline-banner text-white text-center text-sm py-1.5 font-medium">
@@ -88,116 +216,276 @@
 
   <div class="max-w-5xl mx-auto px-6 pt-6 pb-12">
 
-    <!-- Greeting -->
-    <div class="mb-6">
-      <h1 class="heading text-4xl font-bold text-orange-900" id="greeting">
-        Chào Hana! <span class="text-3xl">🌸</span>
-      </h1>
-      <p class="text-orange-700 mt-1" id="greeting-sub">
-        Hôm nay là <strong id="today-date">Loading date...</strong>
-      </p>
-    </div>
-
-    <!-- Screen Time Summary -->
-    <div class="bg-white rounded-3xl border border-orange-200 p-5 mb-6 soft-card">
-      <div class="flex items-center justify-between">
+    <!-- Row 1: Left (Greeting + Flip Date) and Right (Features) -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-8">
+      
+      <!-- Left Column: Greeting & Retro Digital Desk Clock -->
+      <div class="lg:col-span-5 flex flex-col justify-between bg-gradient-to-b from-orange-100/40 to-amber-100/20 p-6 rounded-3xl border border-orange-200/60 shadow-sm min-h-[340px]">
+        <!-- Greeting -->
         <div>
-          <div class="text-xs font-semibold tracking-[0.5px] text-orange-600">ON-SCREEN TIME TODAY</div>
-          <div class="flex items-baseline gap-x-1 mt-1">
-            <span class="text-4xl font-semibold tabular-nums" id="screen-used">47</span>
-            <span class="text-xl text-orange-300">/ 120</span>
-            <span class="text-sm text-orange-600 ml-1">minutes</span>
+          <h1 class="heading text-3xl font-extrabold text-orange-950 flex items-center gap-2" id="greeting">
+            Chào Hana! <span class="animate-wave inline-block origin-[70%_70%]">👋🌸</span>
+          </h1>
+          <p class="text-orange-800 text-xs mt-1.5 leading-relaxed">Hôm nay con hãy hoàn thành xuất sắc các nhiệm vụ nhé!</p>
+        </div>
+
+        <!-- Retro Digital Desk Clock -->
+        <div class="relative my-4 mx-auto w-full max-w-[280px]">
+          <!-- Physical stands under the clock to make it look like a desk clock -->
+          <div class="absolute -bottom-1 left-[20%] w-4.5 h-3 bg-orange-400 rounded-t-lg origin-bottom -rotate-12 shadow-sm z-0"></div>
+          <div class="absolute -bottom-1 right-[20%] w-4.5 h-3 bg-orange-400 rounded-t-lg origin-bottom rotate-12 shadow-sm z-0"></div>
+          
+          <!-- Main Clock Body -->
+          <div class="relative desk-clock-container rounded-2xl p-4 text-center z-10">
+            <!-- Glass reflection effect -->
+            <div class="absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-white/10 pointer-events-none rounded-2xl"></div>
+            
+            <!-- Date at the top -->
+            <div id="clock-date" class="text-[10px] font-extrabold tracking-[2px] text-orange-300 uppercase opacity-95">
+              Thứ Ba • 02/06/2026
+            </div>
+            
+            <!-- Digital Time below -->
+            <div class="flex items-center justify-center gap-1.5 mt-2.5 font-mono text-4xl font-extrabold text-[#FBBF24] desk-clock-glow tracking-wide">
+              <span id="clock-hours" class="tabular-nums">14</span>
+              <span class="clock-blink text-orange-400/80">:</span>
+              <span id="clock-minutes" class="tabular-nums">15</span>
+              <span class="clock-blink text-orange-400/80">:</span>
+              <span id="clock-seconds" class="text-2xl text-orange-300 self-end mb-0.5 tabular-nums">30</span>
+            </div>
+            
+            <!-- Soft status message or label -->
+            <div class="text-[8px] font-bold text-orange-400/60 tracking-[1.5px] uppercase mt-2">
+              Hana Summer Clock
+            </div>
           </div>
         </div>
-        <div class="text-right">
-          <div class="text-emerald-600 text-sm font-semibold">73 phút còn lại</div>
-          <div class="text-[10px] text-emerald-500">Good job staying focused!</div>
+        
+        <!-- Info or small status -->
+        <div class="text-center text-xs text-orange-700/80 font-semibold bg-orange-100/50 py-1.5 rounded-xl border border-orange-200/30">
+          ☀️ Học tập vui vẻ • Rèn luyện chăm ngoan
         </div>
       </div>
-    </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-
-      <!-- Today's Missions -->
-      <div class="lg:col-span-7 bg-white rounded-3xl border border-orange-200 p-6 soft-card">
-        <div class="flex items-center justify-between mb-4">
-          <div>
-            <div class="text-xs font-bold tracking-widest text-orange-500">TODAY'S MISSIONS</div>
-            <div class="text-2xl font-semibold heading text-orange-900">Nhiệm vụ hôm nay</div>
+      <!-- Right Column: Features (On-screen Time, Water, Pomodoro) -->
+      <div class="lg:col-span-7 flex flex-col gap-5">
+        
+        <!-- On-screen Time & Water Tracker side-by-side -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+          <!-- On-screen Time -->
+          <div class="bg-gradient-to-br from-orange-400 to-rose-500 text-white rounded-3xl p-5 flex flex-col justify-between soft-card shadow-md">
+            <div>
+              <div id="screen-card-title" class="text-[10px] font-bold tracking-[1.5px] opacity-90 uppercase">Thời Gian Sử Dụng Máy Tính</div>
+              <div id="screen-limit-label" class="text-[11px] font-medium opacity-80 mt-0.5">Giới hạn hôm nay: 120 phút</div>
+              <div class="flex items-baseline gap-x-1 mt-3">
+                <span class="text-4xl font-extrabold tabular-nums" id="screen-used">47</span>
+                <span class="text-lg opacity-60" id="screen-limit-display">/ 120</span>
+                <span class="text-xs ml-1 opacity-90" id="screen-remaining-label-suffix">phút</span>
+              </div>
+            </div>
+            <div class="mt-4 pt-3 border-t border-white/20 flex justify-between items-center text-xs">
+              <span id="screen-remaining-text" class="font-semibold text-orange-100">73 phút còn lại</span>
+              <span class="bg-white/25 px-2.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider">Good job!</span>
+            </div>
           </div>
-          <div class="px-4 py-1 bg-orange-100 text-orange-700 rounded-2xl text-xs font-semibold">2 / 3 completed</div>
-        </div>
 
-        <div class="space-y-3" id="missions-list">
-          <!-- Populated by JS -->
-        </div>
-
-        <button onclick="showAllTasks()"
-          class="mt-4 w-full text-sm py-3 text-orange-600 hover:text-orange-700 font-medium flex items-center justify-center gap-x-2">
-          <span>View all tasks in the bank</span>
-          <i class="fa-solid fa-arrow-right"></i>
-        </button>
-      </div>
-
-      <!-- Pomodoro -->
-      <div class="lg:col-span-5 bg-white rounded-3xl border border-violet-200 p-6 soft-card">
-        <div class="text-xs font-bold tracking-widest text-violet-500">FOCUS SESSION</div>
-        <div class="text-2xl font-semibold heading text-violet-900 mt-0.5">Pomodoro 25 phút</div>
-
-        <div class="flex justify-center my-6">
-          <div class="relative w-40 h-40">
-            <svg class="w-40 h-40 -rotate-90" viewBox="0 0 120 120">
-              <circle cx="60" cy="60" r="52" fill="none" stroke="#EDE9FE" stroke-width="10"/>
-              <circle id="pomo-progress" cx="60" cy="60" r="52" fill="none" 
-                      stroke="#7C3AED" stroke-width="10" stroke-linecap="round"
-                      stroke-dasharray="326.56" stroke-dashoffset="81.64"/>
-            </svg>
-            <div class="absolute inset-0 flex flex-col items-center justify-center">
-              <div id="pomo-time" class="text-5xl font-semibold tabular-nums text-violet-700 tracking-[-2px]">22:41</div>
-              <div class="text-violet-400 text-xs font-bold tracking-[1px]">FOCUS</div>
+          <!-- Water Tracker -->
+          <div class="bg-gradient-to-br from-sky-400 to-blue-500 text-white rounded-3xl p-5 flex flex-col justify-between soft-card shadow-md">
+            <div>
+              <div id="water-card-title" class="text-[10px] font-bold tracking-[1.5px] opacity-90 uppercase">Mục Tiêu Nước</div>
+              <div id="water-goal-label" class="text-[11px] font-medium opacity-80 mt-0.5">Mục tiêu: 1200 ml</div>
+              <div class="flex items-baseline justify-between mt-3">
+                <div>
+                  <span class="text-4xl font-extrabold tabular-nums" id="water-current">680</span>
+                  <span class="text-lg opacity-60" id="water-current-suffix">/ 1200 ml</span>
+                </div>
+                <i class="fa-solid fa-droplet text-sky-200 text-2xl animate-bounce"></i>
+              </div>
+            </div>
+            
+            <div class="mt-4 space-y-3">
+              <div class="h-2 bg-white/35 rounded-full overflow-hidden">
+                <div id="water-bar" class="h-full bg-white transition-all duration-300" style="width: 56.6%"></div>
+              </div>
+              <div class="flex gap-1.5">
+                <button onclick="logWater(200)" class="flex-1 py-1.5 bg-white/20 hover:bg-white/30 active:bg-white/40 rounded-xl text-xs font-semibold transition-all">
+                  +200ml
+                </button>
+                <button onclick="logWater(300)" class="flex-1 py-1.5 bg-white/20 hover:bg-white/30 active:bg-white/40 rounded-xl text-xs font-semibold transition-all">
+                  +300ml
+                </button>
+                <button onclick="logWater(500)" class="flex-1 py-1.5 bg-white/30 hover:bg-white/40 active:bg-white/50 rounded-xl text-xs font-bold transition-all">
+                  <span id="water-big-cup-btn-text">Ly lớn</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>
 
-        <div class="flex gap-2">
-          <button onclick="togglePomodoro()" id="pomo-btn"
-            class="flex-1 bg-violet-600 hover:bg-violet-700 active:bg-violet-800 text-white font-semibold py-3.5 rounded-2xl text-sm flex items-center justify-center gap-x-2">
-            <i class="fa-solid fa-play mr-1" id="pomo-icon"></i>
-            <span id="pomo-btn-text">START</span>
-          </button>
-          <button onclick="resetPomodoro()" 
-            class="px-6 border border-violet-200 hover:bg-violet-50 text-violet-600 rounded-2xl font-medium text-sm">Reset</button>
+        <!-- Pomodoro Clock landscape layout -->
+        <div class="bg-white rounded-3xl border border-violet-200 p-5 flex flex-col sm:flex-row items-center gap-6 soft-card shadow-sm">
+          <!-- Circle on the left -->
+          <div class="relative w-36 h-36 flex-shrink-0">
+            <svg class="w-36 h-36 -rotate-90" viewBox="0 0 120 120">
+              <circle cx="60" cy="60" r="52" fill="none" stroke="#EDE9FE" stroke-width="8"/>
+              <circle id="pomo-progress" cx="60" cy="60" r="52" fill="none" 
+                      stroke="#7C3AED" stroke-width="8" stroke-linecap="round"
+                      stroke-dasharray="326.56" stroke-dashoffset="81.64"/>
+            </svg>
+            <div class="absolute inset-0 flex flex-col items-center justify-center">
+              <div id="pomo-time" class="text-4xl font-bold tabular-nums text-violet-700 tracking-[-1px]">25:00</div>
+              <div id="pomo-label" class="text-violet-400 text-[10px] font-bold tracking-[1px] uppercase">Tập Trung</div>
+            </div>
+          </div>
+          <!-- Info & Controls on the right -->
+          <div class="flex-1 w-full flex flex-col justify-between">
+            <div>
+              <div id="pomo-card-title" class="text-xs font-bold tracking-widest text-violet-500 uppercase">Focus Session</div>
+              <div class="text-xl font-bold text-violet-900 heading mt-0.5" id="pomo-mode-title">Đồng hồ Pomodoro</div>
+              <p class="text-xs text-violet-500/80 mt-1">Học hết sức, chơi hết mình! Cố lên Hana!</p>
+            </div>
+            
+            <!-- Mode Toggle (Focus vs Rest) -->
+            <div class="flex bg-violet-100/75 rounded-2xl p-1 gap-1 my-3 text-xs font-semibold">
+              <button id="pomo-mode-focus" onclick="setPomoMode('focus')" class="flex-1 py-1.5 rounded-xl bg-white text-violet-700 shadow-sm transition-all text-center">
+                🔥 Tập trung (25p)
+              </button>
+              <button id="pomo-mode-break" onclick="setPomoMode('break')" class="flex-1 py-1.5 rounded-xl text-violet-600 transition-all text-center">
+                🌸 Nghỉ ngơi (5p)
+              </button>
+            </div>
+
+            <div class="flex gap-2">
+              <button onclick="togglePomodoro()" id="pomo-btn"
+                class="flex-1 bg-violet-600 hover:bg-violet-700 text-white font-semibold py-2.5 rounded-xl text-sm flex items-center justify-center gap-x-2 shadow-sm transition-all">
+                <i class="fa-solid fa-play mr-1" id="pomo-icon"></i>
+                <span id="pomo-btn-text">BẮT ĐẦU</span>
+              </button>
+              <button onclick="resetPomodoro()" 
+                class="px-4 border border-violet-200 hover:bg-violet-50 text-violet-600 rounded-xl font-medium text-xs transition-all">Reset</button>
+            </div>
+          </div>
         </div>
+
       </div>
 
-      <!-- Water Tracker -->
-      <div class="lg:col-span-12 bg-white rounded-3xl border border-sky-200 p-6 soft-card">
-        <div class="flex items-center justify-between mb-3">
+    </div>
+
+    <!-- Row 2: Today's Mission Section (To-do on Left, Active Desk on Right) -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      
+      <!-- To-do List (Left Column: 5/12 width) -->
+      <div class="lg:col-span-5 flex flex-col gap-4 relative">
+        
+        <!-- Blur Lock Overlay for Kids Focus (hidden by default) -->
+        <div id="todo-focus-overlay" class="hidden absolute inset-0 bg-[#FFF8F0]/30 backdrop-blur-sm rounded-3xl z-10 flex flex-col items-center justify-center p-6 text-center select-none transition-all duration-300">
+          <div class="bg-orange-600 text-white w-14 h-14 rounded-full flex items-center justify-center shadow-lg mb-4 animate-pulse">
+            <i class="fa-solid fa-pencil text-2xl"></i>
+          </div>
+          <h3 class="font-extrabold text-orange-950 text-lg">Hana đang tập trung làm bài! ✍️</h3>
+          <p class="text-orange-850 text-sm mt-1.5 max-w-xs leading-relaxed">Hệ thống đang mờ danh sách để con tập trung tốt nhất. Tạm dừng bộ đếm để xem danh sách.</p>
+          <button onclick="toggleStudyTimer()" class="mt-4 px-5 py-2.5 bg-white border border-orange-300 hover:bg-orange-50 text-orange-700 rounded-2xl text-xs font-bold shadow-md transition-all">
+            <i class="fa-solid fa-pause mr-1.5"></i><span>Tạm dừng để xem</span>
+          </button>
+        </div>
+
+        <!-- Actual To-do Card -->
+        <div id="todo-card-container" class="bg-white rounded-3xl border border-orange-200 p-6 flex-1 soft-card flex flex-col justify-between transition-all duration-300 shadow-sm">
           <div>
-            <div class="text-xs font-bold tracking-widest text-sky-600">WATER INTAKE</div>
-            <div class="text-2xl font-semibold heading text-sky-900">Mục tiêu: 1200 ml</div>
+            <div class="flex items-center justify-between mb-4 border-b border-orange-100/50 pb-3">
+              <div>
+                <div id="todo-subtitle-label" class="text-xs font-bold tracking-widest text-orange-500">TODAY'S CHECKLIST</div>
+                <h2 id="todo-title-label" class="text-2xl font-bold heading text-orange-900 mt-0.5">Nhiệm vụ hôm nay</h2>
+              </div>
+              <div id="missions-count-badge" class="px-3 py-1 bg-orange-100 text-orange-700 rounded-2xl text-xs font-bold">0 / 0 completed</div>
+            </div>
+            
+            <!-- Checklist Items -->
+            <div class="space-y-3" id="missions-list">
+              <!-- Dynamically populated -->
+            </div>
           </div>
-          <div class="text-right">
-            <span id="water-current" class="text-4xl font-semibold text-sky-600">680</span>
-            <span class="text-sky-400">/ 1200 ml</span>
+
+          <button onclick="showAllTasks()"
+            class="mt-6 w-full text-sm py-3 text-orange-600 hover:text-orange-700 font-bold flex items-center justify-center gap-x-2 border-t border-orange-100 pt-4">
+            <span id="todo-view-all-btn-text">Xem kho đề bài đầy đủ</span>
+            <i class="fa-solid fa-arrow-right"></i>
+          </button>
+        </div>
+
+      </div>
+
+      <!-- Active Study Desk (Right Column: 7/12 width) -->
+      <div class="lg:col-span-7 bg-white rounded-3xl border border-orange-200 p-6 flex flex-col justify-between soft-card relative min-h-[520px] shadow-sm">
+        
+        <!-- Desk Header -->
+        <div>
+          <div class="flex items-center justify-between mb-5 border-b border-orange-100/50 pb-4">
+            <div>
+              <div id="desk-title-label" class="text-xs font-bold tracking-widest text-orange-500 uppercase">Góc Học Tập Của Hana</div>
+              <h2 class="text-2xl font-bold heading text-orange-950 mt-1" id="active-task-subject-title">Bàn học sẵn sàng!</h2>
+            </div>
+            
+            <!-- Study Tracker Badge & Timer -->
+            <div class="flex items-center gap-3">
+              <div id="study-timer-container" class="hidden items-center gap-2 bg-orange-100 px-3 py-1.5 rounded-2xl border border-orange-200">
+                <span class="w-2 h-2 bg-rose-500 rounded-full animate-ping"></span>
+                <span id="study-time" class="font-bold text-orange-800 text-sm tabular-nums">00:00</span>
+              </div>
+              <button id="study-start-btn" onclick="toggleStudyTimer()" class="hidden px-4 py-1.5 bg-orange-600 hover:bg-orange-700 text-white rounded-2xl text-xs font-bold shadow-sm transition-all flex items-center gap-1.5">
+                <i class="fa-solid fa-play" id="study-btn-icon"></i>
+                <span id="study-btn-text">START</span>
+              </button>
+            </div>
+          </div>
+          
+          <!-- Active Task Content Area -->
+          <div id="active-task-container" class="space-y-4">
+            <!-- Default Empty State -->
+            <div id="active-task-empty" class="text-center py-16 px-4">
+              <div class="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fa-solid fa-book-open text-orange-600 text-2xl"></i>
+              </div>
+              <h3 class="font-bold text-orange-900 text-lg">Bắt đầu học thôi nào!</h3>
+              <p class="text-orange-600 text-sm mt-1.5 max-w-sm mx-auto leading-relaxed">Con hãy chọn một nhiệm vụ ở danh sách To-do list bên trái và nhấn nút **START** để bắt đầu ghi nhận thời gian làm bài nhé.</p>
+            </div>
+
+            <!-- Active Task Details (hidden by default) -->
+            <div id="active-task-details" class="hidden space-y-4">
+              <div class="bg-orange-50/50 border border-orange-100 rounded-2xl p-4">
+                <div id="desk-assignment-label" class="text-xs uppercase font-bold text-orange-500 tracking-wider">Đề bài / Nhiệm vụ</div>
+                <p id="active-task-instructions" class="text-orange-950 mt-1.5 text-sm leading-relaxed whitespace-pre-wrap font-medium"></p>
+              </div>
+              
+              <div class="space-y-1.5">
+                <div class="text-xs uppercase font-bold text-orange-500 tracking-wider flex justify-between">
+                  <span id="desk-writing-label">Bài làm của con</span>
+                  <span class="text-orange-400 font-normal normal-case">AI sẽ chấm bài viết này</span>
+                </div>
+                <textarea id="student-desk-answer" rows="6" 
+                  class="w-full border border-orange-200 rounded-2xl p-4 text-sm focus:ring-2 focus:ring-orange-400 focus:border-orange-400 outline-none transition-all font-medium text-orange-950 bg-[#FFFDFB]"
+                  placeholder="Nhập bài viết của con tại đây... (khoảng 60-80 từ)"></textarea>
+              </div>
+
+              <button onclick="submitTaskFromDesk()" id="desk-submit-btn" class="w-full py-3 bg-orange-600 hover:bg-orange-700 text-white rounded-2xl font-bold shadow-md transition-all flex items-center justify-center gap-2">
+                <i class="fa-solid fa-paper-plane"></i>
+                <span>Nộp bài cho cô giáo AI</span>
+              </button>
+            </div>
           </div>
         </div>
 
-        <div class="h-3.5 bg-sky-100 rounded-full overflow-hidden mb-4">
-          <div id="water-bar" class="h-3.5 bg-gradient-to-r from-sky-400 to-sky-600 transition-all duration-300" style="width: 56.6%"></div>
+        <!-- Related Learning Resources (Always at the bottom) -->
+        <div class="mt-6 pt-5 border-t border-orange-100">
+          <div class="text-xs font-bold tracking-widest text-orange-500 uppercase mb-3 flex items-center gap-1.5">
+            <i class="fa-solid fa-circle-info"></i>
+            <span id="resources-title-label">Tài liệu tham khảo cho môn học</span>
+          </div>
+          <div id="resources-list" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div class="text-xs text-orange-400 italic">Chọn một bài học để xem các tài liệu hướng dẫn liên quan.</div>
+          </div>
         </div>
-
-        <div class="grid grid-cols-3 gap-3">
-          <button onclick="logWater(200)" class="child-btn bg-sky-600 text-white flex items-center justify-center gap-x-2 hover:bg-sky-700">
-            <i class="fa-solid fa-glass-water"></i> <span>200 ml</span>
-          </button>
-          <button onclick="logWater(300)" class="child-btn bg-sky-600 text-white flex items-center justify-center gap-x-2 hover:bg-sky-700">
-            <i class="fa-solid fa-glass-water"></i> <span>300 ml</span>
-          </button>
-          <button onclick="logWater(500)" class="child-btn bg-sky-700 text-white flex items-center justify-center gap-x-2 hover:bg-sky-800">
-            <i class="fa-solid fa-glass-water"></i> <span>Big cup 500ml</span>
-          </button>
-        </div>
+        
       </div>
 
     </div>
@@ -205,64 +493,57 @@
     <!-- Request Change -->
     <div class="mt-6 flex justify-end">
       <button onclick="showRequestModal()"
-        class="flex items-center gap-x-3 px-6 py-3.5 rounded-2xl border border-amber-300 bg-white hover:bg-amber-50 text-amber-700 font-semibold text-sm">
+        class="flex items-center gap-x-3 px-6 py-3.5 rounded-2xl border border-amber-300 bg-white hover:bg-amber-50 text-amber-700 font-bold text-sm shadow-sm transition-all">
         <i class="fa-solid fa-handshake"></i>
-        <span>Ask parents for more screen time</span>
-        <span class="text-[10px] px-2 py-0.5 bg-amber-100 rounded-xl">VI</span>
+        <span id="ask-parents-btn-text">Ask parents for more screen time</span>
+        <span class="text-[10px] px-2.5 py-0.5 bg-amber-100 rounded-xl">VI</span>
       </button>
     </div>
 
-  </div>
-
-  <!-- Task Modal -->
-  <div id="task-modal" onclick="if (event.target.id==='task-modal') closeTaskModal()" 
-       class="hidden fixed inset-0 bg-black/50 flex items-end lg:items-center justify-center z-50">
-    <div onclick="event.stopImmediatePropagation()" 
-         class="bg-white w-full lg:w-[520px] lg:rounded-3xl rounded-t-3xl p-6 lg:m-4">
-      <div class="flex justify-between items-start">
-        <div>
-          <div id="modal-subject" class="font-bold text-xl text-orange-900"></div>
-          <div id="modal-title" class="text-sm text-orange-600"></div>
-        </div>
-        <button onclick="closeTaskModal()" class="text-3xl text-zinc-300 hover:text-zinc-400 leading-none">&times;</button>
-      </div>
-
-      <div class="mt-4 text-xs uppercase font-semibold text-orange-500 tracking-wider">Assignment</div>
-      <div id="modal-content" class="mt-1.5 bg-orange-50 border border-orange-100 rounded-2xl p-4 text-sm"></div>
-
-      <div class="mt-5">
-        <div class="text-xs uppercase font-semibold text-orange-500 tracking-wider mb-1.5">Your writing</div>
-        <textarea id="student-answer" rows="7" 
-          class="w-full border border-orange-200 rounded-2xl p-4 text-sm focus:border-orange-400 outline-none"
-          placeholder="Write your paragraph here... (60-80 words)"></textarea>
-      </div>
-
-      <div class="flex gap-3 mt-5">
-        <button onclick="closeTaskModal()" class="flex-1 py-3 border rounded-2xl font-semibold">Cancel</button>
-        <button onclick="submitTask()" class="flex-1 py-3 bg-orange-600 text-white rounded-2xl font-semibold">Submit to AI Teacher</button>
-      </div>
-    </div>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
     // ==================== SUPABASE CONFIG ====================
     const SUPABASE_URL = 'https://oytgbhytkddjlygafxjf.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im95dGdiaHl0a2Rkamx5Z2FmeGpmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAyMzUyNjIsImV4cCI6MjA5NTgxMTI2Mn0.ez0NvMJsZKrjRp5d71LxbPUfYjermDw2FoiC7jcH4lY';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im95dGdiaHl0a2Rjamx5Z2FmeGpmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAyMzUyNjIsImV4cCI6MjA5NTgxMTI2Mn0.ez0NvMJsZKrjRp5d71LxbPUfYjermDw2FoiC7jcH4lY';
 
     let supabaseClient = null;
 
     // ==================== STATE ====================
     let currentLang = 'vi';
     let waterMl = 680;
+    let waterGoalMl = 1200;
+    let screenUsedMinutes = 47;
+    let screenLimitMinutes = 120;
+    
     let pomoSeconds = 25 * 60;
     let pomoInterval = null;
     let isPomoRunning = false;
+    let pomoMode = 'focus'; // 'focus' | 'break'
+    let pomoFocusMinutes = 25;
+    let pomoBreakMinutes = 5;
 
     let todayTasks = [];           // Real data loaded from Supabase
     let isLoadingTasks = false;
+    let activeTaskId = null;
+    let isStudyRunning = false;
+    let studySeconds = 0;
+    let studyInterval = null;
 
-    // ==================== OFFLINE QUEUE (for B + C) ====================
+    // ==================== ENGLISH AUDIO SYNTHESIS ====================
+    function speakEnglish(text) {
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel(); // Clear any ongoing speech
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'en-US';
+        utterance.rate = 0.95; // Friendly reading speed
+        utterance.pitch = 1.15; // Bright tone for kids
+        window.speechSynthesis.speak(utterance);
+      }
+    }
+
+    // ==================== OFFLINE QUEUE ====================
     let pendingActions = [];       // Actions waiting to sync to Supabase
 
     function loadQueueFromStorage() {
@@ -356,19 +637,16 @@
     }
 
     function updateOfflineBanner() {
-      const banner = document.getElementById('offline-banner');
       const countEl = document.getElementById('offline-count');
-
       if (!countEl) return;
-
       if (pendingActions.length > 0) {
         countEl.textContent = `${pendingActions.length} unsynced`;
-        if (banner) banner.classList.remove('hidden');
       } else {
         countEl.textContent = '0 unsynced';
       }
     }
 
+    // Custom non-blocking alert substitute or clean prompt
     function showToast(message, type = 'info') {
       const toast = document.createElement('div');
       const bg = type === 'success' ? 'bg-emerald-700' : 'bg-zinc-800';
@@ -378,23 +656,128 @@
       setTimeout(() => toast.remove(), 2200);
     }
 
-    // ==================== LANGUAGE ====================
+    // ==================== TRANSLATIONS ====================
     const translations = {
       vi: {
-        greeting: "Chào Hana! 🌸",
-        today: "Hôm nay là <strong>Thứ Bảy, 31 tháng 5, 2026</strong>",
-        missionsTitle: "Nhiệm vụ hôm nay",
-        waterTitle: "Mục tiêu: 1200 ml",
-        focus: "Phiên tập trung",
-        askMoreTime: "Xin Bố Mẹ cho con thêm giờ máy tính"
+        greeting: "Chào Hana! <span class='animate-wave inline-block origin-[70%_70%]'>👋🌸</span>",
+        greetingSub: "Hôm nay con hãy hoàn thành xuất sắc các nhiệm vụ nhé!",
+        onScreenTitle: "Thời Gian Sử Dụng Máy Tính",
+        screenLimit: "Giới hạn hôm nay",
+        remaining: "còn lại",
+        goodJob: "Làm tốt lắm!",
+        waterTitle: "Mục Tiêu Nước",
+        waterGoal: "Mục tiêu",
+        waterBigCup: "Ly lớn",
+        focusSession: "Đồng Hồ Pomodoro",
+        pomoFocusText: "🔥 Tập trung (25p)",
+        pomoBreakText: "🌸 Nghỉ ngơi (5p)",
+        pomoStart: "BẮT ĐẦU",
+        pomoPause: "TẠM DỪNG",
+        pomoResume: "TIẾP TỤC",
+        pomoLabelFocus: "TẬP TRUNG",
+        pomoLabelBreak: "GIẢI LAO",
+        activeDeskTitle: "Góc Học Tập Của Hana",
+        activeDeskEmptyTitle: "Bắt đầu học thôi nào!",
+        activeDeskEmptySub: "Con hãy chọn một nhiệm vụ ở danh sách To-do list bên trái và nhấn nút **START** để bắt đầu ghi nhận thời gian làm bài nhé.",
+        studyTimeLabel: "Thời gian làm bài",
+        studyStartBtn: "START",
+        studyPauseBtn: "TẠM DỪNG",
+        studyResumeBtn: "TIẾP TỤC",
+        assignmentLabel: "Đề bài / Nhiệm vụ",
+        writingLabel: "Bài làm của con",
+        writingPlaceholder: "Nhập bài viết của con tại đây... (khoảng 60-80 từ)",
+        submitBtn: "Nộp bài cho cô giáo AI",
+        submitBtnDone: "Đã nộp bài thành công",
+        resourcesTitle: "Tài liệu tham khảo cho môn học",
+        resourcesEmpty: "Chọn một bài học để xem các tài liệu hướng dẫn liên quan.",
+        todoTitle: "Nhiệm vụ hôm nay",
+        todoSubtitle: "TODAY'S CHECKLIST",
+        todoCompleted: "hoàn thành",
+        viewAllTasks: "Xem kho đề bài đầy đủ",
+        askMoreTime: "Xin Bố Mẹ cho con thêm giờ máy tính",
+        focusOverlayTitle: "Hana đang tập trung làm bài! ✍️",
+        focusOverlaySub: "Hệ thống đang mờ danh sách để con tập trung tốt nhất. Tạm dừng bộ đếm để xem danh sách.",
+        focusOverlayBtn: "Tạm dừng để xem"
       },
       en: {
-        greeting: "Hi Hana! 🌸",
-        today: "Today is <strong>Saturday, May 31, 2026</strong>",
-        missionsTitle: "Today's Missions",
-        waterTitle: "Daily Goal: 1200 ml",
-        focus: "Focus Session",
-        askMoreTime: "Ask parents for more screen time"
+        greeting: "Hi Hana! <span class='animate-wave inline-block origin-[70%_70%]'>👋🌸</span>",
+        greetingSub: "Let's complete all your tasks beautifully today!",
+        onScreenTitle: "On-Screen Time Today",
+        screenLimit: "Limit today",
+        remaining: "remaining",
+        goodJob: "Good job!",
+        waterTitle: "Water Intake",
+        waterGoal: "Goal",
+        waterBigCup: "Big cup",
+        focusSession: "Pomodoro Clock",
+        pomoFocusText: "🔥 Focus (25m)",
+        pomoBreakText: "🌸 Rest (5m)",
+        pomoStart: "START",
+        pomoPause: "PAUSE",
+        pomoResume: "RESUME",
+        pomoLabelFocus: "FOCUS",
+        pomoLabelBreak: "BREAK",
+        activeDeskTitle: "Hana's Active Desk",
+        activeDeskEmptyTitle: "Let's Start Learning!",
+        activeDeskEmptySub: "Please select a task from the To-do list on the left and click **START** to track your study session.",
+        studyTimeLabel: "Study time",
+        studyStartBtn: "START",
+        studyPauseBtn: "PAUSE",
+        studyResumeBtn: "RESUME",
+        assignmentLabel: "Assignment Details",
+        writingLabel: "Your Writing",
+        writingPlaceholder: "Write your answer here... (around 60-80 words)",
+        submitBtn: "Submit to AI Teacher",
+        submitBtnDone: "Successfully Submitted",
+        resourcesTitle: "Related Learning Resources",
+        resourcesEmpty: "Select a task to view reference resources.",
+        todoTitle: "Today's Missions",
+        todoSubtitle: "TODAY'S CHECKLIST",
+        todoCompleted: "completed",
+        viewAllTasks: "View full task bank",
+        askMoreTime: "Ask parents for more screen time",
+        focusOverlayTitle: "Hana is focusing on writing! ✍️",
+        focusOverlaySub: "Checking checklist is hidden to maximize your focus. Pause the timer to unlock.",
+        focusOverlayBtn: "Pause to view"
+      }
+    };
+
+    const LEARNING_RESOURCES = {
+      vi: {
+        "Tiếng Anh": [
+          { title: "Từ vựng Tiếng Anh Hè", url: "https://example.com/vocab", icon: "fa-language" },
+          { title: "Luyện nghe Unit 1 (NotebookLM)", url: "https://example.com/listening", icon: "fa-headphones" }
+        ],
+        "Toán": [
+          { title: "Bảng cửu chương hoạt hình", url: "https://example.com/math-tables", icon: "fa-calculator" },
+          { title: "Bài tập logic đố vui tư duy", url: "https://example.com/math-logic", icon: "fa-brain" }
+        ],
+        "Tiếng Việt": [
+          { title: "Đọc truyện ngắn hè 2026", url: "https://example.com/stories", icon: "fa-book" },
+          { title: "Hướng dẫn viết văn miêu tả AI", url: "https://example.com/writing-guide", icon: "fa-feather" }
+        ],
+        "General": [
+          { title: "Lịch học tập mùa hè của Hana", url: "https://example.com/schedule", icon: "fa-calendar-days" },
+          { title: "Góc khoa học vui nhộn", url: "https://example.com/science", icon: "fa-flask" }
+        ]
+      },
+      en: {
+        "Tiếng Anh": [
+          { title: "Summer English Vocabulary", url: "https://example.com/vocab", icon: "fa-language" },
+          { title: "Listening Unit 1 (NotebookLM)", url: "https://example.com/listening", icon: "fa-headphones" }
+        ],
+        "Toán": [
+          { title: "Animated Multiplication Tables", url: "https://example.com/math-tables", icon: "fa-calculator" },
+          { title: "Fun Logic & Math Puzzles", url: "https://example.com/math-logic", icon: "fa-brain" }
+        ],
+        "Tiếng Việt": [
+          { title: "Summer Reading Collection 2026", url: "https://example.com/stories", icon: "fa-book" },
+          { title: "Descriptive Writing Tips with AI", url: "https://example.com/writing-guide", icon: "fa-feather" }
+        ],
+        "General": [
+          { title: "Hana's Summer Learning Calendar", url: "https://example.com/schedule", icon: "fa-calendar-days" },
+          { title: "Fun Science Corner for Kids", url: "https://example.com/science", icon: "fa-flask" }
+        ]
       }
     };
 
@@ -402,420 +785,535 @@
       currentLang = lang;
       document.getElementById('lang-vi').classList.toggle('nav-active', lang === 'vi');
       document.getElementById('lang-en').classList.toggle('nav-active', lang === 'en');
-      
-      const t = translations[lang];
-      document.getElementById('greeting').innerHTML = t.greeting;
-      document.getElementById('greeting-sub').innerHTML = t.today;
-      
-      // Update other dynamic texts if needed
+      applyLanguageStrings();
     }
 
-    // ==================== POMODORO ====================
+    function applyLanguageStrings() {
+      const t = translations[currentLang];
+      
+      // Top Greeting
+      document.getElementById('greeting').innerHTML = t.greeting;
+      document.querySelector('#greeting + p').textContent = t.greetingSub;
+      
+      // Screen Time
+      document.querySelector('#screen-card-title').textContent = t.onScreenTitle;
+      document.querySelector('#screen-limit-label').textContent = `${t.screenLimit}: ${screenLimitMinutes} ${currentLang === 'vi' ? 'phút' : 'minutes'}`;
+      document.querySelector('#screen-remaining-label-suffix').textContent = currentLang === 'vi' ? 'phút' : 'minutes';
+      
+      // Water
+      document.querySelector('#water-card-title').textContent = t.waterTitle;
+      document.querySelector('#water-goal-label').textContent = `${t.waterGoal}: ${waterGoalMl} ml`;
+      document.querySelector('#water-current-suffix').textContent = `/ ${waterGoalMl} ml`;
+      document.querySelector('#water-big-cup-btn-text').textContent = t.waterBigCup;
+      
+      // Pomodoro
+      document.querySelector('#pomo-card-title').textContent = t.focusSession;
+      document.getElementById('pomo-mode-focus').innerHTML = t.pomoFocusText;
+      document.getElementById('pomo-mode-break').innerHTML = t.pomoBreakText;
+      document.getElementById('pomo-label').textContent = pomoMode === 'focus' ? t.pomoLabelFocus : t.pomoLabelBreak;
+      
+      // Pomodoro main button
+      const pomoBtnText = document.getElementById('pomo-btn-text');
+      if (pomoBtnText) {
+        if (isPomoRunning) {
+          pomoBtnText.textContent = t.pomoPause;
+        } else {
+          const total = (pomoMode === 'focus' ? pomoFocusMinutes : pomoBreakMinutes) * 60;
+          const isInitial = pomoSeconds === total;
+          pomoBtnText.textContent = isInitial ? t.pomoStart : t.pomoResume;
+        }
+      }
+      
+      // Active Desk labels
+      document.getElementById('desk-title-label').textContent = t.activeDeskTitle;
+      document.querySelector('#active-task-empty h3').textContent = t.activeDeskEmptyTitle;
+      document.querySelector('#active-task-empty p').innerHTML = t.activeDeskEmptySub;
+      
+      // Study button text update
+      const studyBtnText = document.getElementById('study-btn-text');
+      if (studyBtnText) {
+        studyBtnText.textContent = isStudyRunning ? t.studyPauseBtn : (studySeconds === 0 ? t.studyStartBtn : t.studyResumeBtn);
+      }
+      
+      // Submitting layout labels
+      document.getElementById('desk-assignment-label').textContent = t.assignmentLabel;
+      document.getElementById('desk-writing-label').textContent = t.writingLabel;
+      document.getElementById('student-desk-answer').placeholder = t.writingPlaceholder;
+      
+      // Resources Title
+      document.getElementById('resources-title-label').textContent = t.resourcesTitle;
+      
+      // To-do card Title
+      document.getElementById('todo-subtitle-label').textContent = t.todoSubtitle;
+      document.getElementById('todo-title-label').textContent = t.todoTitle;
+      document.getElementById('todo-view-all-btn-text').textContent = t.viewAllTasks;
+      
+      // Ask parents btn
+      document.getElementById('ask-parents-btn-text').textContent = t.askMoreTime;
+      
+      // Focus overlay labels
+      const overlay = document.getElementById('todo-focus-overlay');
+      if (overlay) {
+        overlay.querySelector('h3').textContent = t.focusOverlayTitle;
+        overlay.querySelector('p').textContent = t.focusOverlaySub;
+        overlay.querySelector('button span').textContent = t.focusOverlayBtn;
+      }
+
+      renderMissions();
+      updateScreenTimeUI();
+      updateFlipDateUI();
+      
+      const taskIndex = todayTasks.findIndex(t => t.id === activeTaskId);
+      if (taskIndex !== -1) {
+        updateResources(todayTasks[taskIndex].subject);
+      } else {
+        updateResources('General');
+      }
+    }
+
+    function updateFlipDateUI() {
+      const today = new Date();
+      const weekdaysVi = ["Thứ Hai", "Thứ Ba", "Thứ Tư", "Thứ Năm", "Thứ Sáu", "Thứ Bảy", "Chủ Nhật"];
+      const weekdaysEn = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+      let wIdx = today.getDay() - 1; if (wIdx < 0) wIdx = 6;
+      
+      const day = today.getDate().toString().padStart(2, '0');
+      const year = today.getFullYear();
+      
+      let dateString = "";
+      if (currentLang === 'vi') {
+        const monthVi = (today.getMonth() + 1).toString().padStart(2, '0');
+        dateString = `${weekdaysVi[wIdx]} • ${day}/${monthVi}/${year}`;
+      } else {
+        const monthsEn = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        dateString = `${weekdaysEn[wIdx]} • ${monthsEn[today.getMonth()]} ${day}, ${year}`;
+      }
+      
+      const dateEl = document.getElementById('clock-date');
+      if (dateEl) dateEl.textContent = dateString;
+      
+      // Update digital time numbers
+      const hrs = today.getHours().toString().padStart(2, '0');
+      const mins = today.getMinutes().toString().padStart(2, '0');
+      const secs = today.getSeconds().toString().padStart(2, '0');
+      
+      const hrsEl = document.getElementById('clock-hours');
+      const minsEl = document.getElementById('clock-minutes');
+      const secsEl = document.getElementById('clock-seconds');
+      
+      if (hrsEl) hrsEl.textContent = hrs;
+      if (minsEl) minsEl.textContent = mins;
+      if (secsEl) secsEl.textContent = secs;
+    }
+
+    function updateScreenTimeUI() {
+      const usedEl = document.getElementById('screen-used');
+      const limitEl = document.getElementById('screen-limit-display');
+      if (usedEl) usedEl.textContent = screenUsedMinutes;
+      if (limitEl) limitEl.textContent = `/ ${screenLimitMinutes}`;
+    }
+
+    function setPomoMode(mode) {
+      if (pomoMode === mode) return;
+      if (isPomoRunning) togglePomodoro();
+      pomoMode = mode;
+      pomoSeconds = (mode === 'focus' ? pomoFocusMinutes : pomoBreakMinutes) * 60;
+      updatePomoUI();
+    }
+
     function updatePomoUI() {
       const mins = Math.floor(pomoSeconds / 60);
       const secs = pomoSeconds % 60;
-      document.getElementById('pomo-time').textContent = 
-        `${mins.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')}`;
-
-      const total = 25 * 60;
+      document.getElementById('pomo-time').textContent = `${mins.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')}`;
+      const total = (pomoMode === 'focus' ? pomoFocusMinutes : pomoBreakMinutes) * 60;
       const progress = (pomoSeconds / total) * 326.56;
       document.getElementById('pomo-progress').setAttribute('stroke-dashoffset', 326.56 - progress);
     }
 
     function togglePomodoro() {
-      const btnText = document.getElementById('pomo-btn-text');
       const icon = document.getElementById('pomo-icon');
-
       if (!isPomoRunning) {
         isPomoRunning = true;
-        btnText.textContent = 'PAUSE';
         icon.classList.replace('fa-play', 'fa-pause');
         
-        pomoInterval = setInterval(() => {
-          pomoSeconds--;
-          updatePomoUI();
-          if (pomoSeconds <= 0) finishPomodoro();
-        }, 1000);
+        const total = (pomoMode === 'focus' ? pomoFocusMinutes : pomoBreakMinutes) * 60;
+        const isInitial = pomoSeconds === total;
+        
+        if (pomoMode === 'focus') {
+          speakEnglish(isInitial ? "Focus time started, Hana! Let's study." : "Resuming focus timer.");
+        } else {
+          speakEnglish(isInitial ? "Break time started! Enjoy your rest." : "Resuming break timer.");
+        }
+
+        pomoInterval = setInterval(() => { pomoSeconds--; updatePomoUI(); if (pomoSeconds <= 0) finishPomodoro(); }, 1000);
       } else {
         clearInterval(pomoInterval);
         isPomoRunning = false;
-        btnText.textContent = 'RESUME';
         icon.classList.replace('fa-pause', 'fa-play');
+        speakEnglish("Focus timer paused.");
       }
     }
 
     async function finishPomodoro() {
       clearInterval(pomoInterval);
       isPomoRunning = false;
+      const icon = document.getElementById('pomo-icon');
+      if (icon) icon.classList.replace('fa-pause', 'fa-play');
 
-      const today = new Date().toISOString().split('T')[0];
-
-      const action = {
-        type: 'complete_pomodoro',
-        date: today
-      };
-
-      try {
-        if (navigator.onLine && supabaseClient) {
-          const { error } = await supabaseClient.from('daily_activities').insert({
-            activity_date: today,
-            activity_type: 'pomodoro_complete',
-            value: 25,
-            note: 'Completed focus session',
-            is_synced: true,
-            synced_at: new Date().toISOString()
-          });
-          if (error) throw error;
-          showToast('Pomodoro saved! Great job 🎉', 'success');
-        } else {
-          throw new Error('Offline');
-        }
-      } catch (err) {
-        addToOfflineQueue(action);
-        showToast('Pomodoro saved offline (will sync later)', 'info');
+      // Auto-pause active study timer if running
+      if (isStudyRunning) {
+        toggleStudyTimer();
       }
 
-      alert("Great job, Hana! You completed a focus session 🎉\n\nNow take a 5-minute break.");
-      resetPomodoro();
-
+      // Add complete Pomodoro to offline queue
+      addToOfflineQueue({ type: 'complete_pomodoro' });
+      
+      if (pomoMode === 'focus') {
+        speakEnglish("Congratulations Hana! Focus session complete. Time for a five minute break!");
+        showToast(currentLang === 'vi' ? 'Tuyệt vời Hana! Đã xong một phiên Pomodoro. Giờ con nghỉ giải lao nhé!' : 'Great job Hana! Pomodoro session complete. Time to rest!', 'success');
+        setPomoMode('break');
+      } else {
+        speakEnglish("Break time is over, Hana! Let's start focusing again.");
+        showToast(currentLang === 'vi' ? 'Hết giờ nghỉ rồi Hana ơi! Cùng tập trung học nhé.' : 'Break is over, Hana! Time to focus again.', 'info');
+        setPomoMode('focus');
+      }
+      
       setTimeout(processOfflineQueue, 800);
     }
 
     function resetPomodoro() {
       clearInterval(pomoInterval);
       isPomoRunning = false;
-      pomoSeconds = 25 * 60;
-      document.getElementById('pomo-btn-text').textContent = 'START';
-      document.getElementById('pomo-icon').classList.replace('fa-pause', 'fa-play');
+      const icon = document.getElementById('pomo-icon');
+      if (icon) icon.classList.replace('fa-pause', 'fa-play');
+      pomoSeconds = (pomoMode === 'focus' ? pomoFocusMinutes : pomoBreakMinutes) * 60;
       updatePomoUI();
+      speakEnglish("Pomodoro timer reset.");
     }
 
-    // ==================== WATER ====================
     function updateWaterUI() {
       document.getElementById('water-current').textContent = waterMl;
-      const pct = Math.min((waterMl / 1200) * 100, 100);
-      document.getElementById('water-bar').style.width = pct + '%';
+      document.getElementById('water-bar').style.width = Math.min((waterMl / waterGoalMl) * 100, 100) + '%';
     }
 
     async function logWater(amount) {
-      waterMl = Math.min(waterMl + amount, 1200);
+      waterMl = Math.min(waterMl + amount, waterGoalMl);
       updateWaterUI();
-
-      const today = new Date().toISOString().split('T')[0];
-
-      const action = {
-        type: 'log_water',
-        amount: amount,
-        date: today
-      };
-
-      // Optimistic UI already done above
-
-      try {
-        if (navigator.onLine && supabaseClient) {
-          const { error } = await supabaseClient.from('daily_activities').insert({
-            activity_date: today,
-            activity_type: 'water_intake',
-            value: amount,
-            note: '',
-            is_synced: true,
-            synced_at: new Date().toISOString()
-          });
-
-          if (error) throw error;
-
-          showToast(`+${amount}ml saved`, 'success');
-        } else {
-          throw new Error('Offline');
-        }
-      } catch (err) {
-        // Queue for later
-        addToOfflineQueue(action);
-        showToast(`+${amount}ml saved offline (will sync later)`, 'info');
-      }
-
-      // Always try to process queue in background
+      addToOfflineQueue({ type: 'log_water', amount });
+      
+      // Speak drinking praise in English
+      speakEnglish(`Good job! You added ${amount} milliliters of water. Keep staying hydrated, Hana!`);
+      
       setTimeout(processOfflineQueue, 800);
     }
 
-    // ==================== MISSIONS (from Supabase) ====================
-    function renderMissions() {
-      const container = document.getElementById('missions-list');
-      container.innerHTML = '';
-
-      if (isLoadingTasks) {
-        container.innerHTML = `
-          <div class="border border-orange-200 bg-orange-50 rounded-2xl p-4 text-center text-orange-600">
-            <i class="fa-solid fa-spinner fa-spin mr-2"></i> Loading today's missions...
-          </div>
-        `;
-        return;
-      }
-
-      if (todayTasks.length === 0) {
-        container.innerHTML = `
-          <div class="border border-orange-200 bg-orange-50 rounded-2xl p-5 text-center">
-            <div class="text-orange-600 font-medium">No missions today 🎉</div>
-            <div class="text-sm text-orange-500 mt-1">Great job! You can rest or ask parents to add more tasks.</div>
-          </div>
-        `;
-        return;
-      }
-
-      todayTasks.forEach((task, index) => {
-        const isDone = task.status === 'done';
-        const el = document.createElement('div');
-        el.className = `border ${isDone ? 'border-emerald-200 bg-emerald-50' : 'border-orange-200 bg-orange-50'} rounded-2xl p-4 flex gap-4 cursor-pointer`;
-        
-        el.innerHTML = `
-          <div class="mt-0.5">
-            <i class="fa-solid ${isDone ? 'fa-check-circle text-emerald-500' : 'fa-pen text-orange-500'} text-3xl"></i>
-          </div>
-          <div class="flex-1">
-            <div class="flex items-center gap-x-2">
-              <span class="font-semibold">${task.subject}</span>
-              ${isDone ? `<span class="text-[10px] bg-white px-2 py-px rounded text-emerald-600 font-medium">DONE</span>` : ''}
-            </div>
-            <div class="text-sm text-orange-700 mt-0.5">${task.title}</div>
-            ${isDone ? `<div class="text-xs text-emerald-600 mt-0.5">Submitted</div>` : ''}
-          </div>
-        `;
-
-        if (!isDone) {
-          el.onclick = () => openTaskModal(index);
-        }
-        container.appendChild(el);
-      });
-    }
-
-    // ==================== TASK MODAL ====================
-    let currentTaskIndex = 0;
-
-    function openTaskModal(index) {
-      const task = todayTasks[index];
-      if (!task) return;
-
-      currentTaskIndex = index;
-      document.getElementById('modal-subject').textContent = task.subject;
-      document.getElementById('modal-title').textContent = task.title;
-      document.getElementById('modal-content').textContent = task.content || "No content available.";
+    function updateResources(subject) {
+      const container = document.getElementById('resources-list');
+      if (!container) return;
       
-      document.getElementById('student-answer').value = '';
-      document.getElementById('task-modal').classList.remove('hidden');
-      document.getElementById('task-modal').classList.add('flex');
-    }
-
-    function closeTaskModal() {
-      const modal = document.getElementById('task-modal');
-      modal.classList.remove('flex');
-      modal.classList.add('hidden');
-    }
-
-    async function submitTask() {
-      const answer = document.getElementById('student-answer').value.trim();
-      if (!answer) {
-        alert("Please write something before submitting!");
+      const t = translations[currentLang];
+      if (!subject || subject === 'General') {
+        container.innerHTML = `<div class="text-xs text-orange-400 italic col-span-full py-2">${t.resourcesEmpty}</div>`;
         return;
       }
+      
+      const resources = (LEARNING_RESOURCES[currentLang] && LEARNING_RESOURCES[currentLang][subject]) || [];
+      if (resources.length === 0) {
+        container.innerHTML = `<div class="text-xs text-orange-400 italic col-span-full py-2">${t.resourcesEmpty}</div>`;
+        return;
+      }
+      
+      container.innerHTML = resources.map(res => `
+        <a href="${res.url}" target="_blank" class="flex items-center gap-3 p-3 bg-orange-50/75 hover:bg-orange-100/70 border border-orange-100/50 rounded-xl text-orange-950 text-xs font-semibold transition-all">
+          <div class="w-8 h-8 rounded-lg bg-orange-150 flex items-center justify-center text-orange-600 text-sm">
+            <i class="fa-solid ${res.icon || 'fa-book'}"></i>
+          </div>
+          <span class="truncate">${res.title}</span>
+        </a>
+      `).join('');
+    }
 
-      const task = todayTasks[currentTaskIndex];
-      if (!task) return;
+    function toggleStudyTimer() {
+      if (!activeTaskId) return;
+      
+      const playIcon = document.getElementById('study-btn-icon');
+      const timerContainer = document.getElementById('study-timer-container');
+      const overlay = document.getElementById('todo-focus-overlay');
+      const todoCard = document.getElementById('todo-card-container');
+      const t = translations[currentLang];
+      
+      isStudyRunning = !isStudyRunning;
+      
+      if (isStudyRunning) {
+        // Start study timer counting
+        timerContainer.classList.remove('hidden');
+        timerContainer.classList.add('flex');
+        
+        if (playIcon) {
+          playIcon.classList.remove('fa-play');
+          playIcon.classList.add('fa-pause');
+        }
+        document.getElementById('study-btn-text').textContent = t.studyPauseBtn;
+        
+        // Show Focus Overlay on checklist, and blur actual checklist
+        if (overlay) overlay.classList.remove('hidden');
+        if (todoCard) todoCard.classList.add('blur-focus');
+        
+        speakEnglish("Study session started. Let's focus and write!");
 
-      const today = new Date().toISOString();
-      const action = {
+        studyInterval = setInterval(() => {
+          studySeconds++;
+          updateStudyTimerUI();
+        }, 1000);
+      } else {
+        // Stop timer, update start button to RESUME
+        clearInterval(studyInterval);
+        
+        if (playIcon) {
+          playIcon.classList.remove('fa-pause');
+          playIcon.classList.add('fa-play');
+        }
+        document.getElementById('study-btn-text').textContent = t.studyResumeBtn;
+        
+        // Hide Focus Overlay and remove blur
+        if (overlay) overlay.classList.add('hidden');
+        if (todoCard) todoCard.classList.remove('blur-focus');
+        
+        speakEnglish("Study session paused.");
+      }
+    }
+
+    function updateStudyTimerUI() {
+      const timeEl = document.getElementById('study-time');
+      if (!timeEl) return;
+      
+      const hrs = Math.floor(studySeconds / 3600);
+      const mins = Math.floor((studySeconds % 3600) / 60);
+      const secs = studySeconds % 60;
+      
+      if (hrs > 0) {
+        timeEl.textContent = `${hrs.toString().padStart(2,'0')}:${mins.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')}`;
+      } else {
+        timeEl.textContent = `${mins.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')}`;
+      }
+    }
+
+    function selectTask(index) {
+      if (index < 0 || index >= todayTasks.length) return;
+      const task = todayTasks[index];
+      
+      const isNewTask = activeTaskId !== task.id;
+      
+      if (isNewTask) {
+        // Pause active study timer if running for the previous task
+        if (isStudyRunning) {
+          toggleStudyTimer();
+        }
+        activeTaskId = task.id;
+        studySeconds = 0;
+        updateStudyTimerUI();
+      }
+      
+      // Update UI panels visibility
+      document.getElementById('active-task-empty').classList.add('hidden');
+      document.getElementById('active-task-details').classList.remove('hidden');
+      
+      // Load content
+      document.getElementById('active-task-subject-title').textContent = `${task.subject}: ${task.title}`;
+      document.getElementById('active-task-instructions').textContent = task.content;
+      
+      // Textarea state
+      const textarea = document.getElementById('student-desk-answer');
+      textarea.value = task.student_answer || '';
+      
+      const submitBtn = document.getElementById('desk-submit-btn');
+      const startBtn = document.getElementById('study-start-btn');
+      const timerContainer = document.getElementById('study-timer-container');
+      const t = translations[currentLang];
+      
+      if (task.status === 'done') {
+        textarea.disabled = true;
+        
+        // Disable submit button and change style
+        submitBtn.disabled = true;
+        submitBtn.className = "w-full py-3 bg-emerald-600 text-white rounded-2xl font-bold shadow-md cursor-not-allowed flex items-center justify-center gap-2";
+        submitBtn.innerHTML = `<i class="fa-solid fa-check"></i> <span>${t.submitBtnDone}</span>`;
+        
+        // Hide study controls
+        startBtn.classList.add('hidden');
+        timerContainer.classList.add('hidden');
+      } else {
+        textarea.disabled = false;
+        
+        // Restore submit button
+        submitBtn.disabled = false;
+        submitBtn.className = "w-full py-3 bg-orange-600 hover:bg-orange-700 text-white rounded-2xl font-bold shadow-md transition-all flex items-center justify-center gap-2";
+        submitBtn.innerHTML = `<i class="fa-solid fa-paper-plane"></i> <span>${t.submitBtn}</span>`;
+        
+        // Show start button
+        startBtn.classList.remove('hidden');
+        
+        // Show study timer if they have already accumulated some seconds
+        if (studySeconds > 0) {
+          timerContainer.classList.remove('hidden');
+          timerContainer.classList.add('flex');
+        } else {
+          timerContainer.classList.add('hidden');
+        }
+        
+        // Set play/pause icon and label
+        const playIcon = document.getElementById('study-btn-icon');
+        if (playIcon) {
+          playIcon.className = isStudyRunning ? 'fa-solid fa-pause' : 'fa-solid fa-play';
+        }
+        document.getElementById('study-btn-text').textContent = isStudyRunning ? t.studyPauseBtn : (studySeconds === 0 ? t.studyStartBtn : t.studyResumeBtn);
+      }
+      
+      // Load resources for the new subject
+      updateResources(task.subject);
+      
+      // Re-render checklist to show visual highlights
+      renderMissions();
+    }
+
+    async function submitTaskFromDesk() {
+      if (!activeTaskId) return;
+      
+      const answerEl = document.getElementById('student-desk-answer');
+      if (!answerEl) return;
+      const answer = answerEl.value.trim();
+      
+      const taskIndex = todayTasks.findIndex(tk => tk.id === activeTaskId);
+      if (taskIndex === -1) return;
+      const task = todayTasks[taskIndex];
+      
+      if (!answer) {
+        showToast(currentLang === 'vi' ? 'Hana ơi, con hãy hoàn thành bài viết trước khi nộp nhé!' : 'Please write your answer before submitting!', 'error');
+        speakEnglish("Hana, please write your answer before submitting.");
+        return;
+      }
+      
+      // Auto pause/stop the timer
+      if (isStudyRunning) {
+        toggleStudyTimer();
+      }
+      
+      // Update task status locally
+      task.status = 'done';
+      task.student_answer = answer;
+      
+      // Update task items checklist UI
+      renderMissions();
+      
+      // Store in offline queue
+      addToOfflineQueue({
         type: 'submit_task',
         taskId: task.id,
-        answer: answer,
-        timestamp: today
-      };
-
-      closeTaskModal();
-
-      // Optimistically mark as done in UI
-      task.status = 'done';
-      renderMissions();
-
-      try {
-        if (navigator.onLine && supabaseClient) {
-          const { error } = await supabaseClient.from('submissions').insert({
-            task_id: task.id,
-            student_answer: answer,
-            submitted_at: today,
-            is_synced: true,
-            synced_at: today
-          });
-
-          if (error) throw error;
-
-          showToast('Bài đã nộp thành công! AI sẽ chấm sớm.', 'success');
-        } else {
-          throw new Error('Offline');
-        }
-      } catch (err) {
-        addToOfflineQueue(action);
-        showToast('Bài đã lưu offline. Sẽ tự động nộp khi có mạng.', 'info');
-      }
-
+        answer: answer
+      });
+      
+      showToast(currentLang === 'vi' ? 'Đã ghi nhận bài nộp thành công!' : 'Successfully submitted locally!', 'success');
+      speakEnglish("Congratulations Hana! Your assignment has been successfully submitted to the A.I. teacher!");
+      
+      // Refresh active task display to show completion state (disabled textarea, success button)
+      selectTask(taskIndex);
+      
+      // Sync queue
       setTimeout(processOfflineQueue, 800);
     }
 
-    function showAllTasks() {
-      alert("This will open the full task bank from Supabase (to be implemented).");
-    }
+    function showAllTasks() { alert("Full task bank."); }
+    function showRequestModal() { alert("Request sent."); }
 
-    // ==================== REQUEST CHANGE ====================
-    function showRequestModal() {
-      const reason = prompt("Why do you want more screen time?\n(Write your reason in Vietnamese or English)");
-      if (!reason) return;
-      alert(`Request sent to parents via Telegram.\n\nReason: ${reason}\n\nThey will reply soon.`);
-      // TODO: Save to approval_requests table + trigger Telegram via Edge Function or GAS
-    }
-
-    // ==================== OFFLINE DETECTION + AUTO SYNC ====================
     function initOfflineDetection() {
-      const banner = document.getElementById('offline-banner');
-
-      function updateOnlineStatus() {
-        if (!navigator.onLine) {
-          if (banner) {
-            banner.classList.remove('hidden');
-            banner.classList.add('flex', 'items-center', 'justify-center', 'gap-x-2');
-          }
-        } else {
-          // When coming back online, try to sync
-          setTimeout(processOfflineQueue, 1200);
-          if (banner && pendingActions.length === 0) {
-            banner.classList.add('hidden');
-          }
-        }
-        updateOfflineBanner();
-      }
-
-      window.addEventListener('online', updateOnlineStatus);
-      window.addEventListener('offline', () => {
-        if (banner) {
-          banner.classList.remove('hidden');
-          banner.classList.add('flex', 'items-center', 'justify-center', 'gap-x-2');
-        }
-      });
-
-      // Try to sync on load
-      if (navigator.onLine) {
-        setTimeout(processOfflineQueue, 2000);
-      }
-
-      updateOnlineStatus();
+      window.addEventListener('online', () => processOfflineQueue());
     }
 
-    // ==================== SUPABASE ====================
     function initSupabase() {
-      if (!SUPABASE_URL || SUPABASE_URL.includes('YOUR_')) {
-        console.warn('Supabase not configured yet.');
-        return;
-      }
       supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-      console.log('%c[Hana] Supabase client initialized successfully', 'color:#22c55e');
-
-      // Load real data
       loadTodayConfig();
-      loadTodayTasks();           // ← Task A: Load missions from Supabase
+      loadTodayTasks();
     }
 
     async function loadTodayConfig() {
-      try {
-        const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
-
-        const { data, error } = await supabaseClient
-          .from('daily_configs')
-          .select('*')
-          .eq('config_date', today)
-          .single();
-
-        if (error && error.code !== 'PGRST116') { // PGRST116 = no rows found
-          throw error;
-        }
-
-        if (data) {
-          console.log('%c[Hana] Loaded today\'s config from Supabase:', 'color:#22c55e', data);
-          // Future: use this data to set Pomodoro time, water goal, etc.
-        } else {
-          console.log('%c[Hana] No config found for today. Using defaults.', 'color:#eab308');
-        }
-      } catch (err) {
-        console.error('[Hana] Failed to load config from Supabase:', err.message);
+      const { data } = await supabaseClient.from('daily_configs').select('*').eq('config_date', new Date().toISOString().split('T')[0]).single();
+      if (data) {
+        pomoFocusMinutes = data.pomo_focus_minutes || 25;
+        waterGoalMl = data.water_goal_ml || 1200;
+        updatePomoUI();
+        updateWaterUI();
       }
     }
 
-    // Load today's tasks from Supabase (Task A)
     async function loadTodayTasks() {
-      if (!supabaseClient) return;
-
-      isLoadingTasks = true;
-      renderMissions(); // show loading state
-
-      try {
-        const today = new Date().toISOString().split('T')[0];
-
-        const { data, error } = await supabaseClient
-          .from('tasks')
-          .select('id, subject, title, content, system_prompt, scheduled_date, status')
-          .eq('scheduled_date', today)
-          .order('id', { ascending: true });
-
-        if (error) throw error;
-
-        // Map database status to our UI status
-        todayTasks = (data || []).map(task => ({
-          id: task.id,
-          subject: task.subject,
-          title: task.title,
-          content: task.content,
-          system_prompt: task.system_prompt,
-          status: (task.status === 'submitted' || task.status === 'graded') ? 'done' : 'todo'
-        }));
-
-        console.log('%c[Hana] Loaded today\'s tasks from Supabase:', 'color:#22c55e', todayTasks);
-
-      } catch (err) {
-        console.error('[Hana] Failed to load tasks:', err.message);
-        todayTasks = [];
-      } finally {
-        isLoadingTasks = false;
-        renderMissions();
-      }
+      const { data } = await supabaseClient.from('tasks').select('*').eq('scheduled_date', new Date().toISOString().split('T')[0]);
+      todayTasks = (data || []).map(t => ({ ...t, status: t.status === 'submitted' ? 'done' : 'todo' }));
+      renderMissions();
     }
 
-    // ==================== INIT ====================
-    function init() {
-      // Language
-      document.getElementById('lang-vi').classList.add('nav-active');
-
-      // Initial render (will show loading state for missions)
-      renderMissions();
-
-      // Set dynamic today date
-      const dateEl = document.getElementById('today-date');
-      if (dateEl) {
-        const today = new Date();
-        dateEl.textContent = today.toLocaleDateString('vi-VN', { 
-          weekday: 'long', 
-          day: 'numeric', 
-          month: 'long', 
-          year: 'numeric' 
-        });
+    function renderMissions() {
+      const container = document.getElementById('missions-list');
+      if (!container) return;
+      
+      const total = todayTasks.length;
+      const completed = todayTasks.filter(t => t.status === 'done').length;
+      
+      const badge = document.getElementById('missions-count-badge');
+      if (badge) {
+        const label = currentLang === 'vi' ? 'hoàn thành' : 'completed';
+        badge.textContent = `${completed} / ${total} ${label}`;
       }
+      
+      if (total === 0) {
+        container.innerHTML = `<div class="text-xs text-orange-400 italic text-center py-6">${currentLang === 'vi' ? 'Không có nhiệm vụ nào hôm nay.' : 'No missions scheduled for today.'}</div>`;
+        return;
+      }
+      
+      function getSubjectColor(subj) {
+        if (subj === 'Toán') return 'bg-sky-100 text-sky-700 border-sky-200';
+        if (subj === 'Tiếng Anh') return 'bg-orange-100 text-orange-700 border-orange-200';
+        if (subj === 'Tiếng Việt') return 'bg-emerald-100 text-emerald-700 border-emerald-200';
+        return 'bg-amber-100 text-amber-700 border-amber-200';
+      }
+      
+      container.innerHTML = todayTasks.map((t, idx) => `
+        <div onclick="selectTask(${idx})" class="group flex items-center justify-between p-3.5 border rounded-2xl cursor-pointer transition-all duration-200 ${activeTaskId === t.id ? 'bg-orange-50 border-orange-300 ring-2 ring-orange-300/20' : 'bg-white hover:bg-orange-50/30 border-orange-100'}">
+          <div class="flex items-center gap-3 min-w-0">
+            <div class="w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-all ${t.status === 'done' ? 'bg-emerald-500 border-emerald-500 text-white' : 'border-orange-300 group-hover:border-orange-500'}">
+              ${t.status === 'done' ? '<i class="fa-solid fa-check text-[10px]"></i>' : ''}
+            </div>
+            <div class="min-w-0">
+              <div class="text-xs font-semibold text-orange-950 truncate">${t.title}</div>
+              <div class="flex items-center gap-1.5 mt-0.5">
+                <span class="px-2 py-0.5 rounded-md text-[9px] font-bold uppercase tracking-wider ${getSubjectColor(t.subject)}">
+                  ${t.subject}
+                </span>
+                ${t.status === 'done' ? `<span class="text-[9px] font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-md">${translations[currentLang].todoCompleted}</span>` : ''}
+              </div>
+            </div>
+          </div>
+          <i class="fa-solid fa-chevron-right text-[10px] text-orange-400 opacity-0 group-hover:opacity-100 transition-opacity"></i>
+        </div>
+      `).join('');
+    }
 
-      // Water & Pomodoro
+    function init() {
+      renderMissions();
+      updateFlipDateUI();
+      
+      // Update digital clock every second
+      setInterval(updateFlipDateUI, 1000);
+
+      // Hydration voice reminder every 25 minutes
+      setInterval(() => {
+        speakEnglish("Hana, please remember to take a break and drink some water to stay hydrated!");
+      }, 25 * 60 * 1000);
+
       updateWaterUI();
       updatePomoUI();
-
-      // Load any previously queued offline actions
+      updateScreenTimeUI();
       loadQueueFromStorage();
-
-      // Offline detection + auto sync
       initOfflineDetection();
-
-      // Initialize Supabase (this will trigger loadTodayTasks)
       initSupabase();
 
       console.log('%c[Hana Dashboard] Initialized with Offline Queue support', 'color:#c2410f');

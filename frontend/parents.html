@@ -11,393 +11,59 @@
     .heading { font-family: 'Nunito', 'Inter', system_ui, sans-serif; }
     .stat-card { transition: transform .2s ease; }
     .warning-row { background-color: #FEF2F2; }
+    .pending-badge { background-color: #FEF3C7; color: #92400E; }
   </style>
 </head>
 <body class="bg-zinc-950 text-zinc-200">
   <div class="max-w-7xl mx-auto">
-    <!-- Top Bar -->
     <div class="border-b border-zinc-800 bg-zinc-900 px-8 py-5 flex items-center justify-between">
-      <div class="flex items-center gap-x-3">
-        <div class="w-9 h-9 bg-gradient-to-br from-zinc-400 to-zinc-600 rounded-2xl flex items-center justify-center">
-          <i class="fa-solid fa-shield-halved text-white"></i>
-        </div>
-        <div>
-          <span class="font-semibold text-xl">Hana Summer LMS</span>
-          <span class="text-xs text-zinc-500 ml-2">Parent Dashboard</span>
-        </div>
-      </div>
-
-      <div class="flex items-center gap-x-4 text-sm">
-        <div class="px-4 py-1 bg-emerald-900 text-emerald-400 rounded-3xl text-xs font-medium flex items-center gap-x-1">
-          <i class="fa-solid fa-circle text-[8px]"></i> <span>Live sync active</span>
-        </div>
-        <div class="text-right">
-          <div class="font-medium">Bố Mẹ • YTF</div>
-          <div class="text-xs text-zinc-500">Last sync: just now</div>
-        </div>
-      </div>
+      <div class="flex items-center gap-x-3"><div class="w-9 h-9 bg-gradient-to-br from-zinc-400 to-zinc-600 rounded-2xl flex items-center justify-center"><i class="fa-solid fa-shield-halved text-white"></i></div><div><span class="font-semibold text-xl">Hana Summer LMS</span><span class="text-xs text-zinc-500 ml-2">Parent Dashboard</span></div></div>
+      <div class="flex items-center gap-x-4 text-sm"><div class="px-4 py-1 bg-emerald-900 text-emerald-400 rounded-3xl text-xs font-medium flex items-center gap-x-1"><i class="fa-solid fa-circle text-[8px]"></i> <span>Live sync active</span></div><div class="text-right"><div class="font-medium">Bố Mẹ • YTF</div><div class="text-xs text-zinc-500">Last sync: just now</div></div></div>
     </div>
 
     <div class="p-8">
-      <div class="mb-8 flex items-center justify-between">
-        <div>
-          <h1 class="text-4xl font-semibold heading tracking-tight">Chào Bố Mẹ 👋</h1>
-          <p class="text-zinc-400 mt-1">Theo dõi hoạt động và tiến độ học tập của Hana hôm nay.</p>
-        </div>
-        <button onclick="loadAllData()" 
-                class="flex items-center gap-x-2 px-4 py-2 bg-zinc-800 hover:bg-zinc-700 rounded-2xl text-sm font-medium">
-          <i class="fa-solid fa-sync"></i>
-          <span>Refresh</span>
-        </button>
-      </div>
+      <div class="mb-8 flex items-center justify-between"><div><h1 class="text-4xl font-semibold heading tracking-tight">Chào Bố Mẹ 👋</h1><p class="text-zinc-400 mt-1">Theo dõi hoạt động và tiến độ học tập của Hana hôm nay.</p></div><button onclick="loadAllData()" class="flex items-center gap-x-2 px-4 py-2 bg-zinc-800 hover:bg-zinc-700 rounded-2xl text-sm font-medium"><i class="fa-solid fa-sync"></i><span>Refresh</span></button></div>
 
-      <!-- Quick Stats -->
       <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-        <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-5 stat-card">
-          <div class="text-xs text-zinc-400">SCREEN TIME TODAY</div>
-          <div class="text-4xl font-semibold mt-1 tabular-nums">47 <span class="text-xl font-normal text-zinc-400">/ 120</span></div>
-          <div class="text-emerald-400 text-xs mt-1">39% of limit</div>
-        </div>
-        <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-5 stat-card">
-          <div class="text-xs text-zinc-400">WATER INTAKE</div>
-          <div id="water-intake-stat" class="text-4xl font-semibold mt-1 tabular-nums">— <span class="text-xl font-normal text-zinc-400">/ 1200</span></div>
-          <div class="text-amber-400 text-xs mt-1">Today's total</div>
-        </div>
-        <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-5 stat-card">
-          <div class="text-xs text-zinc-400">FOCUS SESSIONS</div>
-          <div id="pomo-stat" class="text-4xl font-semibold mt-1">— <span class="text-xl font-normal text-zinc-400">/ 6</span></div>
-          <div class="text-emerald-400 text-xs mt-1">Completed today</div>
-        </div>
-        <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-5 stat-card">
-          <div class="text-xs text-zinc-400">WARNINGS (LAST 7 DAYS)</div>
-          <div class="text-4xl font-semibold mt-1 text-red-400">7</div>
-          <div class="text-red-400 text-xs mt-1">Mainly YouTube &amp; games</div>
-        </div>
+        <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-5 stat-card"><div class="text-xs text-zinc-400">SCREEN TIME TODAY</div><div class="text-4xl font-semibold mt-1 tabular-nums" id="screen-stat">47 <span class="text-xl font-normal text-zinc-400">/ 120</span></div><div class="text-emerald-400 text-xs mt-1">39% of limit</div></div>
+        <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-5 stat-card"><div class="text-xs text-zinc-400">WATER INTAKE</div><div id="water-intake-stat" class="text-4xl font-semibold mt-1 tabular-nums">— <span class="text-xl font-normal text-zinc-400">/ 1200</span></div><div class="text-amber-400 text-xs mt-1">Today's total</div></div>
+        <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-5 stat-card"><div class="text-xs text-zinc-400">FOCUS SESSIONS</div><div id="pomo-stat" class="text-4xl font-semibold mt-1">— <span class="text-xl font-normal text-zinc-400">/ 6</span></div><div class="text-emerald-400 text-xs mt-1">Completed today</div></div>
+        <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-5 stat-card"><div class="text-xs text-zinc-400">TASKS COMPLETED</div><div id="tasks-stat" class="text-4xl font-semibold mt-1 text-indigo-400">—</div><div class="text-zinc-500 text-xs mt-1">Học tập chuyên cần</div></div>
       </div>
 
       <div class="grid grid-cols-1 xl:grid-cols-12 gap-6">
-        
-        <!-- Live Configuration -->
-        <div class="xl:col-span-5 bg-zinc-900 border border-zinc-800 rounded-3xl p-6">
-          <div class="flex items-center justify-between mb-4">
-            <div>
-              <div class="text-xs font-semibold text-emerald-400 tracking-widest">LIVE CONFIG</div>
-              <div class="font-semibold text-xl">Daily Rules</div>
-            </div>
-            <button onclick="saveConfig()" class="text-xs px-4 py-2 bg-emerald-600 hover:bg-emerald-500 rounded-2xl font-medium flex items-center gap-x-1">
-              <i class="fa-solid fa-save"></i>
-              <span>Save &amp; Sync</span>
-            </button>
-          </div>
-
+        <div class="xl:col-span-4 bg-zinc-900 border border-zinc-800 rounded-3xl p-6">
+          <div class="flex items-center justify-between mb-6"><div><div class="text-xs font-semibold text-emerald-400 tracking-widest">LIVE CONFIG</div><div class="font-semibold text-xl">Daily Rules</div></div><button onclick="saveConfig()" class="text-xs px-4 py-2 bg-emerald-600 hover:bg-emerald-500 rounded-2xl font-medium flex items-center gap-x-1"><i class="fa-solid fa-save"></i><span>Save</span></button></div>
           <div class="space-y-4 text-sm">
-            <div class="grid grid-cols-3 gap-x-4 items-center">
-              <div class="text-zinc-400">Pomodoro Focus</div>
-              <input id="config-pomo" type="number" value="25" class="col-span-2 bg-zinc-950 border border-zinc-700 rounded-2xl px-4 py-2 text-sm">
-            </div>
-            <div class="grid grid-cols-3 gap-x-4 items-center">
-              <div class="text-zinc-400">Screen Limit (min)</div>
-              <input id="config-screen" type="number" value="120" class="col-span-2 bg-zinc-950 border border-zinc-700 rounded-2xl px-4 py-2 text-sm">
-            </div>
-            <div class="grid grid-cols-3 gap-x-4 items-center">
-              <div class="text-zinc-400">Water Goal (ml)</div>
-              <input id="config-water" type="number" value="1200" class="col-span-2 bg-zinc-950 border border-zinc-700 rounded-2xl px-4 py-2 text-sm">
-            </div>
+            <div class="flex justify-between items-center"><span class="text-zinc-400">Pomodoro Focus</span><input id="config-pomo" type="number" class="w-20 bg-zinc-950 border border-zinc-700 rounded-xl px-3 py-1.5 text-center"></div>
+            <div class="flex justify-between items-center"><span class="text-zinc-400">Screen Limit (min)</span><input id="config-screen" type="number" class="w-20 bg-zinc-950 border border-zinc-700 rounded-xl px-3 py-1.5 text-center"></div>
+            <div class="flex justify-between items-center"><span class="text-zinc-400">Water Goal (ml)</span><input id="config-water" type="number" class="w-20 bg-zinc-950 border border-zinc-700 rounded-xl px-3 py-1.5 text-center"></div>
           </div>
-          <p class="text-[10px] text-zinc-500 mt-4">Hana sẽ nhận cấu hình mới trong vòng ~1-2 phút.</p>
         </div>
-
-        <!-- Device Monitoring -->
-        <div class="xl:col-span-7 bg-zinc-900 border border-zinc-800 rounded-3xl p-6">
-          <div class="flex items-center justify-between mb-4">
-            <div>
-              <div class="text-xs font-semibold text-red-400 tracking-widest">DEVICE MONITORING</div>
-              <div class="font-semibold text-xl">Recent Activity • SLM Analysis</div>
-            </div>
-            <span id="warning-count" class="text-xs px-3 py-1 bg-red-900 text-red-300 rounded-2xl">0 warnings</span>
-          </div>
-
-          <div class="overflow-x-auto rounded-2xl border border-zinc-800 text-sm max-h-[260px] overflow-y-auto">
-            <table class="w-full">
-              <thead class="bg-zinc-950 text-xs text-zinc-400 sticky top-0">
-                <tr>
-                  <th class="text-left px-4 py-2 font-normal">Time</th>
-                  <th class="text-left px-4 py-2 font-normal">Active Window / Activity</th>
-                  <th class="text-left px-4 py-2 font-normal">SLM Result</th>
-                </tr>
-              </thead>
-              <tbody id="device-logs-body" class="divide-y divide-zinc-800 text-xs">
-                <!-- Populated dynamically by JavaScript -->
-              </tbody>
-            </table>
-          </div>
-          <div id="device-logs-empty" class="hidden text-center text-zinc-500 text-xs py-4">No device logs yet.</div>
+        <div class="xl:col-span-8 bg-zinc-900 border border-zinc-800 rounded-3xl p-6">
+          <div class="flex items-center justify-between mb-6"><div><div class="text-xs font-semibold text-indigo-400 tracking-widest">ACADEMIC PORTFOLIO</div><div class="font-semibold text-xl">Recent Submissions & AI Grading</div></div><button onclick="runGrader()" class="text-[10px] px-3 py-1 border border-zinc-700 hover:bg-zinc-800 rounded-xl flex items-center gap-1"><i class="fa-solid fa-robot"></i> Run AI Grader</button></div>
+          <div id="submissions-body" class="space-y-4"></div><div id="submissions-empty" class="hidden text-center text-zinc-500 text-xs py-8 italic">No submissions yet today.</div>
         </div>
-
-        <!-- Academic Portfolio -->
-        <div class="xl:col-span-7 bg-zinc-900 border border-zinc-800 rounded-3xl p-6">
-          <div class="flex items-center justify-between mb-4">
-            <div>
-              <div class="text-xs font-semibold text-indigo-400 tracking-widest">ACADEMIC PORTFOLIO</div>
-              <div class="font-semibold text-xl">Recent Submissions</div>
-            </div>
-          </div>
-
-          <div id="submissions-body" class="space-y-3 text-sm">
-            <!-- Populated by JS -->
-          </div>
-          <div id="submissions-empty" class="hidden text-center text-zinc-500 text-xs py-4">No submissions yet today.</div>
-        </div>
-
-        <!-- Calendar / Schedule Overview -->
-        <div class="xl:col-span-5 bg-zinc-900 border border-zinc-800 rounded-3xl p-6">
-          <div class="flex items-center justify-between mb-4">
-            <div>
-              <div class="text-xs font-semibold text-amber-400 tracking-widest">PROGRAM OVERVIEW</div>
-              <div class="font-semibold text-xl">Learning Progress</div>
-            </div>
-          </div>
-
-          <div class="text-sm text-zinc-400 mb-3">Today's focus &amp; completion rate will appear here.</div>
-          
-          <div class="grid grid-cols-2 gap-3 text-center">
-            <div class="bg-zinc-950 border border-zinc-800 rounded-2xl p-4">
-              <div class="text-xs text-zinc-400">Tasks Completed</div>
-              <div id="tasks-completed" class="text-3xl font-semibold mt-1 text-emerald-400">—</div>
-            </div>
-            <div class="bg-zinc-950 border border-zinc-800 rounded-2xl p-4">
-              <div class="text-xs text-zinc-400">Pending Tasks</div>
-              <div id="tasks-pending" class="text-3xl font-semibold mt-1 text-orange-400">—</div>
-            </div>
-          </div>
-
-          <div class="mt-4 text-[10px] text-zinc-500">Full weekly &amp; monthly view coming soon.</div>
-        </div>
-
       </div>
     </div>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
-    // ==================== SUPABASE CONFIG ====================
     const SUPABASE_URL = 'https://oytgbhytkddjlygafxjf.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im95dGdiaHl0a2Rkamx5Z2FmeGpmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAyMzUyNjIsImV4cCI6MjA5NTgxMTI2Mn0.ez0NvMJsZKrjRp5d71LxbPUfYjermDw2FoiC7jcH4lY';
-
+    const SUPABASE_ANON_KEY = '****************************************************************************************************************************************************************************************************************';
     let supabaseClient = null;
 
-    function initSupabase() {
-      supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-      console.log('%c[Parents] Supabase client initialized', 'color:#22c55e');
-      loadAllData();
+    function initSupabase() { supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY); loadAllData(); }
+    async function loadAllData() { if(!supabaseClient) return; await Promise.all([loadConfig(), loadStats(), loadSubmissions()]); document.querySelector('.text-zinc-500').textContent = `Last updated: ${new Date().toLocaleTimeString('vi-VN')}`; }
+    async function loadConfig() { const { data } = await supabaseClient.from('daily_configs').select('*').eq('config_date', new Date().toISOString().split('T')[0]).single(); if(data) { document.getElementById('config-pomo').value = data.pomo_focus_minutes; document.getElementById('config-screen').value = data.screen_limit_minutes; document.getElementById('config-water').value = data.water_goal_ml; } }
+    async function saveConfig() { const payload = { config_date: new Date().toISOString().split('T')[0], pomo_focus_minutes: parseInt(document.getElementById('config-pomo').value), screen_limit_minutes: parseInt(document.getElementById('config-screen').value), water_goal_ml: parseInt(document.getElementById('config-water').value) }; const { error } = await supabaseClient.from('daily_configs').upsert(payload); if(!error) alert("Đã lưu cấu hình mới!"); }
+    async function loadStats() { const today = new Date().toISOString().split('T')[0]; const { data: water } = await supabaseClient.from('daily_activities').select('value').eq('activity_date', today).eq('activity_type', 'water_intake'); const totalWater = (water || []).reduce((s, r) => s + (r.value || 0), 0); const { data: pomo } = await supabaseClient.from('daily_activities').select('id').eq('activity_date', today).eq('activity_type', 'pomodoro_complete'); const { count: tasks } = await supabaseClient.from('tasks').select('*', { count: 'exact', head: true }).eq('scheduled_date', today).eq('status', 'graded'); document.getElementById('water-intake-stat').innerHTML = `${totalWater} <span class="text-xl font-normal text-zinc-400">/ 1200</span>`; document.getElementById('pomo-stat').innerHTML = `${pomo?.length || 0} <span class="text-xl font-normal text-zinc-400">/ 6</span>`; document.getElementById('tasks-stat').textContent = tasks || 0; }
+    async function loadSubmissions() {
+      const container = document.getElementById('submissions-body'); const { data, error } = await supabaseClient.from('submissions').select('*, tasks(*)').order('submitted_at', { ascending: false }).limit(10); if(!data || data.length === 0) { document.getElementById('submissions-empty').classList.remove('hidden'); return; } document.getElementById('submissions-empty').classList.add('hidden');
+      container.innerHTML = data.map(s => `<div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-5"><div class="flex justify-between items-start mb-3"><div><span class="text-[10px] font-bold uppercase tracking-wider text-zinc-500">${s.tasks?.subject}</span><h3 class="font-semibold text-zinc-100">${s.tasks?.title}</h3></div><div class="text-right">${s.ai_score ? `<div class="text-2xl font-bold text-emerald-400">${s.ai_score}<span class="text-xs text-zinc-500">/100</span></div>` : '<span class="px-2 py-0.5 rounded-lg text-[10px] pending-badge font-bold">WAITING AI</span>'}<div class="text-[10px] text-zinc-600 mt-1">${new Date(s.submitted_at).toLocaleTimeString('vi-VN')}</div></div></div><div class="grid grid-cols-1 md:grid-cols-2 gap-4"><div class="p-3 bg-zinc-950 rounded-xl border border-zinc-800 text-xs text-zinc-300"><div class="text-[9px] font-bold text-zinc-600 uppercase mb-1">Bài làm của con</div><p class="whitespace-pre-wrap">${s.student_answer}</p></div><div class="p-3 bg-emerald-950/20 rounded-xl border border-emerald-900/30 text-xs text-emerald-100"><div class="text-[9px] font-bold text-emerald-600 uppercase mb-1">AI Feedback</div><p class="italic">${s.ai_feedback || 'Đang đợi cô giáo AI chấm bài...'}</p></div></div></div>`).join('');
     }
-
-    // ==================== MAIN DATA LOADER ====================
-    async function loadAllData() {
-      if (!supabaseClient) return;
-
-      console.log('%c[Parents] Loading all dashboard data...', 'color:#3b82f6');
-
-      await Promise.all([
-        loadCurrentConfig(),
-        loadTodayStats(),
-        loadDeviceLogs(),
-        loadRecentSubmissions()
-      ]);
-
-      document.querySelector('.text-zinc-500').textContent = 
-        `Last updated: ${new Date().toLocaleTimeString('vi-VN')}`;
-    }
-
-    // ==================== LIVE CONFIG ====================
-    async function loadCurrentConfig() {
-      try {
-        const today = new Date().toISOString().split('T')[0];
-        const { data, error } = await supabaseClient
-          .from('daily_configs')
-          .select('*')
-          .eq('config_date', today)
-          .single();
-
-        if (data) {
-          document.getElementById('config-pomo').value = data.pomo_focus_minutes || 25;
-          document.getElementById('config-screen').value = data.screen_limit_minutes || 120;
-          document.getElementById('config-water').value = data.water_goal_ml || 1200;
-        }
-      } catch (err) {
-        console.log('No config for today yet, using defaults.');
-      }
-    }
-
-    async function saveConfig() {
-      const pomo = parseInt(document.getElementById('config-pomo').value) || 25;
-      const screen = parseInt(document.getElementById('config-screen').value) || 120;
-      const water = parseInt(document.getElementById('config-water').value) || 1200;
-
-      const today = new Date().toISOString().split('T')[0];
-
-      try {
-        const { error } = await supabaseClient
-          .from('daily_configs')
-          .upsert({
-            config_date: today,
-            pomo_focus_minutes: pomo,
-            pomo_break_minutes: 5,
-            water_goal_ml: water,
-            water_reminder_interval_minutes: 90,
-            screen_limit_minutes: screen
-          });
-
-        if (error) throw error;
-
-        alert("Cấu hình đã lưu thành công! Hana sẽ nhận được thay đổi sớm.");
-      } catch (err) {
-        console.error(err);
-        alert("Lỗi khi lưu cấu hình: " + err.message);
-      }
-    }
-
-    // ==================== TODAY'S STATS ====================
-    async function loadTodayStats() {
-      const today = new Date().toISOString().split('T')[0];
-
-      try {
-        // Water intake
-        const { data: waterData } = await supabaseClient
-          .from('daily_activities')
-          .select('value')
-          .eq('activity_date', today)
-          .eq('activity_type', 'water_intake');
-
-        const totalWater = (waterData || []).reduce((sum, row) => sum + (row.value || 0), 0);
-
-        // Pomodoro count
-        const { data: pomoData } = await supabaseClient
-          .from('daily_activities')
-          .select('id')
-          .eq('activity_date', today)
-          .eq('activity_type', 'pomodoro_complete');
-
-        const pomoCount = (pomoData || []).length;
-
-        // Update UI (we'll keep screen time as placeholder for now)
-        document.querySelector('#water-intake-stat').innerHTML = 
-          `${totalWater} <span class="text-xl font-normal text-zinc-400">/ 1200</span>`;
-        document.querySelector('#pomo-stat').innerHTML = 
-          `${pomoCount} <span class="text-xl font-normal text-zinc-400">/ 6</span>`;
-
-      } catch (err) {
-        console.error('Error loading today stats:', err);
-      }
-    }
-
-    // ==================== DEVICE LOGS ====================
-    async function loadDeviceLogs() {
-      const tbody = document.getElementById('device-logs-body');
-      const empty = document.getElementById('device-logs-empty');
-      tbody.innerHTML = '';
-
-      try {
-        const { data, error } = await supabaseClient
-          .from('device_logs')
-          .select('*')
-          .order('timestamp', { ascending: false })
-          .limit(12);
-
-        if (error) throw error;
-
-        if (!data || data.length === 0) {
-          empty.classList.remove('hidden');
-          return;
-        }
-
-        empty.classList.add('hidden');
-
-        let warningCount = 0;
-
-        data.forEach(log => {
-          const time = new Date(log.timestamp).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
-          const isWarning = log.warning_level === 'warning' || log.warning_level === 'critical';
-
-          if (isWarning) warningCount++;
-
-          const row = document.createElement('tr');
-          row.className = isWarning ? 'warning-row' : '';
-          row.innerHTML = `
-            <td class="px-4 py-2.5 font-mono text-zinc-400">${time}</td>
-            <td class="px-4 py-2.5">${log.active_window || 'Unknown'}</td>
-            <td class="px-4 py-2.5">
-              ${isWarning 
-                ? `<span class="text-red-400 font-semibold">${log.slm_report || 'DISTRACTED'}</span>` 
-                : `<span class="text-emerald-400">${log.slm_report || 'OK'}</span>`}
-            </td>
-          `;
-          tbody.appendChild(row);
-        });
-
-        document.getElementById('warning-count').innerHTML = 
-          `${warningCount} warnings`;
-        document.getElementById('warning-count').className = 
-          warningCount > 0 
-            ? 'text-xs px-3 py-1 bg-red-900 text-red-300 rounded-2xl' 
-            : 'text-xs px-3 py-1 bg-emerald-900 text-emerald-300 rounded-2xl';
-
-      } catch (err) {
-        console.error('Error loading device logs:', err);
-        empty.classList.remove('hidden');
-      }
-    }
-
-    // ==================== RECENT SUBMISSIONS (Portfolio) ====================
-    async function loadRecentSubmissions() {
-      const container = document.getElementById('submissions-body');
-      const empty = document.getElementById('submissions-empty');
-      container.innerHTML = '';
-
-      try {
-        const { data, error } = await supabaseClient
-          .from('submissions')
-          .select(`
-            id, task_id, student_answer, submitted_at,
-            tasks (title, subject)
-          `)
-          .order('submitted_at', { ascending: false })
-          .limit(5);
-
-        if (error) throw error;
-
-        if (!data || data.length === 0) {
-          empty.classList.remove('hidden');
-          return;
-        }
-
-        empty.classList.add('hidden');
-
-        data.forEach(sub => {
-          const time = new Date(sub.submitted_at).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
-          const taskTitle = sub.tasks?.title || 'Unknown task';
-
-          const div = document.createElement('div');
-          div.className = 'border border-zinc-700 bg-zinc-950 rounded-2xl p-4';
-          div.innerHTML = `
-            <div class="flex justify-between text-xs mb-1">
-              <div><span class="font-semibold">${sub.tasks?.subject || ''}</span> — ${taskTitle}</div>
-              <div class="text-zinc-500">${time}</div>
-            </div>
-            <div class="text-zinc-300 line-clamp-2 text-xs">
-              ${sub.student_answer?.substring(0, 140)}...
-            </div>
-          `;
-          container.appendChild(div);
-        });
-
-      } catch (err) {
-        console.error('Error loading submissions:', err);
-        empty.classList.remove('hidden');
-      }
-    }
-
-    // Initial load
+    function runGrader() { alert("Hệ thống AI Grader đang chạy ngầm trên server."); }
     initSupabase();
   </script>
 </body>
