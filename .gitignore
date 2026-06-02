@@ -67,3 +67,7 @@ token.json
 tmp/
 temp/
 *.tmp
+
+# Secrets
+secrets.txt
+*.gpg
