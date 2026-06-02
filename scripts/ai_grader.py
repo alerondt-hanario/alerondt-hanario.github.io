@@ -6,7 +6,7 @@ from supabase import create_client, Client
 # Cấu hình
 SUPABASE_URL = "https://oytgbhytkddjlygafxjf.supabase.co"
 # Sử dụng Service Role Key để có quyền update bài làm
-SUPABASE_KEY = os.environ.get("SUPABASE_SERVICE_KEY", "****************************************************************************************************************************************************************************************************************")
+SUPABASE_KEY = os.environ.get("SUPABASE_SERVICE_KEY", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im95dGdiaHl0a2Rkamx5Z2FmeGpmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAyMzUyNjIsImV4cCI6MjA5NTgxMTI2Mn0.ez0NvMJsZKrjRp5d71LxbPUfYjermDw2FoiC7jcH4lY")
 # API Gateway cho LLM (ví dụ 9router hoặc OpenAI/Claude trực tiếp)
 LLM_API_URL = "https://api.9router.ai/v1/chat/completions"
 LLM_API_KEY = os.environ.get("LLM_API_KEY", "")

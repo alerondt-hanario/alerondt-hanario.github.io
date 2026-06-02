@@ -53,7 +53,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
     const SUPABASE_URL = 'https://oytgbhytkddjlygafxjf.supabase.co';
-    const SUPABASE_ANON_KEY = '****************************************************************************************************************************************************************************************************************';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im95dGdiaHl0a2Rkamx5Z2FmeGpmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAyMzUyNjIsImV4cCI6MjA5NTgxMTI2Mn0.ez0NvMJsZKrjRp5d71LxbPUfYjermDw2FoiC7jcH4lY';
     let supabaseClient = null;
     let currentLang = 'vi'; let waterMl = 680; let waterGoalMl = 1200; let screenUsedMinutes = 47; let screenLimitMinutes = 120; let pomoSeconds = 25 * 60; let pomoInterval = null; let isPomoRunning = false; let pomoMode = 'focus'; let pomoFocusMinutes = 25; let pomoBreakMinutes = 5; let todayTasks = []; let activeTaskId = null; let isStudyRunning = false; let studySeconds = 0; let studyInterval = null; let pendingActions = [];
     function speakEnglish(t) { if ('speechSynthesis' in window) { window.speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(t); u.lang = 'en-US'; u.rate = 0.95; u.pitch = 1.15; window.speechSynthesis.speak(u); } }

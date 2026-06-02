@@ -18,7 +18,7 @@ def get_supabase_key():
     except:
         pass
     # Fallback key (cần cập nhật thủ công nếu key trên lỗi)
-    return "****************************************************************************************************************************************************************************************************************"
+    return "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im95dGdiaHl0a2Rkamx5Z2FmeGpmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAyMzUyNjIsImV4cCI6MjA5NTgxMTI2Mn0.ez0NvMJsZKrjRp5d71LxbPUfYjermDw2FoiC7jcH4lY"
 
 def sync_curriculum():
     key = get_supabase_key()
