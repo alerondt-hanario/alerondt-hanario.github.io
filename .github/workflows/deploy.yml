@@ -28,12 +28,6 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v5
         
-      - name: Prepare Files
-        run: |
-          # Di chuyển các file từ thư mục frontend ra ngoài để build
-          # Đổi tên hana.html thành index.html để làm trang chủ
-          mv frontend/hana.html frontend/index.html || true
-          
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
