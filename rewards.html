@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hana • Ngân hàng Quà & Điểm thưởng</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Nunito:wght@400;600;700;800;900&display=swap');
+    
+    :root {
+      --bg-color: #FAF9F6;
+      --card-bg: rgba(255, 255, 255, 0.75);
+      --card-border: rgba(255, 255, 255, 0.5);
+      --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.03), 0 2px 4px -1px rgba(0, 0, 0, 0.02);
+      --shadow-md: 0 10px 25px -5px rgba(0, 0, 0, 0.04), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+      --shadow-lg: 0 20px 40px -15px rgba(0, 0, 0, 0.06);
+    }
+    
+    body { 
+      font-family: 'Inter', system_ui, sans-serif;
+      background-color: var(--bg-color);
+    }
+    
+    .heading { 
+      font-family: 'Nunito', 'Inter', system_ui, sans-serif; 
+    }
+    
+    .glass-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--card-border);
+      box-shadow: var(--shadow-md);
+      transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.25s;
+    }
+    
+    .glass-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    /* Ambient Background Blobs */
+    .bg-blob {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(90px);
+      opacity: 0.09;
+      mix-blend-mode: multiply;
+      pointer-events: none;
+      animation: floatAround 25s infinite alternate ease-in-out;
+    }
+    .blob-1 {
+      width: 400px;
+      height: 400px;
+      background-color: #fed7aa; /* orange-200 */
+      top: -10%;
+      left: 5%;
+      animation-delay: 0s;
+    }
+    .blob-2 {
+      width: 500px;
+      height: 500px;
+      background-color: #fecdd3; /* rose-200 */
+      bottom: 5%;
+      right: 5%;
+      animation-delay: -5s;
+      animation-duration: 32s;
+    }
+    .blob-3 {
+      width: 450px;
+      height: 450px;
+      background-color: #e9d5ff; /* purple-200 */
+      top: 45%;
+      left: 35%;
+      animation-delay: -10s;
+      animation-duration: 28s;
+    }
+    @keyframes floatAround {
+      0% { transform: translate(0, 0) scale(1); }
+      50% { transform: translate(60px, -80px) scale(1.1); }
+      100% { transform: translate(-40px, 40px) scale(0.9); }
+    }
+
+    /* Hide scrollbar for Chrome, Safari and Opera */
+    .scrollbar-none::-webkit-scrollbar {
+      display: none;
+    }
+    /* Hide scrollbar for IE, Edge and Firefox */
+    .scrollbar-none {
+      -ms-overflow-style: none;  /* IE and Edge */
+      scrollbar-width: none;  /* Firefox */
+    }
+  </style>
+</head>
+<body class="text-zinc-800 relative min-h-screen overflow-x-hidden pb-12">
+  
+  <!-- Ambient background blobs -->
+  <div class="pointer-events-none fixed inset-0 overflow-hidden z-[-1]">
+    <div class="bg-blob blob-1"></div>
+    <div class="bg-blob blob-2"></div>
+    <div class="bg-blob blob-3"></div>
+  </div>
+
+  <!-- Confetti canvas for celebrations -->
+  <canvas id="confetti-canvas" class="pointer-events-none fixed inset-0 z-[9999]"></canvas>
+  
+  <!-- Top Navigation Bar -->
+  <div class="max-w-[1200px] mx-auto px-6 pt-6">
+    <div class="flex items-center justify-between py-4 px-6 bg-white/80 backdrop-blur-md rounded-3xl border border-white/50 shadow-sm">
+      <!-- Logo and App Name -->
+      <div class="flex items-center gap-x-2.5">
+        <div class="w-8 h-8 bg-gradient-to-br from-orange-400 via-amber-500 to-rose-500 rounded-xl flex items-center justify-center shadow-inner">
+          <i class="fa-solid fa-bolt text-white text-sm"></i>
+        </div>
+        <div>
+          <span class="font-extrabold text-lg tracking-tight heading">Hana's Life OS</span>
+        </div>
+      </div>
+
+      <!-- Right Controls -->
+      <div class="flex items-center gap-x-3.5">
+        <!-- Screen Time Header Badge -->
+        <div class="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-orange-500 to-rose-500 text-white rounded-2xl text-[10px] font-black shadow-sm" title="Screen time limits synced">
+          <i class="fa-solid fa-desktop text-[10px]"></i>
+          <span class="tabular-nums" id="header-screen-time">47 / 120 phút</span>
+        </div>
+
+        <!-- Language Switch -->
+        <div class="flex items-center bg-zinc-100 rounded-2xl p-0.5 text-[10px] font-bold">
+          <button onclick="setLang('vi')" id="lang-vi"
+            class="px-2.5 py-1 rounded-1.5xl nav-active bg-white text-orange-600 shadow-xs transition-all">VI</button>
+          <button onclick="setLang('en')" id="lang-en"
+            class="px-2.5 py-1 rounded-1.5xl text-zinc-500 hover:text-zinc-800 transition-all">EN</button>
+        </div>
+
+        <!-- Student Profile -->
+        <div class="flex items-center gap-x-3 border-l border-zinc-100 pl-4">
+          <div class="text-right hidden sm:block">
+            <div class="font-bold text-xs text-zinc-850">Hana</div>
+            <div class="text-[9px] text-orange-500 font-bold -mt-0.5" id="profile-role">Học sinh • 9 tuổi</div>
+          </div>
+          <div class="w-9 h-9 bg-orange-100 rounded-2xl overflow-hidden ring-2 ring-orange-200/80 shadow-sm">
+            <img src="https://api.dicebear.com/7.x/adventurer/svg?seed=Hana" class="w-full h-full object-cover">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content Layout -->
+  <div class="max-w-[1200px] mx-auto px-6 pt-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+    
+    <!-- LEFT PANEL: Star Balance & Daily Star Logs (8 columns) -->
+    <div class="lg:col-span-8 flex flex-col gap-6">
+      
+      <!-- Star Reward Bank Wallet Card -->
+      <div class="bg-white rounded-3xl border border-zinc-100 p-6 shadow-sm relative overflow-hidden flex flex-col sm:flex-row items-center justify-between gap-6">
+        <!-- Background graphics -->
+        <div class="absolute right-0 top-0 translate-x-12 -translate-y-12 opacity-5 pointer-events-none">
+          <i class="fa-solid fa-star text-[160px] text-amber-500"></i>
+        </div>
+        
+        <div class="flex flex-col text-center sm:text-left">
+          <span class="text-[9px] font-extrabold text-orange-500 tracking-wider uppercase" id="bank-subtitle">VÍ SAO THƯỞNG CỦA HANA</span>
+          <h2 class="text-2xl font-black text-zinc-950 heading mt-1" id="bank-title">Ngân hàng Sao của con</h2>
+          <p class="text-zinc-500 text-xs mt-1.5 max-w-md leading-relaxed" id="bank-desc">Hãy chăm chỉ hoàn thành nhiệm vụ mỗi ngày, uống nước lọc và rèn luyện thói quen tốt để tích lũy thêm sao đổi lấy những phần quà con thích nhé!</p>
+        </div>
+
+        <div class="flex flex-col items-center justify-center bg-gradient-to-br from-amber-50 to-orange-100/30 border border-amber-200/40 p-6 rounded-2.5xl min-w-[200px] text-center shadow-xs flex-shrink-0">
+          <div class="flex items-center justify-center w-12 h-12 bg-white rounded-2xl text-amber-550 shadow-sm mb-2 text-2xl animate-bounce">
+            ⭐
+          </div>
+          <span id="stars-balance" class="text-4.5xl font-black text-amber-600 tracking-tight tabular-nums">1,250</span>
+          <span class="text-[10px] font-extrabold text-zinc-450 tracking-wider uppercase mt-1" id="stars-label">SAO ĐANG CÓ</span>
+        </div>
+      </div>
+
+      <!-- Daily Point Logs Group Matrix -->
+      <div class="bg-white rounded-3xl border border-zinc-100 p-6 shadow-sm flex-1 flex flex-col">
+        <div class="flex items-center justify-between mb-5 border-b border-zinc-50 pb-4">
+          <div>
+            <span class="text-[10px] font-extrabold text-orange-500 tracking-wider uppercase" id="history-subtitle">THEO DÕI ĐIỂM THƯỞNG</span>
+            <h3 class="text-xl font-extrabold text-zinc-900 heading mt-0.5" id="history-title">Lịch sử tích lũy điểm thưởng</h3>
+          </div>
+          <div class="w-8 h-8 rounded-xl bg-orange-50 flex items-center justify-center text-orange-500 text-sm">
+            <i class="fa-solid fa-list-check"></i>
+          </div>
+        </div>
+
+        <!-- Chronological groups container -->
+        <div class="space-y-6 flex-1 overflow-y-auto max-h-[500px] pr-1" id="daily-logs-container">
+          <!-- Populated dynamically by javascript -->
+        </div>
+      </div>
+
+    </div>
+
+    <!-- RIGHT PANEL: Redeemed items & Stats (4 columns) -->
+    <div class="lg:col-span-4 flex flex-col gap-6">
+      
+      <!-- Star Stats Summary widget -->
+      <div class="bg-white rounded-3xl border border-zinc-100 p-6 shadow-sm">
+        <div class="flex items-center justify-between mb-4 border-b border-zinc-50 pb-3">
+          <h4 class="font-extrabold text-xs text-zinc-900 uppercase tracking-wider" id="stats-title">Thống kê tích lũy</h4>
+          <i class="fa-solid fa-chart-line text-zinc-400 text-xs"></i>
+        </div>
+        <div class="grid grid-cols-2 gap-4 text-center">
+          <div class="p-3.5 bg-emerald-50/50 border border-emerald-100/30 rounded-2xl flex flex-col items-center">
+            <span class="text-[8px] font-black text-emerald-700 uppercase tracking-widest" id="stat-total-earn">ĐÃ TÍCH LŨY</span>
+            <span id="stat-earn-count" class="text-xl font-black text-emerald-600 mt-1 tabular-nums">+1,550</span>
+          </div>
+          <div class="p-3.5 bg-rose-50/50 border border-rose-100/30 rounded-2xl flex flex-col items-center">
+            <span class="text-[8px] font-black text-rose-700 uppercase tracking-widest" id="stat-total-spent">ĐÃ ĐỔI QUÀ</span>
+            <span id="stat-spent-count" class="text-xl font-black text-rose-600 mt-1 tabular-nums">-300</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Redemption History list card -->
+      <div class="bg-white rounded-3xl border border-zinc-100 p-6 shadow-sm flex flex-col flex-1">
+        <div class="flex items-center justify-between mb-4 border-b border-zinc-50 pb-3">
+          <div>
+            <span class="text-[9px] font-extrabold text-orange-500 tracking-wider uppercase" id="redeem-subtitle">DANH SÁCH QUÀ ĐỔI</span>
+            <h4 class="text-sm font-extrabold text-zinc-900 heading mt-0.5" id="redeem-title">Quà Hana đã nhận</h4>
+          </div>
+          <div class="w-7 h-7 rounded-lg bg-orange-50 flex items-center justify-center text-orange-500 text-xs">
+            <i class="fa-solid fa-gift"></i>
+          </div>
+        </div>
+
+        <div class="space-y-2.5 flex-1 overflow-y-auto max-h-[350px] pr-1" id="redemptions-list">
+          <!-- Populated dynamically by javascript -->
+        </div>
+      </div>
+
+    </div>
+
+    <!-- BOTTOM SECTION: The Gifts Store Grid (12 columns) -->
+    <div class="lg:col-span-12">
+      <div class="bg-white rounded-3xl border border-zinc-100 p-6 shadow-sm">
+        <div class="flex items-center justify-between mb-6 border-b border-zinc-50 pb-4">
+          <div>
+            <span class="text-[10px] font-extrabold text-orange-500 tracking-wider uppercase" id="store-subtitle">SHOPPING CỦA HANA</span>
+            <h3 class="text-2xl font-black text-zinc-950 heading mt-0.5" id="store-title">Cửa hàng Quà tặng đổi Sao</h3>
+          </div>
+          <div class="px-3.5 py-1.5 bg-gradient-to-r from-amber-500 to-orange-600 text-white rounded-2xl text-xs font-black shadow-sm">
+            <i class="fa-solid fa-bag-shopping mr-1.5"></i>Store
+          </div>
+        </div>
+
+        <!-- The Gift Cards Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" id="gifts-grid">
+          <!-- Dynamically populated card items -->
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Toast notification system -->
+  <div id="toast-container" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-[9999] flex flex-col gap-2 pointer-events-none"></div>
+
+  <!-- Script logics -->
+  <script>
+    // ==================== STATE & CONFIGS ====================
+    let currentLang = 'vi';
+    let starsBalance = 1250;
+    let transactions = [];
+    let redemptions = [];
+    
+    // Limits placeholder
+    let screenUsedMinutes = 47;
+    let screenLimitMinutes = 120;
+
+    const gifts = [
+      {
+        id: "bubble_tea",
+        titleVi: "1 cốc Trà sữa trân châu 🧋",
+        titleEn: "1 Pearl Milk Tea 🧋",
+        cost: 150,
+        icon: "fa-mug-hot",
+        colorClass: "from-amber-400 to-orange-550",
+        descriptionVi: "Hana được tự chọn vị trà sữa và trân châu yêu thích.",
+        descriptionEn: "Choose your favorite bubble tea flavor and toppings."
+      },
+      {
+        id: "ipad_time",
+        titleVi: "30 phút chơi Game / iPad 🎮",
+        titleEn: "30m iPad / Game Time 🎮",
+        cost: 200,
+        icon: "fa-gamepad",
+        colorClass: "from-purple-400 to-indigo-550",
+        descriptionVi: "Đổi 30 phút giải trí chơi game hoặc xem iPad thỏa thích.",
+        descriptionEn: "Redeem 30 minutes of iPad play time or entertainment."
+      },
+      {
+        id: "comic_book",
+        titleVi: "1 cuốn truyện tranh tự chọn 📚",
+        titleEn: "1 Comic Book of Choice 📚",
+        cost: 300,
+        icon: "fa-book-open",
+        colorClass: "from-sky-400 to-blue-550",
+        descriptionVi: "Truyện Conan, Doraemon hoặc bất kỳ cuốn sách nào con muốn.",
+        descriptionEn: "Conan, Doraemon or any reading book of your choice."
+      },
+      {
+        id: "pizza_party",
+        titleVi: "1 bữa Pizza cuối tuần 🍕",
+        titleEn: "1 Weekend Pizza Meal 🍕",
+        cost: 500,
+        icon: "fa-pizza-slice",
+        colorClass: "from-red-400 to-rose-550",
+        descriptionVi: "Cả nhà cùng gọi Pizza ăn mừng vào tối thứ Bảy hoặc Chủ Nhật.",
+        descriptionEn: "A weekend Pizza dinner with family to celebrate."
+      },
+      {
+        id: "lego_set",
+        titleVi: "1 bộ đồ chơi LEGO nhỏ 🧱",
+        titleEn: "1 Small LEGO Set 🧱",
+        cost: 800,
+        icon: "fa-cubes",
+        colorClass: "from-emerald-400 to-teal-550",
+        descriptionVi: "Một hộp đồ chơi lắp ráp lego mini tự chọn cực xinh.",
+        descriptionEn: "A small mini LEGO assembly toy box of your choice."
+      },
+      {
+        id: "water_park",
+        titleVi: "1 vé đi công viên nước 🎡",
+        titleEn: "1 Water Park Ticket 🎡",
+        cost: 1200,
+        icon: "fa-umbrella-beach",
+        colorClass: "from-cyan-400 to-blue-650",
+        descriptionVi: "Một chuyến đi chơi công viên nước thỏa thích cùng bố mẹ.",
+        descriptionEn: "A fun-filled water park trip with your parents."
+      }
+    ];
+
+    // Seeding transaction logs if none exist in localStorage
+    const mockTransactions = [
+      {
+        id: "mock-1",
+        date: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().split('T')[0], // Yesterday
+        timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000 - 4 * 3600 * 1000).toISOString(),
+        amount: 100,
+        reasonVi: "Nộp bài viết tiếng Anh đạt điểm tối đa",
+        reasonEn: "Submitted English task with high score"
+      },
+      {
+        id: "mock-2",
+        date: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().split('T')[0], // Yesterday
+        timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000 - 6 * 3600 * 1000).toISOString(),
+        amount: 50,
+        reasonVi: "Hoàn thành phiên tập trung Pomodoro",
+        reasonEn: "Completed focus Pomodoro session"
+      },
+      {
+        id: "mock-3",
+        date: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().split('T')[0], // Yesterday
+        timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000 - 8 * 3600 * 1000).toISOString(),
+        amount: 15,
+        reasonVi: "Ghi chép nhật ký suy nghĩ",
+        reasonEn: "Logged emotional journal reflection"
+      },
+      {
+        id: "mock-4",
+        date: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().split('T')[0], // Yesterday
+        timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000 - 10 * 3600 * 1000).toISOString(),
+        amount: -200,
+        reasonVi: "Đổi quà: 30 phút chơi Game / iPad 🎮",
+        reasonEn: "Redeemed: 30m iPad / Game Time 🎮"
+      },
+      {
+        id: "mock-5",
+        date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 2 Days Ago
+        timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000 - 3 * 3600 * 1000).toISOString(),
+        amount: 100,
+        reasonVi: "Nộp bài ôn tập bảng cửu chương Toán học",
+        reasonEn: "Submitted Multiplication Math task"
+      },
+      {
+        id: "mock-6",
+        date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 2 Days Ago
+        timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000 - 5 * 3600 * 1000).toISOString(),
+        amount: 50,
+        reasonVi: "Hoàn thành phiên tập trung Pomodoro",
+        reasonEn: "Completed focus Pomodoro session"
+      },
+      {
+        id: "mock-7",
+        date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 2 Days Ago
+        timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000 - 7 * 3600 * 1000).toISOString(),
+        amount: 10,
+        reasonVi: "Uống đủ nước lọc cho buổi sáng",
+        reasonEn: "Logged water intake for the morning"
+      }
+    ];
+
+    const mockRedemptions = [
+      {
+        id: "redeem-mock-1",
+        giftId: "ipad_time",
+        titleVi: "30 phút chơi Game / iPad 🎮",
+        titleEn: "30m iPad / Game Time 🎮",
+        cost: 200,
+        timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
+        status: "approved"
+      },
+      {
+        id: "redeem-mock-2",
+        giftId: "bubble_tea",
+        titleVi: "1 cốc Trà sữa trân châu 🧋",
+        titleEn: "1 Pearl Milk Tea 🧋",
+        cost: 150,
+        timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+        status: "approved"
+      }
+    ];
+
+    // ==================== TRANSLATIONS ====================
+    const translations = {
+      vi: {
+        profileRole: "Học sinh • 9 tuổi",
+        bankSubtitle: "VÍ SAO THƯỞNG CỦA HANA",
+        bankTitle: "Ngân hàng Sao của con",
+        bankDesc: "Hãy chăm chỉ hoàn thành nhiệm vụ mỗi ngày, uống nước lọc và rèn luyện thói quen tốt để tích lũy thêm sao đổi lấy những phần quà con thích nhé!",
+        starsLabel: "SAO ĐANG CÓ",
+        historySubtitle: "THEO DÕI ĐIỂM THƯỞNG HẰNG NGÀY",
+        historyTitle: "Nhật ký điểm thưởng của Hana",
+        statsTitle: "Thống kê tích lũy",
+        statTotalEarn: "TỔNG ĐÃ NHẬN",
+        statTotalSpent: "TỔNG ĐÃ DÙNG",
+        redeemSubtitle: "LỊCH SỬ ĐỔI QUÀ",
+        redeemTitle: "Quà của con đã nhận",
+        storeSubtitle: "SHOPPING ĐỔI ĐIỂM",
+        storeTitle: "Cửa hàng Quà tặng cho Hana",
+        totalEarnedDay: "Tích lũy",
+        totalSpentDay: "Đã đổi",
+        btnRedeem: "ĐỔI QUÀ",
+        btnLocked: "CHƯA ĐỦ SAO",
+        needMore: "Cần thêm",
+        redeemPending: "Chờ Bố Mẹ duyệt",
+        redeemApproved: "Đã đồng ý!",
+        toastSuccess: "Đổi quà thành công! Chờ bố mẹ đồng ý nhé! 🎉",
+        toastNoStars: "Con chưa đủ sao thưởng rồi, hãy cố gắng học thêm nhé!",
+        historyEmpty: "Chưa có nhật ký tích lũy điểm thưởng nào hôm nay.",
+        redemptionsEmpty: "Hana chưa đổi món quà nào."
+      },
+      en: {
+        profileRole: "Student • 9 yo",
+        bankSubtitle: "HANA'S STAR WALLET",
+        bankTitle: "My Star Reward Bank",
+        bankDesc: "Keep completing daily study assignments, logging water, and maintaining good habits to gather stars and exchange them for exciting items!",
+        starsLabel: "STARS AVAILABLE",
+        historySubtitle: "DAILY STARS TRACKER",
+        historyTitle: "Daily Points Log History",
+        statsTitle: "Star Analytics",
+        statTotalEarn: "TOTAL EARNED",
+        statTotalSpent: "TOTAL REDEEMED",
+        redeemSubtitle: "REWARDS COLLECTED",
+        redeemTitle: "My Redeemed Gifts",
+        storeSubtitle: "REWARDS STORE",
+        storeTitle: "Hana's Star Reward Shop",
+        totalEarnedDay: "Earned",
+        totalSpentDay: "Spent",
+        btnRedeem: "REDEEM NOW",
+        btnLocked: "LOCKED",
+        needMore: "Needs",
+        redeemPending: "Awaiting approval",
+        redeemApproved: "Approved!",
+        toastSuccess: "Redeemed successfully! Awaiting parents approval! 🎉",
+        toastNoStars: "Not enough stars yet, keep studying hard!",
+        historyEmpty: "No reward points logs recorded for today yet.",
+        redemptionsEmpty: "No gifts redeemed yet."
+      }
+    };
+
+    function setLang(lang) {
+      currentLang = lang;
+      document.getElementById('lang-vi').classList.toggle('nav-active', lang === 'vi');
+      document.getElementById('lang-en').classList.toggle('nav-active', lang === 'en');
+      
+      // Update HTML attributes for switches styling
+      document.getElementById('lang-vi').className = lang === 'vi' 
+        ? "px-2.5 py-1 rounded-1.5xl nav-active bg-white text-orange-600 shadow-xs transition-all"
+        : "px-2.5 py-1 rounded-1.5xl text-zinc-500 hover:text-zinc-800 transition-all";
+      document.getElementById('lang-en').className = lang === 'en'
+        ? "px-2.5 py-1 rounded-1.5xl nav-active bg-white text-orange-600 shadow-xs transition-all"
+        : "px-2.5 py-1 rounded-1.5xl text-zinc-500 hover:text-zinc-800 transition-all";
+      
+      applyTranslations();
+    }
+
+    function applyTranslations() {
+      const t = translations[currentLang];
+      
+      // Top navbar
+      document.getElementById('profile-role').textContent = t.profileRole;
+      
+      // Star balance & descriptors
+      document.getElementById('bank-subtitle').textContent = t.bankSubtitle;
+      document.getElementById('bank-title').textContent = t.bankTitle;
+      document.getElementById('bank-desc').textContent = t.bankDesc;
+      document.getElementById('stars-label').textContent = t.starsLabel;
+      
+      // Headers
+      document.getElementById('history-subtitle').textContent = t.historySubtitle;
+      document.getElementById('history-title').textContent = t.historyTitle;
+      document.getElementById('stats-title').textContent = t.statsTitle;
+      document.getElementById('stat-total-earn').textContent = t.statTotalEarn;
+      document.getElementById('stat-total-spent').textContent = t.statTotalSpent;
+      document.getElementById('redeem-subtitle').textContent = t.redeemSubtitle;
+      document.getElementById('redeem-title').textContent = t.redeemTitle;
+      document.getElementById('store-subtitle').textContent = t.storeSubtitle;
+      document.getElementById('store-title').textContent = t.storeTitle;
+
+      updateScreenTimeUI();
+      renderStats();
+      renderDailyLogs();
+      renderRedemptions();
+      renderGiftsStore();
+    }
+
+    function updateScreenTimeUI() {
+      const unit = currentLang === 'vi' ? 'phút' : 'mins';
+      document.getElementById('header-screen-time').textContent = `${screenUsedMinutes} / ${screenLimitMinutes} ${unit}`;
+    }
+
+    // ==================== STAR CALCULATIONS & STATS ====================
+    function loadData() {
+      // Balance
+      starsBalance = parseInt(localStorage.getItem('hana_stars') || '1250');
+      document.getElementById('stars-balance').textContent = starsBalance.toLocaleString('vi-VN');
+
+      // Transactions
+      if (!localStorage.getItem('hana_star_transactions')) {
+        localStorage.setItem('hana_star_transactions', JSON.stringify(mockTransactions));
+      }
+      transactions = JSON.parse(localStorage.getItem('hana_star_transactions'));
+
+      // Redemptions list
+      if (!localStorage.getItem('hana_redemptions')) {
+        localStorage.setItem('hana_redemptions', JSON.stringify(mockRedemptions));
+      }
+      redemptions = JSON.parse(localStorage.getItem('hana_redemptions'));
+    }
+
+    function saveData() {
+      localStorage.setItem('hana_stars', starsBalance);
+      localStorage.setItem('hana_star_transactions', JSON.stringify(transactions));
+      localStorage.setItem('hana_redemptions', JSON.stringify(redemptions));
+      
+      // Update balance UI
+      document.getElementById('stars-balance').textContent = starsBalance.toLocaleString('vi-VN');
+    }
+
+    function renderStats() {
+      // Sum positive amounts and negative amounts from transactions
+      let earned = 0;
+      let spent = 0;
+      transactions.forEach(tx => {
+        if (tx.amount > 0) earned += tx.amount;
+        else spent += Math.abs(tx.amount);
+      });
+      document.getElementById('stat-earn-count').textContent = `+${earned.toLocaleString('vi-VN')}`;
+      document.getElementById('stat-spent-count').textContent = `-${spent.toLocaleString('vi-VN')}`;
+    }
+
+    // ==================== RENDER LOGS BY DAY ====================
+    function renderDailyLogs() {
+      const container = document.getElementById('daily-logs-container');
+      if (!container) return;
+
+      if (transactions.length === 0) {
+        container.innerHTML = `<div class="text-xs text-zinc-400 italic text-center py-8">${translations[currentLang].historyEmpty}</div>`;
+        return;
+      }
+
+      // Group by date
+      const groups = {};
+      transactions.forEach(tx => {
+        const date = tx.date || new Date(tx.timestamp).toISOString().split('T')[0];
+        if (!groups[date]) {
+          groups[date] = [];
+        }
+        groups[date].push(tx);
+      });
+
+      // Sort dates descending
+      const sortedDates = Object.keys(groups).sort((a,b) => b.localeCompare(a));
+      const t = translations[currentLang];
+
+      container.innerHTML = sortedDates.map(dateStr => {
+        const txList = groups[dateStr].sort((a,b) => b.timestamp.localeCompare(a.timestamp));
+        
+        // Sum earned & spent for this day
+        let dayEarned = 0;
+        let daySpent = 0;
+        txList.forEach(tx => {
+          if (tx.amount > 0) dayEarned += tx.amount;
+          else daySpent += Math.abs(tx.amount);
+        });
+
+        // Localize date header
+        const formattedDate = formatDateString(dateStr);
+
+        return `
+          <div class="border border-zinc-100 bg-zinc-50/40 rounded-2.5xl p-4.5 space-y-3.5">
+            <!-- Group Header -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-zinc-100 pb-2.5 gap-2">
+              <span class="font-black text-xs text-zinc-800 flex items-center gap-1.5">
+                <i class="fa-regular fa-calendar-check text-orange-500"></i>
+                ${formattedDate}
+              </span>
+              <div class="flex items-center gap-3 text-[10px] font-black">
+                <span class="text-emerald-600 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-150/40">${t.totalEarnedDay}: +${dayEarned} ⭐</span>
+                ${daySpent > 0 ? `<span class="text-rose-600 bg-rose-50 px-2.5 py-0.5 rounded-full border border-rose-150/40">${t.totalSpentDay}: -${daySpent} ⭐</span>` : ''}
+              </div>
+            </div>
+
+            <!-- Transactions list -->
+            <div class="space-y-2.5">
+              ${txList.map(tx => {
+                const isPositive = tx.amount >= 0;
+                const sign = isPositive ? '+' : '';
+                const color = isPositive ? 'text-emerald-600 bg-emerald-50 border-emerald-100/50' : 'text-rose-600 bg-rose-50 border-rose-100/50';
+                
+                const time = new Date(tx.timestamp).toLocaleTimeString(currentLang === 'vi' ? 'vi-VN' : 'en-US', {
+                  hour: '2-digit',
+                  minute: '2-digit'
+                });
+
+                const reason = currentLang === 'vi' ? tx.reasonVi : tx.reasonEn;
+
+                return `
+                  <div class="flex items-center justify-between gap-4 py-1.5">
+                    <div class="flex items-start gap-3 min-w-0">
+                      <span class="text-[9px] font-bold text-zinc-400 font-mono mt-0.5 tabular-nums">${time}</span>
+                      <p class="text-xs font-semibold text-zinc-700 truncate leading-relaxed">${reason}</p>
+                    </div>
+                    <span class="px-2 py-0.5 border rounded-lg text-[10px] font-black tracking-wide ${color} tabular-nums flex-shrink-0">
+                      ${sign}${tx.amount} ⭐
+                    </span>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function formatDateString(dateStr) {
+      try {
+        const date = new Date(dateStr);
+        if (currentLang === 'vi') {
+          const w = ["Chủ Nhật", "Thứ Hai", "Thứ Ba", "Thứ Tư", "Thứ Năm", "Thứ Sáu", "Thứ Bảy"][date.getDay()];
+          const d = date.getDate().toString().padStart(2, '0');
+          const m = (date.getMonth() + 1).toString().padStart(2, '0');
+          const y = date.getFullYear();
+          return `${w}, ${d}/${m}/${y}`;
+        } else {
+          const w = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"][date.getDay()];
+          const d = date.getDate().toString().padStart(2, '0');
+          const m = (date.getMonth() + 1).toString().padStart(2, '0');
+          const y = date.getFullYear();
+          return `${w}, ${m}/${d}/${y}`;
+        }
+      } catch (e) {
+        return dateStr;
+      }
+    }
+
+    // ==================== RENDER GIFTS CATALOG ====================
+    function renderGiftsStore() {
+      const grid = document.getElementById('gifts-grid');
+      if (!grid) return;
+
+      const t = translations[currentLang];
+
+      grid.innerHTML = gifts.map(gift => {
+        const isUnlocked = starsBalance >= gift.cost;
+        const progress = Math.min((starsBalance / gift.cost) * 100, 100);
+        
+        const title = currentLang === 'vi' ? gift.titleVi : gift.titleEn;
+        const desc = currentLang === 'vi' ? gift.descriptionVi : gift.descriptionEn;
+
+        // Unlock buttons
+        let btnHtml = "";
+        if (isUnlocked) {
+          btnHtml = `
+            <button onclick="redeemGift('${gift.id}')" class="w-full py-3 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white rounded-2xl font-black text-xs shadow-md transition-all active:scale-95 flex items-center justify-center gap-2">
+              <i class="fa-solid fa-gift animate-pulse"></i>
+              <span>${t.btnRedeem}</span>
+            </button>
+          `;
+        } else {
+          const missing = gift.cost - starsBalance;
+          btnHtml = `
+            <button disabled class="w-full py-3 bg-zinc-100 text-zinc-400 rounded-2xl font-bold text-xs flex items-center justify-center gap-2 cursor-not-allowed">
+              <i class="fa-solid fa-lock text-[10px]"></i>
+              <span>${t.btnLocked} (${t.needMore} ${missing} ⭐)</span>
+            </button>
+          `;
+        }
+
+        return `
+          <div class="glass-card bg-white rounded-3xl border border-zinc-150 p-5.5 flex flex-col justify-between gap-4">
+            <div>
+              <!-- Header & Cost badge -->
+              <div class="flex items-start justify-between gap-2.5">
+                <div class="w-11 h-11 bg-gradient-to-br ${gift.colorClass} rounded-2xl flex items-center justify-center text-white text-xl shadow-inner flex-shrink-0">
+                  <i class="fa-solid ${gift.icon}"></i>
+                </div>
+                <span class="px-3 py-1 bg-amber-50 border border-amber-200 text-amber-700 rounded-xl text-xs font-black tabular-nums">
+                  ${gift.cost} ⭐
+                </span>
+              </div>
+
+              <!-- Titles & Description -->
+              <div class="mt-4">
+                <h4 class="font-extrabold text-sm text-zinc-950 heading leading-tight">${title}</h4>
+                <p class="text-zinc-500 text-xs mt-2 leading-relaxed font-medium">${desc}</p>
+              </div>
+            </div>
+
+            <!-- Progress & Actions -->
+            <div class="space-y-3.5 mt-2 border-t border-zinc-50 pt-4.5">
+              <!-- Progress indicator -->
+              <div class="space-y-1">
+                <div class="flex justify-between text-[9px] font-extrabold text-zinc-450 uppercase tracking-wider">
+                  <span>Tiến độ mở khóa</span>
+                  <span class="tabular-nums">${starsBalance} / ${gift.cost} ⭐</span>
+                </div>
+                <div class="h-2 bg-zinc-100 rounded-full overflow-hidden">
+                  <div class="h-full bg-gradient-to-r from-amber-400 to-orange-500 rounded-full transition-all duration-500" style="width: ${progress}%"></div>
+                </div>
+              </div>
+
+              <!-- Action button -->
+              ${btnHtml}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // ==================== REDEEM LOGIC & CELEBRATION ====================
+    function redeemGift(giftId) {
+      const gift = gifts.find(g => g.id === giftId);
+      if (!gift) return;
+
+      const t = translations[currentLang];
+
+      if (starsBalance < gift.cost) {
+        showToast(t.toastNoStars, 'error');
+        return;
+      }
+
+      // Deduct balance
+      starsBalance -= gift.cost;
+
+      // Add transaction log
+      const titleVi = gift.titleVi;
+      const titleEn = gift.titleEn;
+      const todayStr = new Date().toISOString().split('T')[0];
+
+      transactions.push({
+        id: Date.now() + '-' + Math.random().toString(36).substr(2, 9),
+        date: todayStr,
+        timestamp: new Date().toISOString(),
+        amount: -gift.cost,
+        reasonVi: `Đổi quà: ${titleVi}`,
+        reasonEn: `Redeemed: ${titleEn}`
+      });
+
+      // Add to redemptions list
+      redemptions.push({
+        id: "redeem-" + Date.now(),
+        giftId: gift.id,
+        titleVi: titleVi,
+        titleEn: titleEn,
+        cost: gift.cost,
+        timestamp: new Date().toISOString(),
+        status: "pending"
+      });
+
+      saveData();
+      applyTranslations();
+
+      // Confetti burst animation
+      startConfetti();
+      showToast(t.toastSuccess, 'success');
+    }
+
+    function renderRedemptions() {
+      const container = document.getElementById('redemptions-list');
+      if (!container) return;
+
+      if (redemptions.length === 0) {
+        container.innerHTML = `<div class="text-xs text-zinc-400 italic text-center py-8">${translations[currentLang].redemptionsEmpty}</div>`;
+        return;
+      }
+
+      // Sort by date descending
+      const sorted = [...redemptions].sort((a,b) => b.timestamp.localeCompare(a.timestamp));
+      const t = translations[currentLang];
+
+      container.innerHTML = sorted.map(red => {
+        const time = new Date(red.timestamp).toLocaleDateString(currentLang === 'vi' ? 'vi-VN' : 'en-US', {
+          month: 'short',
+          day: 'numeric'
+        });
+
+        const isApproved = red.status === 'approved';
+        const statusText = isApproved ? t.redeemApproved : t.redeemPending;
+        const statusColor = isApproved ? 'text-emerald-600 bg-emerald-50 border-emerald-100' : 'text-amber-600 bg-amber-50 border-amber-100';
+        const statusIcon = isApproved ? 'fa-circle-check' : 'fa-clock';
+
+        const title = currentLang === 'vi' ? red.titleVi : red.titleEn;
+
+        return `
+          <div class="p-3 border border-zinc-100 hover:border-orange-200 bg-zinc-50/50 rounded-2xl flex items-center justify-between gap-3 transition-colors">
+            <div class="min-w-0">
+              <h5 class="text-xs font-extrabold text-zinc-800 truncate">${title}</h5>
+              <div class="flex items-center gap-1.5 mt-1 text-[9px] font-bold text-zinc-400">
+                <span>${time}</span>
+                <span>•</span>
+                <span class="tabular-nums">${red.cost} ⭐</span>
+              </div>
+            </div>
+            <div class="px-2 py-0.5 border rounded-lg text-[8px] font-black ${statusColor} flex items-center gap-1 flex-shrink-0">
+              <i class="fa-solid ${statusIcon}"></i>
+              <span>${statusText}</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toast-container');
+      if (!container) return;
+
+      const toast = document.createElement('div');
+      const bg = type === 'success' ? 'bg-emerald-600 border border-emerald-500 shadow-emerald-100' : 'bg-zinc-800 shadow-zinc-200';
+      toast.className = `bg-white text-zinc-800 border border-zinc-150 px-5 py-3 rounded-2xl text-xs font-bold shadow-lg transition-all flex items-center gap-2 pointer-events-auto w-fit max-w-sm`;
+      
+      const icon = type === 'success' 
+        ? '<div class="w-5 h-5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center"><i class="fa-solid fa-circle-check"></i></div>' 
+        : '<div class="w-5 h-5 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center"><i class="fa-solid fa-triangle-exclamation"></i></div>';
+
+      toast.innerHTML = `${icon} <span class="text-zinc-850 font-bold leading-normal">${message}</span>`;
+      container.appendChild(toast);
+      
+      // Auto dismiss after 3 seconds
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'scale(0.95)';
+        setTimeout(() => toast.remove(), 300);
+      }, 3000);
+    }
+
+    // ==================== CONFETTI ENGINE ====================
+    let confettiActive = false;
+    let confettiParticles = [];
+    const canvas = document.getElementById('confetti-canvas');
+    const ctx = canvas.getContext('2d');
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    function createParticle() {
+      return {
+        x: Math.random() * canvas.width,
+        y: -10 - Math.random() * 20,
+        r: 4 + Math.random() * 6,
+        d: Math.random() * canvas.height,
+        color: `hsl(${Math.random() * 360}, 90%, 60%)`,
+        tilt: Math.random() * 10 - 5,
+        tiltAngleIncremental: Math.random() * 0.07 + 0.02,
+        tiltAngle: 0,
+        speed: 2 + Math.random() * 4
+      };
+    }
+
+    function startConfetti() {
+      if (confettiActive) return;
+      confettiActive = true;
+      confettiParticles = [];
+      for (let i = 0; i < 150; i++) {
+        confettiParticles.push(createParticle());
+      }
+      
+      // Run loop for 4 seconds
+      requestAnimationFrame(updateConfetti);
+      setTimeout(() => {
+        confettiActive = false;
+      }, 4000);
+    }
+
+    function updateConfetti() {
+      if (confettiParticles.length === 0 && !confettiActive) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        return;
+      }
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      confettiParticles.forEach((p, idx) => {
+        p.tiltAngle += p.tiltAngleIncremental;
+        p.y += p.speed;
+        p.tilt = Math.sin(p.tiltAngle) * 5;
+
+        // Draw particle (rectangle ribbon)
+        ctx.beginPath();
+        ctx.lineWidth = p.r / 2;
+        ctx.strokeStyle = p.color;
+        ctx.moveTo(p.x + p.tilt + p.r / 2, p.y);
+        ctx.lineTo(p.x + p.tilt, p.y + p.tilt + p.r / 2);
+        ctx.stroke();
+
+        // Boundary checks
+        if (p.y > canvas.height) {
+          if (confettiActive) {
+            confettiParticles[idx] = createParticle(); // regenerate from top
+          } else {
+            confettiParticles.splice(idx, 1);
+          }
+        }
+      });
+
+      if (confettiActive || confettiParticles.length > 0) {
+        requestAnimationFrame(updateConfetti);
+      }
+    }
+
+    // ==================== CORE INITIALIZATION ====================
+    function init() {
+      loadData();
+      
+      // Set default language
+      setLang('vi');
+    }
+
+    window.onload = init;
+  </script>
+</body>
+</html>
