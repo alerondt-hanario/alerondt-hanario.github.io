@@ -1804,7 +1804,7 @@
 
     function triggerStarReward(amount, elementOrId) {
       // Award/Deduct Stars
-      let stars = parseInt(localStorage.getItem('hana_stars') || '1250');
+      let stars = parseInt(localStorage.getItem('hana_stars') || '0');
       stars += amount;
       // Prevent negative star balance just in case
       if (stars < 0) stars = 0;
@@ -4159,7 +4159,7 @@
       const todayFormatted = new Date().toLocaleDateString('vi-VN');
       
       const starsEarned = getStarsEarnedToday();
-      const currentStars = parseInt(localStorage.getItem('hana_stars') || '1250');
+      const currentStars = parseInt(localStorage.getItem('hana_stars') || '0');
       const pomoCompleted = parseInt(localStorage.getItem('hana_pomo_completed') || '0');
       const waterConsumed = parseInt(localStorage.getItem('hana_water_consumed') || '0');
       const todayWaterGoal = waterGoalMl;
@@ -4298,7 +4298,7 @@
 
       // Setup initial Wallet stars
       if (!localStorage.getItem('hana_stars')) {
-        localStorage.setItem('hana_stars', '1250');
+        localStorage.setItem('hana_stars', '0');
       }
       document.getElementById('stars-balance').textContent = parseInt(localStorage.getItem('hana_stars')).toLocaleString('vi-VN');
 

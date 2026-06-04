@@ -49,10 +49,16 @@
             <h1 class="text-4xl font-semibold heading tracking-tight">Chào Bố Mẹ 👋</h1>
             <p class="text-zinc-400 mt-1">Theo dõi hoạt động và tiến độ học tập của Hana hôm nay.</p>
           </div>
-          <button onclick="loadAllData()" class="flex items-center gap-x-2 px-4 py-2 bg-zinc-800 hover:bg-zinc-700 rounded-2xl text-sm font-medium transition-all">
-            <i class="fa-solid fa-sync"></i>
-            <span>Refresh</span>
-          </button>
+          <div class="flex items-center gap-x-3">
+            <button onclick="resetHanaSystem()" class="flex items-center gap-x-2 px-4 py-2 bg-rose-950/60 hover:bg-rose-900 border border-rose-900/30 text-rose-300 rounded-2xl text-sm font-medium transition-all">
+              <i class="fa-solid fa-trash-can"></i>
+              <span>Reset Sao & Giao Dịch</span>
+            </button>
+            <button onclick="loadAllData()" class="flex items-center gap-x-2 px-4 py-2 bg-zinc-800 hover:bg-zinc-700 rounded-2xl text-sm font-medium transition-all">
+              <i class="fa-solid fa-sync"></i>
+              <span>Refresh</span>
+            </button>
+          </div>
         </div>
 
         <!-- Navigation Tabs -->
@@ -2082,6 +2088,16 @@ ${attachedFile.type === 'text' ? `Nội dung tài liệu đính kèm (Local file
       } catch (err) {
         console.error("Error handling approval:", err);
         alert("Có lỗi xảy ra khi phê duyệt yêu cầu: " + err.message);
+      }
+    }
+
+    function resetHanaSystem() {
+      if (confirm("Bạn có chắc chắn muốn reset toàn bộ điểm sao và lịch sử giao dịch của Hana về 0?")) {
+        localStorage.setItem('hana_stars', '0');
+        localStorage.setItem('hana_star_transactions', '[]');
+        localStorage.setItem('hana_redemptions', '[]');
+        alert("Đã reset điểm sao và tất cả lịch sử giao dịch về 0!");
+        loadAllData();
       }
     }
 

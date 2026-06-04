@@ -266,7 +266,7 @@
   <script>
     // ==================== STATE & CONFIGS ====================
     let currentLang = 'vi';
-    let starsBalance = 1250;
+    let starsBalance = 0;
     let transactions = [];
     let redemptions = [];
     
@@ -531,7 +531,7 @@
     // ==================== STAR CALCULATIONS & STATS ====================
     function loadData() {
       // Balance
-      starsBalance = parseInt(localStorage.getItem('hana_stars') || '1250');
+      starsBalance = parseInt(localStorage.getItem('hana_stars') || '0');
       document.getElementById('stars-balance').textContent = starsBalance.toLocaleString('vi-VN');
 
       // Transactions
