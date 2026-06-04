@@ -3,11 +3,6 @@ import re
 with open('/media/vpsg16gb/Workspace1/HanaApplication/frontend/index.html', 'r') as f:
     content = f.read()
 
-# Update theme colors (example: change orange to indigo for a fresh look)
-# content = content.replace('from-orange-400 via-amber-500 to-rose-500', 'from-indigo-400 via-blue-500 to-purple-500')
-# content = content.replace('text-orange-500', 'text-indigo-500')
-# content = content.replace('bg-orange-600', 'bg-indigo-600')
-
 # Add a "Message from Parents" notification area
 message_html = """
         <!-- Message from Parents -->
