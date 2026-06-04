@@ -274,7 +274,8 @@
     let screenUsedMinutes = 47;
     let screenLimitMinutes = 120;
 
-    const gifts = [
+    let gifts = [];
+    const defaultGifts = [
       {
         id: "bubble_tea",
         titleVi: "1 cốc Trà sữa trân châu 🧋",
@@ -544,6 +545,12 @@
         localStorage.setItem('hana_redemptions', JSON.stringify(mockRedemptions));
       }
       redemptions = JSON.parse(localStorage.getItem('hana_redemptions'));
+
+      // Gifts catalog
+      if (!localStorage.getItem('hana_gifts')) {
+        localStorage.setItem('hana_gifts', JSON.stringify(defaultGifts));
+      }
+      gifts = JSON.parse(localStorage.getItem('hana_gifts'));
     }
 
     function saveData() {

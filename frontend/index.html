@@ -6,6 +6,8 @@
   <title>Hana • Summer LMS Dashboard</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <script src="./lessons_data.js"></script>
+  <script src="./ai_evaluator.js"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Nunito:wght@400;600;700;800;900&display=swap');
     
@@ -168,6 +170,392 @@
       -ms-overflow-style: none;  /* IE and Edge */
       scrollbar-width: none;  /* Firefox */
     }
+
+    /* --- Interactive Learning Corner & Writing Studio Styles --- */
+    :root {
+      --primary-color: #6C5DD3;
+      --primary-light: #E8E5FF;
+      --primary-dark: #5646B6;
+      --primary-glow: rgba(108, 93, 211, 0.2);
+      
+      --secondary-color: #3F8CFF;
+      --secondary-light: #EBF3FF;
+      
+      --accent-color: #FF75B5;
+      --accent-light: #FFEBF4;
+      
+      --success-color: #4BD37B;
+      --success-light: #EAFBF0;
+      
+      --warning-color: #FFC043;
+      --warning-light: #FFF8EA;
+      
+      --danger-color: #FF5A5F;
+      --danger-light: #FFEAEA;
+      
+      --border-color: #E2E6F5;
+      --text-primary: #1F2244;
+      --text-secondary: #606880;
+      --text-light: #A0A5BA;
+      
+      --radius-sm: 12px;
+      --radius-md: 18px;
+    }
+
+    /* Reading Corner specific styles */
+    .passage-box {
+      background: #FFFDFB;
+      padding: 24px;
+      border-radius: var(--radius-sm);
+      border-left: 5px solid var(--primary-color);
+      font-size: 1.1rem;
+      line-height: 1.8;
+      color: var(--text-primary);
+      text-align: justify;
+      border: 1px solid var(--border-color);
+      border-left-width: 5px;
+    }
+    
+    /* Reading word clickable lookup */
+    .clickable-word {
+      display: inline-block;
+      cursor: help;
+      border-bottom: 2px dashed var(--text-light);
+      padding: 0 2px;
+      border-radius: 4px;
+      transition: all 0.2s ease;
+      font-weight: 700;
+      color: var(--primary-color);
+    }
+    
+    .clickable-word:hover {
+      background: var(--primary-light);
+      color: var(--primary-color);
+      border-bottom-color: var(--primary-color);
+    }
+    
+    .word-definition-popup {
+      background: var(--primary-light);
+      border: 1px solid rgba(108, 93, 211, 0.2);
+      border-radius: var(--radius-sm);
+      padding: 16px;
+      margin-top: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      text-align: left;
+    }
+    
+    /* Vocabulary section */
+    .vocab-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 12px;
+      margin-top: 12px;
+    }
+    
+    .vocab-card {
+      padding: 12px;
+      background: #FFFDFB;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      text-align: left;
+    }
+    
+    .vocab-card strong {
+      color: var(--primary-color);
+      font-size: 1rem;
+    }
+    
+    .vocab-card em {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      font-style: italic;
+    }
+    
+    /* Quiz Styles */
+    .quiz-section {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      border-top: 1px solid var(--border-color);
+      padding-top: 20px;
+      text-align: left;
+    }
+    
+    .quiz-question-box {
+      background: #FFFDFB;
+      padding: 16px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-color);
+    }
+    
+    .quiz-options {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 12px;
+    }
+    
+    .quiz-option {
+      width: 100%;
+      padding: 12px 16px;
+      background: white;
+      border: 2px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      text-align: left;
+      font-size: 0.95rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: all 0.2s ease;
+    }
+    
+    .quiz-option:hover:not(.selected):not(.disabled) {
+      border-color: var(--primary-color);
+      background: var(--primary-light);
+    }
+    
+    .quiz-option.selected {
+      border-color: var(--primary-color);
+      background: var(--primary-light);
+    }
+    
+    .quiz-option.correct {
+      border-color: var(--success-color);
+      background: var(--success-light);
+      color: var(--success-color);
+    }
+    
+    .quiz-option.wrong {
+      border-color: var(--danger-color);
+      background: var(--danger-light);
+      color: var(--danger-color);
+    }
+    
+    .quiz-explanation {
+      padding: 12px;
+      background: var(--warning-light);
+      border-radius: var(--radius-sm);
+      border-left: 4px solid var(--warning-color);
+      font-size: 0.85rem;
+      margin-top: 10px;
+    }
+    
+    /* Writing Studio */
+    .prompt-details-box {
+      background: var(--secondary-light);
+      border-radius: var(--radius-sm);
+      padding: 16px;
+      border-left: 5px solid var(--secondary-color);
+      text-align: left;
+      border: 1px solid var(--border-color);
+      border-left-width: 5px;
+    }
+    
+    .prompt-details-box h3 {
+      color: var(--secondary-color);
+      margin-bottom: 6px;
+      font-weight: 700;
+    }
+    
+    .tips-list {
+      margin-top: 8px;
+      padding-left: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    
+    .tips-list li {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+    }
+    
+    .target-vocab-indicator {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin: 12px 0;
+    }
+    
+    .vocab-tag {
+      font-size: 0.8rem;
+      padding: 4px 10px;
+      border-radius: 9999px;
+      background: var(--border-color);
+      color: var(--text-secondary);
+      border: 1px solid transparent;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-weight: 700;
+    }
+    
+    .vocab-tag.used {
+      background: var(--success-light);
+      color: var(--success-color);
+      border-color: var(--success-color);
+    }
+    
+    /* AI Feedback Box */
+    .ai-feedback-box {
+      border: 2px solid var(--primary-color);
+      background: linear-gradient(135deg, white 0%, rgba(108, 93, 211, 0.03) 100%);
+      border-radius: var(--radius-md);
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin-top: 16px;
+      position: relative;
+      overflow: hidden;
+      text-align: left;
+    }
+    
+    .feedback-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 12px;
+    }
+    
+    .buddy-avatar-section {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .buddy-avatar {
+      font-size: 1.8rem;
+      background: var(--primary-light);
+      width: 44px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      border: 2px solid var(--primary-color);
+    }
+    
+    .score-badge-circle {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      box-shadow: 0 4px 10px 0 rgba(108, 93, 211, 0.3);
+    }
+    
+    .score-num {
+      font-size: 1.3rem;
+      line-height: 1;
+    }
+    
+    .score-max {
+      font-size: 0.6rem;
+      opacity: 0.8;
+      border-top: 1px solid rgba(255,255,255,0.4);
+      width: 60%;
+      text-align: center;
+      margin-top: 2px;
+    }
+    
+    .feedback-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    
+    @media (max-width: 600px) {
+      .feedback-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    
+    .feedback-card {
+      padding: 12px;
+      background: #FFFDFB;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    
+    .feedback-card h4 {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.95rem;
+      font-weight: 700;
+    }
+    
+    .feedback-card.grammar h4 { color: var(--danger-color); }
+    .feedback-card.vocab h4 { color: var(--secondary-color); }
+    .feedback-card.creativity h4 { color: var(--accent-color); }
+    
+    .feedback-card p {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+    }
+    
+    .ai-general-comment {
+      background: var(--success-light);
+      border-left: 5px solid var(--success-color);
+      padding: 12px;
+      border-radius: var(--radius-sm);
+      font-size: 0.95rem;
+      color: var(--text-primary);
+      line-height: 1.5;
+    }
+    
+    /* Smarty Loading Indicator */
+    .smarty-loading {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      padding: 24px;
+    }
+    
+    .smarty-loader-avatar {
+      font-size: 2.5rem;
+      animation: wave 2.2s infinite ease-in-out;
+    }
+    
+    .smarty-dots {
+      display: flex;
+      gap: 4px;
+    }
+    
+    .smarty-dots span {
+      width: 8px;
+      height: 8px;
+      background: var(--primary-color);
+      border-radius: 50%;
+      display: inline-block;
+      animation: bounce-smarty 1.4s infinite ease-in-out both;
+    }
+    
+    .smarty-dots span:nth-child(1) { animation-delay: -0.32s; }
+    .smarty-dots span:nth-child(2) { animation-delay: -0.16s; }
+
+    @keyframes bounce-smarty {
+      0%, 80%, 100% { transform: scale(0); }
+      40% { transform: scale(1.0); }
+    }
   </style>
 </head>
 <body class="text-zinc-800 relative min-h-screen overflow-x-hidden pb-28">
@@ -236,6 +624,20 @@
 
   <!-- Main Content Layout -->
   <div class="max-w-[1200px] mx-auto px-6 pt-6 grid grid-cols-1 gap-6">
+
+    
+        <!-- Message from Parents -->
+        <div id="parent-message-container" class="hidden bg-indigo-50 border border-indigo-100 p-4 rounded-3xl mb-6 shadow-sm animate-bounce">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 bg-white rounded-2xl flex items-center justify-center text-indigo-500 shadow-xs">
+              <i class="fa-solid fa-heart"></i>
+            </div>
+            <div>
+              <span class="text-[9px] font-extrabold text-indigo-500 uppercase tracking-widest">TIN NHẮN TỪ BỐ MẸ</span>
+              <p id="parent-message-text" class="text-xs font-bold text-indigo-900 mt-0.5 italic"></p>
+            </div>
+          </div>
+        </div>
 
     <!-- TOP SUMMARY WIDGETS ROW (Water Intake, Pomodoro, Mission Progress) -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -397,33 +799,129 @@
 
               <!-- Active assignment details -->
               <div id="active-task-details" class="hidden space-y-4">
-                <!-- Instruction details card -->
-                <div class="bg-gradient-to-r from-orange-50/50 to-amber-50/30 border border-orange-100/50 rounded-2xl p-4">
-                  <div id="desk-assignment-label" class="text-[9px] uppercase font-bold text-orange-500 tracking-wider">Đề bài / Nhiệm vụ</div>
-                  <p id="active-task-instructions" class="text-zinc-855 mt-1.5 text-xs leading-relaxed whitespace-pre-wrap font-medium"></p>
-                </div>
-                
-                <!-- Text area input -->
-                <div class="space-y-1.5">
-                  <div class="text-[9px] uppercase font-bold text-orange-500 tracking-wider flex justify-between">
-                    <span id="desk-writing-label">Bài làm của con</span>
-                    <div class="flex gap-2">
-                      <button onclick="importGDoc()" class="text-[8px] px-2 py-0.5 bg-blue-50 text-blue-600 border border-blue-100 rounded-md font-extrabold hover:bg-blue-100 transition-all"><i class="fa-brands fa-google-drive mr-1"></i>G-Doc</button>
-                      <button onclick="document.getElementById('txt-upload').click()" class="text-[8px] px-2 py-0.5 bg-zinc-50 text-zinc-600 border border-zinc-100 rounded-md font-extrabold hover:bg-zinc-100 transition-all"><i class="fa-solid fa-file-lines mr-1"></i>.txt</button>
-                      <input type="file" id="txt-upload" class="hidden" accept=".txt" onchange="handleTxtUpload(event)">
-                    </div>
-                    <span class="text-orange-400 font-medium normal-case" id="desk-ai-hint">AI sẽ chấm bài viết này</span>
+                <!-- Generic Layout (Toán, Tiếng Việt...) -->
+                <div id="study-desk-generic" class="space-y-4">
+                  <!-- Instruction details card -->
+                  <div class="bg-gradient-to-r from-orange-50/50 to-amber-50/30 border border-orange-100/50 rounded-2xl p-4">
+                    <div id="desk-assignment-label" class="text-[9px] uppercase font-bold text-orange-500 tracking-wider">Đề bài / Nhiệm vụ</div>
+                    <p id="active-task-instructions" class="text-zinc-855 mt-1.5 text-xs leading-relaxed whitespace-pre-wrap font-medium"></p>
                   </div>
-                  <textarea id="student-desk-answer" rows="6" 
-                    class="w-full border border-zinc-150 rounded-2xl p-4 text-xs focus:ring-2 focus:ring-orange-400 focus:border-orange-400 outline-none transition-all font-medium text-zinc-900 bg-[#FFFDFB]"
-                    placeholder="Nhập bài viết của con tại đây... (khoảng 50-70 từ)"></textarea>
+                  
+                  <!-- Text area input -->
+                  <div class="space-y-1.5">
+                    <div class="text-[9px] uppercase font-bold text-orange-500 tracking-wider flex justify-between">
+                      <span id="desk-writing-label">Bài làm của con</span>
+                      <div class="flex gap-2">
+                        <button onclick="importGDoc()" class="text-[8px] px-2 py-0.5 bg-blue-50 text-blue-600 border border-blue-100 rounded-md font-extrabold hover:bg-blue-100 transition-all"><i class="fa-brands fa-google-drive mr-1"></i>G-Doc</button>
+                        <button onclick="document.getElementById('txt-upload').click()" class="text-[8px] px-2 py-0.5 bg-zinc-50 text-zinc-600 border border-zinc-100 rounded-md font-extrabold hover:bg-zinc-100 transition-all"><i class="fa-solid fa-file-lines mr-1"></i>.txt</button>
+                        <input type="file" id="txt-upload" class="hidden" accept=".txt" onchange="handleTxtUpload(event)">
+                      </div>
+                      <span class="text-orange-400 font-medium normal-case" id="desk-ai-hint">Cô Julie sẽ chấm bài viết này</span>
+                    </div>
+                    <textarea id="student-desk-answer" rows="6" 
+                      class="w-full border border-zinc-150 rounded-2xl p-4 text-xs focus:ring-2 focus:ring-orange-400 focus:border-orange-400 outline-none transition-all font-medium text-zinc-900 bg-[#FFFDFB]"
+                      placeholder="Nhập bài viết của con tại đây... (khoảng 50-70 từ)"></textarea>
+                  </div>
+
+                  <!-- Submit Button -->
+                  <button onclick="submitTaskFromDesk()" id="desk-submit-btn" class="w-full py-3 bg-gradient-to-r from-orange-500 to-rose-500 hover:from-orange-600 hover:to-rose-600 text-white rounded-2xl font-bold shadow-md transition-all flex items-center justify-center gap-2 text-xs">
+                    <i class="fa-solid fa-paper-plane text-xs"></i>
+                    <span>Nộp bài cho Cô Julie</span>
+                  </button>
                 </div>
 
-                <!-- Submit Button -->
-                <button onclick="submitTaskFromDesk()" id="desk-submit-btn" class="w-full py-3 bg-gradient-to-r from-orange-500 to-rose-500 hover:from-orange-600 hover:to-rose-600 text-white rounded-2xl font-bold shadow-md transition-all flex items-center justify-center gap-2 text-xs">
-                  <i class="fa-solid fa-paper-plane text-xs"></i>
-                  <span>Nộp bài cho cô giáo AI</span>
-                </button>
+                <!-- Reading Layout (Góc Đọc sách) -->
+                <div id="study-desk-reading" class="hidden space-y-5">
+                  <div class="buddy-speech-bubble bg-purple-50 text-purple-950 p-4 rounded-2xl border border-purple-100/50 flex gap-3 text-xs font-semibold leading-relaxed text-left">
+                    <span style="font-size: 1.8rem">🦉</span>
+                    <div>
+                      <strong class="text-purple-700">Cô Julie:</strong> "Chào Hana! Hãy cùng đọc câu chuyện dưới đây nhé. Nếu con thấy từ nào gạch chân màu tím, <strong>hãy bấm vào từ đó</strong> để xem nghĩa tiếng Việt và cách dùng nha!"
+                    </div>
+                  </div>
+
+                  <div id="reading-image-container" class="hidden text-center overflow-hidden rounded-2xl border border-zinc-150 shadow-sm max-h-[300px]">
+                    <img id="reading-passage-image" src="" class="w-full h-auto object-cover">
+                  </div>
+
+                  <div class="passage-box" id="reading-passage-box"></div>
+
+                  <div id="reading-word-popup" class="hidden word-definition-popup"></div>
+
+                  <div>
+                    <h4 class="text-xs font-extrabold text-purple-650 uppercase tracking-wider mb-3 text-left">📚 Từ vựng quan trọng (Vocabulary)</h4>
+                    <div class="vocab-grid" id="reading-vocab-grid"></div>
+                  </div>
+
+                  <div class="quiz-section" id="reading-quiz-section">
+                    <h4 class="text-xs font-extrabold text-purple-650 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                      <span>📝</span> Làm Trắc Nghiệm Đọc Hiểu
+                    </h4>
+                    <div id="reading-quiz-questions" class="space-y-4"></div>
+                    
+                    <div class="flex justify-end mt-4" id="reading-quiz-action-container">
+                      <button onclick="submitReadingQuiz()" id="reading-quiz-submit-btn" class="px-5 py-2.5 bg-purple-600 hover:bg-purple-750 text-white rounded-xl text-xs font-bold shadow-md transition-all flex items-center gap-1.5">
+                        Nộp bài trắc nghiệm <i class="fa-solid fa-arrow-right"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Writing Layout (Góc Viết lách) -->
+                <div id="study-desk-writing" class="hidden space-y-5">
+                  <div class="prompt-details-box" id="writing-prompt-box">
+                    <h3 class="text-sm font-bold flex items-center gap-1.5">📖 Gợi ý đề bài</h3>
+                    <p id="writing-prompt-text" class="text-xs leading-relaxed text-zinc-800"></p>
+                    <ul id="writing-tips-list" class="tips-list"></ul>
+                  </div>
+
+                  <div>
+                    <h4 class="text-[10px] uppercase font-bold text-rose-500 tracking-wider text-left mb-1.5">Từ vựng cần sử dụng (Target Vocabulary):</h4>
+                    <p class="text-[9px] text-zinc-400 text-left font-semibold mb-2">Con viết các từ này vào bài viết thì hộp màu tương ứng sẽ sáng màu xanh nhé!</p>
+                    <div class="target-vocab-indicator" id="writing-vocab-indicator"></div>
+                  </div>
+
+                  <div class="space-y-1.5 text-left">
+                    <div class="text-[9px] uppercase font-bold text-rose-500 tracking-wider flex justify-between">
+                      <span>Bài làm của con</span>
+                      <div class="flex gap-2">
+                        <button onclick="document.getElementById('image-upload-writing').click()" class="text-[8px] px-2 py-0.5 bg-purple-50 text-purple-650 border border-purple-100 rounded-md font-extrabold hover:bg-purple-100 transition-all"><i class="fa-solid fa-camera mr-1"></i>Quét ảnh</button>
+                        <input type="file" id="image-upload-writing" class="hidden" accept="image/*" onchange="handleImageUploadWriting(event)">
+                        
+                        <button onclick="importGDoc()" class="text-[8px] px-2 py-0.5 bg-blue-50 text-blue-600 border border-blue-100 rounded-md font-extrabold hover:bg-blue-100 transition-all"><i class="fa-brands fa-google-drive mr-1"></i>G-Doc</button>
+                        <button onclick="document.getElementById('txt-upload-writing').click()" class="text-[8px] px-2 py-0.5 bg-zinc-50 text-zinc-600 border border-zinc-100 rounded-md font-extrabold hover:bg-zinc-100 transition-all"><i class="fa-solid fa-file-lines mr-1"></i>.txt</button>
+                        <input type="file" id="txt-upload-writing" class="hidden" accept=".txt" onchange="handleTxtUploadWriting(event)">
+                      </div>
+                    </div>
+                    <div id="writing-image-preview-container" class="hidden relative mt-2 w-24 h-24 rounded-lg border border-zinc-200 overflow-hidden group shadow-xs">
+                      <img id="writing-image-preview" class="w-full h-full object-cover">
+                      <button onclick="clearWritingImage()" class="absolute top-1 right-1 w-5 h-5 bg-black/60 hover:bg-black/80 text-white rounded-full flex items-center justify-center text-xs font-bold transition-all">&times;</button>
+                    </div>
+                    <textarea id="student-writing-answer" rows="6" oninput="checkWritingKeywords()"
+                      class="w-full border border-zinc-150 rounded-2xl p-4 text-xs focus:ring-2 focus:ring-rose-400 focus:border-rose-400 outline-none transition-all font-medium text-zinc-900 bg-[#FFFDFB]"
+                      placeholder="Viết câu chuyện của con ở đây... (khoảng 50-70 từ)"></textarea>
+                  </div>
+
+                  <!-- Loading Indicator -->
+                  <div id="writing-ai-loading" class="hidden smarty-loading glass-card p-6 border border-purple-200">
+                    <div class="smarty-loader-avatar">🦉</div>
+                    <div class="font-extrabold text-purple-650 text-xs">
+                      Cô Julie đang chăm chú đọc bài của Hana...
+                    </div>
+                    <div class="smarty-dots">
+                      <span></span>
+                      <span></span>
+                      <span></span>
+                    </div>
+                  </div>
+
+                  <!-- Feedback Container -->
+                  <div id="writing-ai-feedback" class="hidden"></div>
+
+                  <button onclick="submitWritingToAI()" id="writing-submit-btn" class="w-full py-3.5 bg-gradient-to-r from-orange-500 to-rose-500 hover:from-orange-600 hover:to-rose-600 text-white rounded-2xl font-bold shadow-md transition-all flex items-center justify-center gap-2 text-xs">
+                    <i class="fa-solid fa-wand-magic-sparkles text-xs"></i>
+                    <span>Gửi cho Cô Julie chấm điểm</span>
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -554,64 +1052,64 @@
           </div>
         </div>
 
-      </div>
-
-    </div>
-
-    <!-- ACTIVE PROJECTS STATUS BOARD (Kanban style tracking missions progress) -->
-    <div class="bg-white rounded-3xl border border-zinc-100 p-6 shadow-sm mt-4">
-      <div class="flex items-center justify-between mb-5 border-b border-zinc-50 pb-3">
-        <div>
-          <span class="text-[10px] font-extrabold text-orange-500 tracking-wider uppercase" id="kanban-subtitle">QUẢN LÝ TIẾN ĐỘ</span>
-          <h3 class="text-xl font-extrabold text-zinc-900 heading mt-0.5" id="kanban-title">Bảng tiến độ nhiệm vụ</h3>
-        </div>
-        <i class="fa-solid fa-clipboard-list text-orange-500 text-lg"></i>
-      </div>
-
-      <!-- Columns matrix -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
-        <!-- To Do column -->
-        <div class="bg-zinc-50/50 rounded-2.5xl p-4 border border-zinc-100/50">
-          <div class="flex items-center justify-between mb-3.5">
-            <span class="text-xs font-bold text-zinc-500 flex items-center gap-1.5">
-              <span class="w-1.5 h-1.5 bg-sky-400 rounded-full"></span>
-              <span id="k-col-todo">Cần làm</span>
-            </span>
-            <span id="kanban-todo-count" class="px-2 py-0.5 bg-zinc-200/50 text-zinc-650 rounded-lg text-[9px] font-bold">0</span>
+      <!-- ACTIVE PROJECTS STATUS BOARD (Kanban style tracking missions progress) -->
+      <div class="bg-white rounded-3xl border border-zinc-100 p-6 shadow-sm mt-6">
+        <div class="flex items-center justify-between mb-5 border-b border-zinc-50 pb-3">
+          <div>
+            <span class="text-[10px] font-extrabold text-orange-500 tracking-wider uppercase" id="kanban-subtitle">QUẢN LÝ TIẾN ĐỘ</span>
+            <h3 class="text-xl font-extrabold text-zinc-900 heading mt-0.5" id="kanban-title">Bảng tiến độ nhiệm vụ</h3>
           </div>
-          <div class="space-y-2.5" id="kanban-todo-list">
-            <!-- Cards populated dynamically -->
-          </div>
+          <i class="fa-solid fa-clipboard-list text-orange-500 text-lg"></i>
         </div>
 
-        <!-- In Progress column -->
-        <div class="bg-orange-50/30 rounded-2.5xl p-4 border border-orange-100/20">
-          <div class="flex items-center justify-between mb-3.5">
-            <span class="text-xs font-bold text-orange-600 flex items-center gap-1.5">
-              <span class="w-1.5 h-1.5 bg-orange-400 rounded-full animate-ping"></span>
-              <span id="k-col-doing">Đang học</span>
-            </span>
-            <span id="kanban-doing-count" class="px-2 py-0.5 bg-orange-100 text-orange-700 rounded-lg text-[9px] font-bold">0</span>
+        <!-- Columns matrix -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-1 gap-4">
+          <!-- To Do column -->
+          <div class="bg-zinc-50/50 rounded-2.5xl p-4 border border-zinc-100/50">
+            <div class="flex items-center justify-between mb-3.5">
+              <span class="text-xs font-bold text-zinc-500 flex items-center gap-1.5">
+                <span class="w-1.5 h-1.5 bg-sky-400 rounded-full"></span>
+                <span id="k-col-todo">Cần làm</span>
+              </span>
+              <span id="kanban-todo-count" class="px-2 py-0.5 bg-zinc-200/50 text-zinc-650 rounded-lg text-[9px] font-bold">0</span>
+            </div>
+            <div class="space-y-2.5" id="kanban-todo-list">
+              <!-- Cards populated dynamically -->
+            </div>
           </div>
-          <div class="space-y-2.5" id="kanban-doing-list">
-            <!-- Cards populated dynamically -->
-          </div>
-        </div>
 
-        <!-- Completed column -->
-        <div class="bg-emerald-50/20 rounded-2.5xl p-4 border border-emerald-100/20">
-          <div class="flex items-center justify-between mb-3.5">
-            <span class="text-xs font-bold text-emerald-600 flex items-center gap-1.5">
-              <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span>
-              <span id="k-col-done">Đã hoàn thành</span>
-            </span>
-            <span id="kanban-done-count" class="px-2 py-0.5 bg-emerald-100 text-emerald-700 rounded-lg text-[9px] font-bold">0</span>
+          <!-- In Progress column -->
+          <div class="bg-orange-50/30 rounded-2.5xl p-4 border border-orange-100/20">
+            <div class="flex items-center justify-between mb-3.5">
+              <span class="text-xs font-bold text-orange-600 flex items-center gap-1.5">
+                <span class="w-1.5 h-1.5 bg-orange-400 rounded-full animate-ping"></span>
+                <span id="k-col-doing">Đang học</span>
+              </span>
+              <span id="kanban-doing-count" class="px-2 py-0.5 bg-orange-100 text-orange-700 rounded-lg text-[9px] font-bold">0</span>
+            </div>
+            <div class="space-y-2.5" id="kanban-doing-list">
+              <!-- Cards populated dynamically -->
+            </div>
           </div>
-          <div class="space-y-2.5" id="kanban-done-list">
-            <!-- Cards populated dynamically -->
+
+          <!-- Completed column -->
+          <div class="bg-emerald-50/20 rounded-2.5xl p-4 border border-emerald-100/20">
+            <div class="flex items-center justify-between mb-3.5">
+              <span class="text-xs font-bold text-emerald-600 flex items-center gap-1.5">
+                <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span>
+                <span id="k-col-done">Đã hoàn thành</span>
+              </span>
+              <span id="kanban-done-count" class="px-2 py-0.5 bg-emerald-100 text-emerald-700 rounded-lg text-[9px] font-bold">0</span>
+            </div>
+            <div class="space-y-2.5" id="kanban-done-list">
+              <!-- Cards populated dynamically -->
+            </div>
           </div>
         </div>
       </div>
+
+      </div>
+
     </div>
 
     <!-- BOTTOM ROW WIDGETS (Star Bank reward wallet, steps metrics, Reading Library) -->
@@ -653,19 +1151,30 @@
       </div>
 
       <!-- Health step counter tracker ring (Health Widget) -->
-      <div onclick="addSteps()" class="bg-white rounded-3xl border border-zinc-100 p-6 shadow-sm flex items-center justify-between min-h-[220px] cursor-pointer group active:scale-95 transition-all">
-        <div class="flex flex-col">
-          <span class="text-[9px] font-extrabold text-orange-500 tracking-wider uppercase" id="health-subtitle">SỨC KHỎE ĐỘNG</span>
-          <h3 class="text-base font-extrabold text-zinc-950 mt-0.5" id="health-title">Vận động cơ thể</h3>
-          <div class="mt-4">
-            <!-- Dynamic step counter -->
-            <span id="steps-count" class="text-3xl font-extrabold text-zinc-800 tabular-nums">8,450</span>
-            <div class="text-[10px] text-zinc-400 font-bold mt-0.5 uppercase tracking-wider" id="steps-goal">mục tiêu: 10k bước</div>
+      <div class="bg-white rounded-3xl border border-zinc-100 p-6 shadow-sm flex items-center justify-between min-h-[220px] transition-all">
+        <div class="flex flex-col justify-between h-full py-1">
+          <div>
+            <span class="text-[9px] font-extrabold text-orange-500 tracking-wider uppercase" id="health-subtitle">SỨC KHỎE ĐỘNG</span>
+            <h3 class="text-base font-extrabold text-zinc-950 mt-0.5" id="health-title">Vận động cơ thể</h3>
+            <div class="mt-3">
+              <!-- Dynamic step counter -->
+              <span id="steps-count" class="text-3xl font-extrabold text-zinc-800 tabular-nums">8,450</span>
+              <div class="text-[10px] text-zinc-400 font-bold mt-0.5 uppercase tracking-wider" id="steps-goal">mục tiêu: 10k bước</div>
+            </div>
+          </div>
+          
+          <!-- Manual steps entry field -->
+          <div class="mt-3 flex items-center gap-1.5" onclick="event.stopPropagation()">
+            <input type="number" id="steps-custom-input" placeholder="Nhập số..." class="w-20 px-2 py-1 text-xs border border-zinc-200 rounded-lg outline-none focus:ring-1 focus:ring-emerald-400 text-zinc-800 font-medium" />
+            <button onclick="addCustomSteps()" class="bg-emerald-500 hover:bg-emerald-600 text-white text-[10px] px-2.5 py-1 rounded-lg font-bold transition-all shadow-xs flex items-center gap-0.5">
+              <i class="fa-solid fa-plus text-[8px]"></i>
+              <span id="steps-add-btn-text">Thêm</span>
+            </button>
           </div>
         </div>
 
-        <!-- Step circular progress ring -->
-        <div class="relative w-24 h-24 flex items-center justify-center flex-shrink-0">
+        <!-- Step circular progress ring (clickable for quick add 150) -->
+        <div onclick="addSteps()" class="relative w-24 h-24 flex items-center justify-center flex-shrink-0 cursor-pointer group active:scale-95 hover:scale-105 transition-all" title="Click to quick add 150 steps">
           <svg class="w-full h-full -rotate-90" viewBox="0 0 100 100">
             <circle cx="50" cy="50" r="42" fill="none" stroke="#f1f5f9" stroke-width="6"/>
             <circle id="steps-ring" cx="50" cy="50" r="42" fill="none" 
@@ -703,6 +1212,77 @@
 
     </div>
 
+    <!-- CHORES & PHYSICAL ACTIVITY TRACKER ROW -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-2">
+      <!-- Card 1: Chores Tracker (Việc nhà của Hana) -->
+      <div class="bg-white rounded-3xl border border-zinc-100 p-6 shadow-sm flex flex-col justify-between min-h-[220px]">
+        <div>
+          <span class="text-[9px] font-extrabold text-orange-500 tracking-wider uppercase">VIỆC NHÀ HÀNG NGÀY</span>
+          <h3 class="text-base font-extrabold text-zinc-950 mt-0.5">Giặt đồ & Rửa bát</h3>
+          <p class="text-[10px] text-zinc-400 font-medium mt-1">Yêu cầu ít nhất 1 lần/ngày. Không làm trừ 5⭐. Làm được +2⭐, thêm mỗi lần +3⭐.</p>
+          
+          <div class="grid grid-cols-2 gap-4 mt-4">
+            <!-- Laundry status -->
+            <div class="bg-zinc-50 border border-zinc-150 rounded-2xl p-3 flex flex-col items-center">
+              <span class="text-xl">🧺</span>
+              <span class="text-[10px] font-bold text-zinc-700 mt-1">Giặt quần áo</span>
+              <div class="flex items-center gap-2 mt-2">
+                <span id="chore-laundry-count" class="text-lg font-black text-zinc-900">0</span>
+                <button onclick="logChore('laundry')" class="w-6 h-6 bg-orange-500 hover:bg-orange-600 text-white rounded-full flex items-center justify-center transition-all shadow-xs">+</button>
+              </div>
+            </div>
+            
+            <!-- Dishes status -->
+            <div class="bg-zinc-50 border border-zinc-150 rounded-2xl p-3 flex flex-col items-center">
+              <span class="text-xl">🍽️</span>
+              <span class="text-[10px] font-bold text-zinc-700 mt-1">Rửa bát đũa</span>
+              <div class="flex items-center gap-2 mt-2">
+                <span id="chore-dishes-count" class="text-lg font-black text-zinc-900">0</span>
+                <button onclick="logChore('dishes')" class="w-6 h-6 bg-orange-500 hover:bg-orange-600 text-white rounded-full flex items-center justify-center transition-all shadow-xs">+</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="border-t border-zinc-50 pt-3 mt-4 flex justify-between items-center text-xs">
+          <span class="text-zinc-500">Trạng thái sao việc nhà:</span>
+          <span id="chore-stars-badge" class="font-extrabold text-red-500">-5 ⭐ (Chưa làm)</span>
+        </div>
+      </div>
+
+      <!-- Card 2: Physical Activity Tracker (Hoạt động thể lực) -->
+      <div class="bg-white rounded-3xl border border-zinc-100 p-6 shadow-sm flex flex-col justify-between min-h-[220px]">
+        <div>
+          <span class="text-[9px] font-extrabold text-orange-500 tracking-wider uppercase">HOẠT ĐỘNG THỂ LỰC</span>
+          <h3 class="text-base font-extrabold text-zinc-950 mt-0.5">Rèn luyện thể chất</h3>
+          <p class="text-[10px] text-zinc-400 font-medium mt-1">Yêu cầu ít nhất 1 lần (30 phút)/ngày. Không tập trừ 3⭐. Tập được +2⭐, trên 30 phút +1⭐, thêm phiên +3⭐.</p>
+          
+          <div class="mt-4 flex items-center gap-3">
+            <div class="flex-1">
+              <input type="number" id="phys-duration-input" placeholder="Số phút..." class="w-full px-3 py-2 text-xs border border-zinc-200 rounded-xl outline-none focus:ring-1 focus:ring-orange-400 font-medium text-zinc-800" min="1" />
+            </div>
+            <button onclick="logPhysicalActivity()" class="bg-orange-500 hover:bg-orange-600 text-white text-xs px-4 py-2 rounded-xl font-bold transition-all shadow-md flex items-center gap-1">
+              <i class="fa-solid fa-plus"></i>
+              <span>Ghi nhận</span>
+            </button>
+          </div>
+          
+          <!-- Session logs list -->
+          <div class="mt-3 bg-zinc-50 border border-zinc-150 rounded-xl p-2.5 max-h-[85px] overflow-y-auto scrollbar-none">
+            <span class="text-[9px] font-bold text-zinc-400 uppercase tracking-wider block mb-1">Các phiên tập hôm nay:</span>
+            <div id="phys-sessions-list" class="space-y-1 text-[10px] font-semibold text-zinc-650">
+              <div class="italic text-zinc-400 font-medium">Chưa có phiên tập nào.</div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="border-t border-zinc-50 pt-3 mt-4 flex justify-between items-center text-xs">
+          <span class="text-zinc-500">Trạng thái sao thể lực:</span>
+          <span id="phys-stars-badge" class="font-extrabold text-red-500">-3 ⭐ (Chưa tập)</span>
+        </div>
+      </div>
+    </div>
+
   </div>
 
   <!-- STICKY FOOTER TIMELINE & REQUEST PERMISSION BAR -->
@@ -718,7 +1298,11 @@
     </div>
 
     <!-- Right: Request Permission Button -->
-    <div class="flex-shrink-0">
+    <div class="flex-shrink-0 flex items-center gap-2">
+      <button onclick="sendDailyReport(true)" class="flex items-center gap-x-2 px-4 py-3 rounded-2xl border border-zinc-200 bg-white hover:bg-zinc-50 text-zinc-650 font-extrabold text-xs shadow-sm transition-all hover:scale-105 active:scale-95" title="Gửi báo cáo tổng kết ngày cho Bố Mẹ">
+        <i class="fa-solid fa-square-poll-horizontal text-sm"></i>
+        <span>Báo cáo ngày</span>
+      </button>
       <button onclick="showRequestModal()" class="flex items-center gap-x-2 px-5 py-3 rounded-2xl border border-amber-200 bg-white hover:bg-amber-50 text-amber-700 font-extrabold text-xs shadow-sm transition-all hover:scale-105 active:scale-95">
         <i class="fa-solid fa-handshake animate-pulse"></i>
         <span id="ask-parents-btn-text">Xin Bố Mẹ thêm giờ máy tính</span>
@@ -726,20 +1310,120 @@
     </div>
   </div>
 
-  <!-- VIEW ALL TASKS MODAL (Ngân hàng đề bài) -->
+  <!-- PARENT PASSCODE MODAL -->
+  <div id="parent-passcode-modal" onclick="if (event.target.id === 'parent-passcode-modal') closePasscodeModal()" class="hidden fixed inset-0 bg-black/40 flex items-center justify-center z-[250] p-4">
+    <div onclick="event.stopPropagation()" class="bg-white w-full max-w-[360px] rounded-3xl shadow-xl border border-zinc-100 p-6 text-center">
+      <div class="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-3 text-orange-600">
+        <i class="fa-solid fa-lock text-lg"></i>
+      </div>
+      <h3 class="text-base font-extrabold text-zinc-900 heading">Xác nhận Phụ huynh</h3>
+      <p class="text-[10px] text-zinc-400 font-semibold mt-1">Vui lòng nhập mật khẩu để mở khóa cổng Bố Mẹ</p>
+      
+      <input type="password" id="parent-passcode-input" class="w-full text-center tracking-widest text-lg font-bold border border-zinc-200 rounded-xl px-3 py-2.5 mt-4 outline-none focus:border-orange-400" placeholder="••••" maxlength="8">
+      <div id="passcode-error" class="hidden text-[10px] text-rose-500 font-semibold mt-1">Mật khẩu chưa chính xác, vui lòng thử lại!</div>
+      
+      <div class="flex gap-2.5 mt-5">
+        <button onclick="closePasscodeModal()" class="flex-1 py-2.5 border border-zinc-150 text-zinc-650 hover:bg-zinc-50 rounded-xl font-bold transition-all text-xs">Hủy</button>
+        <button onclick="submitPasscode()" class="flex-1 py-2.5 bg-gradient-to-r from-orange-500 to-rose-500 hover:from-orange-600 hover:to-rose-600 text-white rounded-xl font-bold shadow-md transition-all text-xs">XÁC NHẬN</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- OFFLINE ACTIVITY LOG MODAL -->
+  <div id="activity-log-modal" class="hidden fixed inset-0 bg-black/40 flex items-center justify-center z-[250] p-4">
+    <div onclick="event.stopPropagation()" class="bg-white w-full max-w-[380px] rounded-3xl shadow-xl border border-zinc-100 p-6 text-center">
+      <div class="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-3 text-amber-600">
+        <i class="fa-solid fa-camera text-lg"></i>
+      </div>
+      <h3 class="text-base font-extrabold text-zinc-900 heading" id="act-modal-title">📸 Nhật ký hoạt động ngoài máy</h3>
+      <p class="text-[11px] text-zinc-500 font-medium mt-2" id="act-modal-desc">
+        Hana đang làm hoạt động này bên ngoài máy đúng không?<br>Con hãy chụp ảnh hoặc chọn ảnh gửi cho Bố Mẹ xem nhé!
+      </p>
+      
+      <!-- Upload area -->
+      <div class="mt-4 border-2 border-dashed border-zinc-200 hover:border-orange-400 rounded-2xl p-4 cursor-pointer transition-colors relative" id="act-upload-area">
+        <input type="file" id="act-image-input" accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" onchange="handleActImageSelect(event)">
+        <div id="act-upload-placeholder" class="space-y-1">
+          <i class="fa-solid fa-cloud-arrow-up text-zinc-400 text-lg"></i>
+          <p class="text-[10px] font-bold text-zinc-500">Chụp ảnh hoặc Chọn file từ máy</p>
+          <p class="text-[8px] text-zinc-400">Hỗ trợ hình ảnh chụp trực tiếp</p>
+        </div>
+        <div id="act-upload-preview-container" class="hidden">
+          <img id="act-upload-preview" class="max-h-[140px] mx-auto rounded-xl object-contain shadow-xs">
+          <p class="text-[9px] text-emerald-600 font-bold mt-2">✨ Ảnh đã sẵn sàng gửi!</p>
+        </div>
+      </div>
+      
+      <div class="flex gap-2.5 mt-5">
+        <button onclick="skipActivityImage()" class="flex-1 py-2.5 border border-zinc-150 text-zinc-650 hover:bg-zinc-50 rounded-xl font-bold transition-all text-xs">Hoàn thành không ảnh</button>
+        <button onclick="submitActivityWithImage()" id="act-submit-btn" class="flex-1 py-2.5 bg-gradient-to-r from-orange-500 to-rose-500 hover:from-orange-600 hover:to-rose-600 text-white rounded-xl font-bold shadow-md transition-all text-xs" disabled>Tải lên & Gửi Bố Mẹ</button>
+      </div>
+      <button onclick="cancelActivityLog()" class="w-full mt-3 py-1.5 text-[10px] text-zinc-400 font-semibold hover:text-zinc-600">Đóng</button>
+    </div>
+  </div>
+
+  <!-- VIEW ALL TASKS MODAL (Ngân hàng đề bài & Cấu hình Bố Mẹ) -->
   <div id="all-tasks-modal" onclick="if (event.target.id === 'all-tasks-modal') closeAllTasksModal()" class="hidden fixed inset-0 bg-black/40 flex items-center justify-center z-[200] p-4">
-    <div onclick="event.stopPropagation()" class="bg-white w-full max-w-[550px] rounded-3xl shadow-xl border border-zinc-100 p-6 flex flex-col">
+    <div onclick="event.stopPropagation()" class="bg-white w-full max-w-[650px] rounded-3xl shadow-xl border border-zinc-100 p-6 flex flex-col max-h-[90vh]">
       <div class="flex items-center justify-between border-b border-zinc-50 pb-3 mb-4">
         <div>
-          <h3 class="text-lg font-black heading text-zinc-950" id="m-tasks-title">Kho Đề Bài Học Tập</h3>
-          <p class="text-[10px] text-zinc-400 font-semibold" id="m-tasks-subtitle">Tất cả đề bài được bố mẹ chuẩn bị cho Hana</p>
+          <h3 class="text-lg font-black heading text-zinc-950" id="m-tasks-title">Cổng Quản Trị Của Bố Mẹ</h3>
+          <p class="text-[10px] text-zinc-400 font-semibold" id="m-tasks-subtitle">Quản lý bài học, giao bài và cấu hình tự động</p>
         </div>
         <button onclick="closeAllTasksModal()" class="w-8 h-8 rounded-full hover:bg-zinc-100 flex items-center justify-center text-zinc-400 text-xl font-bold transition-all">&times;</button>
       </div>
 
-      <!-- Scroll list of database bank tasks -->
-      <div class="max-h-[300px] overflow-y-auto space-y-3 pr-1" id="modal-all-tasks-list">
-        <!-- populated dynamically -->
+      <!-- Tab navigation inside parent modal -->
+      <div class="flex gap-2 mb-4 bg-zinc-100 p-1 rounded-xl text-xs font-bold">
+        <button onclick="switchParentTab('tasks')" id="ptab-tasks" class="flex-1 py-2 rounded-lg bg-white shadow-xs text-orange-650 transition-all">Nhiệm vụ hôm nay</button>
+        <button onclick="switchParentTab('english')" id="ptab-english" class="flex-1 py-2 rounded-lg text-zinc-500 hover:text-zinc-800 transition-all">Thư viện Tiếng Anh</button>
+        <button onclick="switchParentTab('config')" id="ptab-config" class="flex-1 py-2 rounded-lg text-zinc-500 hover:text-zinc-800 transition-all">Cấu hình Gemini</button>
+      </div>
+
+      <!-- Tab content 1: Today's Tasks -->
+      <div id="pcontent-tasks" class="space-y-3 overflow-y-auto pr-1 flex-1 min-h-[300px]">
+        <div class="max-h-[350px] overflow-y-auto space-y-3" id="modal-all-tasks-list">
+          <!-- populated dynamically -->
+        </div>
+      </div>
+
+      <!-- Tab content 2: English Library -->
+      <div id="pcontent-english" class="hidden space-y-3 overflow-y-auto pr-1 flex-1 min-h-[300px] text-left">
+        <div class="max-h-[350px] overflow-y-auto space-y-4">
+          <div>
+            <h4 class="text-xs font-black text-orange-500 uppercase tracking-wider mb-2">📚 Bài đọc hiểu (Reading Corners)</h4>
+            <div class="space-y-2" id="parent-reading-list">
+              <!-- populated from lessons_data.js -->
+            </div>
+          </div>
+          <div class="pt-2">
+            <h4 class="text-xs font-black text-rose-500 uppercase tracking-wider mb-2">✍️ Đề tập viết (Writing Studios)</h4>
+            <div class="space-y-2" id="parent-writing-list">
+              <!-- populated from lessons_data.js -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab content 3: Gemini Configuration -->
+      <div id="pcontent-config" class="hidden space-y-4 pr-1 flex-1 min-h-[300px] text-left text-xs font-semibold">
+        <div class="bg-zinc-50 p-4 rounded-2xl border border-zinc-100">
+          <p class="text-zinc-500 leading-relaxed">
+            Hệ thống sử dụng mô hình <strong>Gemini 1.5 Flash</strong> để quét chữ viết tay và chấm điểm bài làm tiếng Anh của Hana.
+            <br><br>
+            - <strong>Nếu không có khóa:</strong> Hệ thống chạy ở chế độ giả lập (Simulator) tự sinh nhận xét từ Cô Julie.
+            <br>
+            - <strong>Nếu có khóa:</strong> Gọi trực tiếp API của Google để đánh giá bài làm thực tế của con. Khóa được lưu hoàn toàn cục bộ trên trình duyệt.
+          </p>
+        </div>
+        <div class="space-y-1.5 mt-2">
+          <label class="text-zinc-700 block font-bold">Google Gemini API Key:</label>
+          <input type="password" id="parent-gemini-key-input" class="w-full border border-zinc-200 rounded-xl px-3 py-2.5 outline-none focus:border-orange-400 font-mono text-xs" placeholder="Nhập AIzaSy... API Key của anh">
+        </div>
+        <div class="flex gap-2 pt-2">
+          <button onclick="saveGeminiKey()" class="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-xl shadow-xs transition-all text-[10px]">Lưu cấu hình</button>
+          <button onclick="clearGeminiKey()" class="px-4 py-2 bg-white border border-zinc-200 text-zinc-500 hover:bg-zinc-50 font-bold rounded-xl transition-all text-[10px]">Xóa Key</button>
+        </div>
       </div>
 
       <button onclick="closeAllTasksModal()" class="w-full mt-5 py-3 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 font-bold rounded-2xl text-xs transition-all">
@@ -814,7 +1498,7 @@
   <script>
     // ==================== SUPABASE CONFIG ====================
     const SUPABASE_URL = 'https://oytgbhytkddjlygafxjf.supabase.co';
-    const SUPABASE_ANON_KEY = '****************************************************************************************************************************************************************************************************************';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im95dGdiaHl0a2Rkamx5Z2FmeGpmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAyMzUyNjIsImV4cCI6MjA5NTgxMTI2Mn0.ez0NvMJsZKrjRp5d71LxbPUfYjermDw2FoiC7jcH4lY';
 
     let supabaseClient = null;
 
@@ -838,6 +1522,9 @@
     let studySeconds = 0;
     let studyInterval = null;
 
+    let isParentUnlocked = false;
+    let activeWritingImageBase64 = "";
+
     let pendingActions = [];       // Sync Queue
 
     const routineTemplates = {
@@ -847,73 +1534,84 @@
         { time: "11:00 AM", labelVi: "Giải lao & Uống nước", labelEn: "Rest & Drink Water", icon: "fa-glass-water", id: "water", isWater: true },
         { time: "12:30 PM", labelVi: "Ăn trưa & Nghỉ trưa", labelEn: "Lunch & Midday Nap", icon: "fa-bowl-food", id: "lunch" },
         { time: "02:00 PM", labelVi: "Đọc sách / Tự học", labelEn: "Reading & Study", icon: "fa-book-open", id: "pomo2", isPomo2: true },
-        { time: "03:00 PM", labelVi: "Học bơi 🏊‍♀️", labelEn: "Swimming Class 🏊‍♀️", icon: "fa-person-swimming", id: "swim" },
-        { time: "05:30 PM", labelVi: "Cảm thụ văn học ✍️", labelEn: "Literature Appreciation ✍️", icon: "fa-feather", id: "literature" },
-        { time: "07:00 PM", labelVi: "Nghỉ ngơi / Đi chơi", labelEn: "Free Play & Rest", icon: "fa-face-smile", id: "play" }
+        { time: "03:00 PM", labelVi: "Học bơi cô Hằng 🏊‍♀️", labelEn: "Swim with Ms. Hang 🏊‍♀️", icon: "fa-person-swimming", id: "swim" },
+        { time: "05:30 PM", labelVi: "Cảm thụ văn học cô Chân Kiến ✍️", labelEn: "Literature with Ms. Chan Kien ✍️", icon: "fa-feather", id: "literature" },
+        { time: "07:00 PM", labelVi: "Nghỉ ngơi / Đi chơi", labelEn: "Free Play & Rest", icon: "fa-face-smile", id: "play" },
+        { time: "08:00 PM", labelVi: "Học Apos (Apollo) 📱 (5 phút)", labelEn: "Apos App 📱 (5 mins)", icon: "fa-mobile-screen-button", id: "apos" }
       ],
       // 1 is Monday
       1: [
         { time: "07:00 AM", labelVi: "Thức dậy & Vệ sinh cá nhân", labelEn: "Wake up & Hygiene", icon: "fa-mug-saucer", id: "morning" },
         { time: "08:00 AM", labelVi: "Học bài phiên 1 (Pomodoro)", labelEn: "Study Session 1 (Pomo)", icon: "fa-laptop-code", id: "pomo1", isPomo1: true },
         { time: "09:30 AM", labelVi: "Giải lao & Uống nước lọc", labelEn: "Rest & Drink Water", icon: "fa-glass-water", id: "water", isWater: true },
-        { time: "11:00 AM", labelVi: "Học tiếng Anh (Flyers.vn)", labelEn: "Study English (Flyers)", icon: "fa-graduation-cap", id: "pomo2", isPomo2: true },
+        { time: "11:00 AM", labelVi: "Học tiếng Anh (Flyer.us)", labelEn: "Study English (Flyer.us)", icon: "fa-graduation-cap", id: "pomo2", isPomo2: true },
         { time: "12:30 PM", labelVi: "Ăn trưa & Nghỉ trưa", labelEn: "Lunch & Midday Nap", icon: "fa-bowl-food", id: "lunch" },
         { time: "02:00 PM", labelVi: "Đọc sách / Tự học", labelEn: "Reading & Study", icon: "fa-book-open", id: "reading" },
         { time: "04:30 PM", labelVi: "Thể thao & Vận động", labelEn: "Sports & Play", icon: "fa-dumbbell", id: "sports" },
-        { time: "07:30 PM", labelVi: "Học Coding 💻", labelEn: "Coding Class 💻", icon: "fa-code", id: "coding" }
+        { time: "07:30 PM", labelVi: "Học Coding 💻", labelEn: "Coding Class 💻", icon: "fa-code", id: "coding" },
+        { time: "08:30 PM", labelVi: "Học Apos (Apollo) 📱 (5 phút)", labelEn: "Apos App 📱 (5 mins)", icon: "fa-mobile-screen-button", id: "apos" }
       ],
       // 2 is Tuesday
       2: [
         { time: "07:00 AM", labelVi: "Thức dậy & Vệ sinh cá nhân", labelEn: "Wake up & Hygiene", icon: "fa-mug-saucer", id: "morning" },
         { time: "08:00 AM", labelVi: "Học bài phiên 1 (Pomodoro)", labelEn: "Study Session 1 (Pomo)", icon: "fa-laptop-code", id: "pomo1", isPomo1: true },
         { time: "09:30 AM", labelVi: "Giải lao & Uống nước lọc", labelEn: "Rest & Drink Water", icon: "fa-glass-water", id: "water", isWater: true },
-        { time: "11:00 AM", labelVi: "Học tiếng Anh (Flyers.vn)", labelEn: "Study English (Flyers)", icon: "fa-graduation-cap", id: "pomo2", isPomo2: true },
+        { time: "11:00 AM", labelVi: "Học tiếng Anh (Flyer.us)", labelEn: "Study English (Flyer.us)", icon: "fa-graduation-cap", id: "pomo2", isPomo2: true },
         { time: "12:30 PM", labelVi: "Ăn trưa & Nghỉ trưa", labelEn: "Lunch & Midday Nap", icon: "fa-bowl-food", id: "lunch" },
-        { time: "02:00 PM", labelVi: "Đọc sách / Tự học", labelEn: "Reading & Study", icon: "fa-book-open", id: "reading" },
-        { time: "05:00 PM", labelVi: "Apollo English 🇬🇧", labelEn: "Apollo English 🇬🇧", icon: "fa-language", id: "apollo" }
+        { time: "02:00 PM", labelVi: "Luyện thi Flyer (Movers: 2 test / Flyers: 1 test) 📝", labelEn: "Flyer Exam Prep (Movers: 2 tests / Flyers: 1 test) 📝", icon: "fa-file-signature", id: "flyer_test" },
+        { time: "03:30 PM", labelVi: "Chuẩn bị đi học Apollo (Nhớ uống sữa nhé!) 🥛🎒", labelEn: "Get ready for Apollo (Drink milk!) 🥛🎒", icon: "fa-suitcase", id: "prep_apollo" },
+        { time: "05:00 PM", labelVi: "Apollo English 🇬🇧", labelEn: "Apollo English 🇬🇧", icon: "fa-language", id: "apollo" },
+        { time: "07:00 PM", labelVi: "Tiếng Trung cô Nhi 🇨🇳", labelEn: "Chinese with Ms. Nhi 🇨🇳", icon: "fa-language", id: "chinese_nhi" },
+        { time: "08:00 PM", labelVi: "Học Apos (Apollo) 📱 (5 phút)", labelEn: "Apos App 📱 (5 mins)", icon: "fa-mobile-screen-button", id: "apos" }
       ],
       // 3 is Wednesday
       3: [
         { time: "07:00 AM", labelVi: "Thức dậy & Vệ sinh cá nhân", labelEn: "Wake up & Hygiene", icon: "fa-mug-saucer", id: "morning" },
         { time: "08:00 AM", labelVi: "Học bài phiên 1 (Pomodoro)", labelEn: "Study Session 1 (Pomo)", icon: "fa-laptop-code", id: "pomo1", isPomo1: true },
         { time: "09:30 AM", labelVi: "Giải lao & Uống nước lọc", labelEn: "Rest & Drink Water", icon: "fa-glass-water", id: "water", isWater: true },
-        { time: "11:00 AM", labelVi: "Học tiếng Anh (Flyers.vn)", labelEn: "Study English (Flyers)", icon: "fa-graduation-cap", id: "pomo2", isPomo2: true },
+        { time: "11:00 AM", labelVi: "Ôn tập Tiếng Trung cô Nhi 🇨🇳", labelEn: "Review Chinese with Ms. Nhi 🇨🇳", icon: "fa-language", id: "chinese_review" },
         { time: "12:30 PM", labelVi: "Ăn trưa & Nghỉ trưa", labelEn: "Lunch & Midday Nap", icon: "fa-bowl-food", id: "lunch" },
         { time: "02:00 PM", labelVi: "Đọc sách / Tự học", labelEn: "Reading & Study", icon: "fa-book-open", id: "reading" },
         { time: "04:30 PM", labelVi: "Thể thao & Vận động", labelEn: "Sports & Play", icon: "fa-dumbbell", id: "sports" },
-        { time: "07:00 PM", labelVi: "Học Tiếng Trung 🇨🇳", labelEn: "Chinese Class 🇨🇳", icon: "fa-language", id: "chinese" }
+        { time: "08:00 PM", labelVi: "Nộp bài văn cô Chân Kiến ✍️ (Hạn chót!)", labelEn: "Submit Essay to Ms. Chan Kien ✍️ (Deadline!)", icon: "fa-clock", id: "chankien_deadline" },
+        { time: "08:30 PM", labelVi: "Học Apos (Apollo) 📱 (5 phút)", labelEn: "Apos App 📱 (5 mins)", icon: "fa-mobile-screen-button", id: "apos" }
       ],
       // 4 is Thursday
       4: [
         { time: "07:00 AM", labelVi: "Thức dậy & Vệ sinh cá nhân", labelEn: "Wake up & Hygiene", icon: "fa-mug-saucer", id: "morning" },
         { time: "08:00 AM", labelVi: "Học bài phiên 1 (Pomodoro)", labelEn: "Study Session 1 (Pomo)", icon: "fa-laptop-code", id: "pomo1", isPomo1: true },
         { time: "09:30 AM", labelVi: "Giải lao & Uống nước lọc", labelEn: "Rest & Drink Water", icon: "fa-glass-water", id: "water", isWater: true },
-        { time: "11:00 AM", labelVi: "Học tiếng Anh (Flyers.vn)", labelEn: "Study English (Flyers)", icon: "fa-graduation-cap", id: "pomo2", isPomo2: true },
+        { time: "11:00 AM", labelVi: "Học tiếng Anh (Flyer.us)", labelEn: "Study English (Flyer.us)", icon: "fa-graduation-cap", id: "pomo2", isPomo2: true },
         { time: "12:30 PM", labelVi: "Ăn trưa & Nghỉ trưa", labelEn: "Lunch & Midday Nap", icon: "fa-bowl-food", id: "lunch" },
-        { time: "02:00 PM", labelVi: "Đọc sách / Tự học", labelEn: "Reading & Study", icon: "fa-book-open", id: "reading" },
-        { time: "05:00 PM", labelVi: "Apollo English 🇬🇧", labelEn: "Apollo English 🇬🇧", icon: "fa-language", id: "apollo" }
+        { time: "02:00 PM", labelVi: "Luyện tập Coding 💻", labelEn: "Practice Coding 💻", icon: "fa-code", id: "coding_practice" },
+        { time: "03:30 PM", labelVi: "Chuẩn bị đi học Apollo (Nhớ uống sữa nhé!) 🥛🎒", labelEn: "Get ready for Apollo (Drink milk!) 🥛🎒", icon: "fa-suitcase", id: "prep_apollo" },
+        { time: "05:00 PM", labelVi: "Apollo English 🇬🇧", labelEn: "Apollo English 🇬🇧", icon: "fa-language", id: "apollo" },
+        { time: "07:00 PM", labelVi: "Tiếng Trung cô Nhi 🇨🇳", labelEn: "Chinese with Ms. Nhi 🇨🇳", icon: "fa-language", id: "chinese_nhi" },
+        { time: "08:00 PM", labelVi: "Học Apos (Apollo) 📱 (5 phút)", labelEn: "Apos App 📱 (5 mins)", icon: "fa-mobile-screen-button", id: "apos" }
       ],
       // 5 is Friday
       5: [
         { time: "07:00 AM", labelVi: "Thức dậy & Vệ sinh cá nhân", labelEn: "Wake up & Hygiene", icon: "fa-mug-saucer", id: "morning" },
         { time: "08:00 AM", labelVi: "Học bài phiên 1 (Pomodoro)", labelEn: "Study Session 1 (Pomo)", icon: "fa-laptop-code", id: "pomo1", isPomo1: true },
         { time: "09:30 AM", labelVi: "Giải lao & Uống nước lọc", labelEn: "Rest & Drink Water", icon: "fa-glass-water", id: "water", isWater: true },
-        { time: "11:00 AM", labelVi: "Học tiếng Anh (Flyers.vn)", labelEn: "Study English (Flyers)", icon: "fa-graduation-cap", id: "pomo2", isPomo2: true },
+        { time: "11:00 AM", labelVi: "Ôn tập Tiếng Trung cô Nhi 🇨🇳", labelEn: "Review Chinese with Ms. Nhi 🇨🇳", icon: "fa-language", id: "chinese_review" },
         { time: "12:30 PM", labelVi: "Ăn trưa & Nghỉ trưa", labelEn: "Lunch & Midday Nap", icon: "fa-bowl-food", id: "lunch" },
         { time: "02:00 PM", labelVi: "Đọc sách / Tự học", labelEn: "Reading & Study", icon: "fa-book-open", id: "reading" },
+        { time: "03:30 PM", labelVi: "Luyện thi Flyer (Movers: 2 test / Flyers: 1 test) 📝", labelEn: "Flyer Exam Prep (Movers: 2 tests / Flyers: 1 test) 📝", icon: "fa-file-signature", id: "flyer_test" },
         { time: "04:30 PM", labelVi: "Thể thao & Vận động", labelEn: "Sports & Play", icon: "fa-dumbbell", id: "sports" },
-        { time: "07:00 PM", labelVi: "Học Tiếng Trung 🇨🇳", labelEn: "Chinese Class 🇨🇳", icon: "fa-language", id: "chinese" }
+        { time: "08:00 PM", labelVi: "Học Apos (Apollo) 📱 (5 phút)", labelEn: "Apos App 📱 (5 mins)", icon: "fa-mobile-screen-button", id: "apos" }
       ],
       // 6 is Saturday
       6: [
         { time: "07:00 AM", labelVi: "Thức dậy & Vệ sinh cá nhân", labelEn: "Wake up & Hygiene", icon: "fa-mug-saucer", id: "morning" },
         { time: "08:00 AM", labelVi: "Học bài phiên 1 (Pomodoro)", labelEn: "Study Session 1 (Pomo)", icon: "fa-laptop-code", id: "pomo1", isPomo1: true },
         { time: "09:30 AM", labelVi: "Giải lao & Uống nước lọc", labelEn: "Rest & Drink Water", icon: "fa-glass-water", id: "water", isWater: true },
-        { time: "11:00 AM", labelVi: "Học tiếng Anh (Flyers.vn)", labelEn: "Study English (Flyers)", icon: "fa-graduation-cap", id: "pomo2", isPomo2: true },
+        { time: "11:00 AM", labelVi: "Học tiếng Anh (Flyer.us)", labelEn: "Study English (Flyer.us)", icon: "fa-graduation-cap", id: "pomo2", isPomo2: true },
         { time: "12:30 PM", labelVi: "Ăn trưa & Nghỉ trưa", labelEn: "Lunch & Midday Nap", icon: "fa-bowl-food", id: "lunch" },
         { time: "02:00 PM", labelVi: "Đọc sách / Tự học", labelEn: "Reading & Study", icon: "fa-book-open", id: "reading" },
-        { time: "03:00 PM", labelVi: "Học bơi 🏊‍♀️", labelEn: "Swimming Class 🏊‍♀️", icon: "fa-person-swimming", id: "swim" },
-        { time: "04:30 PM", labelVi: "Ngoại khóa / Chạy bộ", labelEn: "Sports & Play", icon: "fa-dumbbell", id: "sports" }
+        { time: "03:00 PM", labelVi: "Học bơi cô Hằng 🏊‍♀️", labelEn: "Swim with Ms. Hang 🏊‍♀️", icon: "fa-person-swimming", id: "swim" },
+        { time: "04:30 PM", labelVi: "Ngoại khóa / Chạy bộ", labelEn: "Sports & Play", icon: "fa-dumbbell", id: "sports" },
+        { time: "08:00 PM", labelVi: "Học Apos (Apollo) 📱 (5 phút)", labelEn: "Apos App 📱 (5 mins)", icon: "fa-mobile-screen-button", id: "apos" }
       ]
     };
 
@@ -946,7 +1644,11 @@
     ];
 
     // ==================== SPEECH SYNTHESIS ====================
-    function speakEnglish(text) {
+    function speakEnglish(text, type = 'general') {
+      if (type !== 'pomodoro' && type !== 'water' && type !== 'word') {
+        console.log("Speech silenced (non-priority):", text);
+        return;
+      }
       if ('speechSynthesis' in window) {
         window.speechSynthesis.cancel();
         const utterance = new SpeechSynthesisUtterance(text);
@@ -957,7 +1659,11 @@
       }
     }
 
-    function speakChinese(text) {
+    function speakChinese(text, type = 'general') {
+      if (type !== 'pomodoro' && type !== 'water' && type !== 'word') {
+        console.log("Chinese speech silenced:", text);
+        return;
+      }
       if ('speechSynthesis' in window) {
         window.speechSynthesis.cancel();
         const utterance = new SpeechSynthesisUtterance(text);
@@ -1035,6 +1741,17 @@
             });
             success = !error;
           }
+          else if (action.type === 'request_change') {
+            const { error } = await supabaseClient.from('approval_requests').insert({
+              param_key: action.param,
+              old_value: action.oldVal,
+              new_value: action.newVal,
+              reason: action.reason,
+              status: 'pending',
+              requested_at: action.timestamp
+            });
+            success = !error;
+          }
 
           if (success) {
             successIds.push(action.id);
@@ -1099,8 +1816,8 @@
           reasonVi = "Đạt mốc vận động cơ thể";
           reasonEn = "Steps count milestone";
         } else if (sourceId === 'desk-submit-btn') {
-          reasonVi = "Nộp bài cho cô giáo AI";
-          reasonEn = "Submitted task to AI Teacher";
+          reasonVi = "Nộp bài cho Cô Julie";
+          reasonEn = "Submitted task to Teacher Julie";
         } else if (sourceId === 'journal-text') {
           reasonVi = "Viết nhật ký cảm xúc";
           reasonEn = "Logged daily reflections";
@@ -1158,7 +1875,7 @@
         t1: "Thức dậy & Vệ sinh cá nhân",
         t2: "Học bài phiên 1 (Pomodoro)",
         t3: "Giải lao & Uống nước lọc",
-        t4: "Học tiếng Anh (Flyers.vn)",
+        t4: "Học tiếng Anh (Flyer.us)",
         t5: "Ăn trưa & Nghỉ trưa",
         t6: "Đọc sách / Học Tiếng Trung",
         t7: "Thể thao / Chạy bộ / Đi chơi",
@@ -1177,7 +1894,7 @@
         assignmentLabel: "Đề bài / Nhiệm vụ",
         writingLabel: "Bài làm của con",
         writingPlaceholder: "Nhập bài viết của con tại đây... (khoảng 50-70 từ)",
-        submitBtn: "Nộp bài cho cô giáo AI",
+        submitBtn: "Nộp bài cho Cô Julie",
         submitBtnDone: "Đã nộp bài thành công",
         resourcesTitle: "Tài liệu tham khảo học tập",
         resourcesEmpty: "Chọn một bài học để xem các tài liệu hướng dẫn liên quan.",
@@ -1219,6 +1936,8 @@
         healthTitle: "Vận động cơ thể",
         healthSubtitle: "SỨC KHỎE ĐỘNG",
         healthStepsGoal: "mục tiêu: 10k bước",
+        healthStepsAddBtn: "Thêm",
+        healthStepsInputPlaceholder: "Nhập số...",
         libraryTitle: "Tủ sách của Hana",
         librarySubtitle: "TỦ SÁCH CỦA HANA",
         libraryReadingLabel: "ĐANG ĐỌC",
@@ -1241,7 +1960,7 @@
         t1: "Wake up & Personal hygiene",
         t2: "Study session 1 (Pomodoro)",
         t3: "Take a break & Drink water",
-        t4: "Study English (Flyers.vn)",
+        t4: "Study English (Flyer.us)",
         t5: "Lunch & Midday nap",
         t6: "Reading / Study Chinese",
         t7: "Sports / Running / Play",
@@ -1260,7 +1979,7 @@
         assignmentLabel: "Assignment prompt",
         writingLabel: "Your answer sheet",
         writingPlaceholder: "Write your answer here... (around 50-70 words)",
-        submitBtn: "Submit to AI Teacher",
+        submitBtn: "Submit to Teacher Julie",
         submitBtnDone: "Successfully submitted",
         resourcesTitle: "Related learning resources",
         resourcesEmpty: "Select a task to display resource links.",
@@ -1302,6 +2021,8 @@
         healthTitle: "Physical Activities",
         healthSubtitle: "HEALTH TRACKER",
         healthStepsGoal: "goal: 10k steps",
+        healthStepsAddBtn: "Add",
+        healthStepsInputPlaceholder: "Steps...",
         libraryTitle: "Hana's Reading Library",
         librarySubtitle: "HANA'S LIBRARY",
         libraryReadingLabel: "CURRENT READ",
@@ -1315,15 +2036,15 @@
     const LEARNING_RESOURCES = {
       vi: {
         "Tiếng Anh": [
-          { title: "Flyers.vn - Luyện thi chứng chỉ", url: "https://flyers.vn", icon: "fa-graduation-cap" }, { title: "Hana English Adventure", url: "/english.html", icon: "fa-star" },
-          { title: "Từ vựng Tiếng Anh Mùa Hè", url: "https://flyers.vn", icon: "fa-language" }
+          { title: "Flyer.us - Luyện thi chứng chỉ", url: "https://exam.flyer.us/", icon: "fa-graduation-cap" }, { title: "Hana English Adventure", url: "/english.html", icon: "fa-star" },
+          { title: "Từ vựng Tiếng Anh Mùa Hè", url: "https://exam.flyer.us/", icon: "fa-language" }
         ],
         "Toán": [
           { title: "Luyện Tập Toán Học Vui", url: "https://vi.khanacademy.org", icon: "fa-calculator" },
           { title: "Bài Toán Tư Duy Logic", url: "https://vi.khanacademy.org", icon: "fa-brain" }
         ],
         "Tiếng Việt": [
-          { title: "Văn Miêu Tả Tiếng Việt 4", url: "https://flyers.vn", icon: "fa-feather" }
+          { title: "Văn Miêu Tả Tiếng Việt 4", url: "https://exam.flyer.us/", icon: "fa-feather" }
         ],
         "Tiếng Trung": [
           { title: "Học Phát Âm Pinyin Cơ Bản", url: "https://example.com", icon: "fa-language" }
@@ -1331,7 +2052,7 @@
       },
       en: {
         "Tiếng Anh": [
-          { title: "Flyers.vn English Exam Prep", url: "https://flyers.vn", icon: "fa-graduation-cap" }
+          { title: "Flyer.us English Exam Prep", url: "https://exam.flyer.us/", icon: "fa-graduation-cap" }
         ]
       }
     };
@@ -1429,6 +2150,8 @@
       document.getElementById('health-subtitle').textContent = t.healthSubtitle;
       document.getElementById('health-title').textContent = t.healthTitle;
       document.getElementById('steps-goal').textContent = t.healthStepsGoal;
+      document.getElementById('steps-add-btn-text').textContent = t.healthStepsAddBtn;
+      document.getElementById('steps-custom-input').placeholder = t.healthStepsInputPlaceholder;
       
 
       // Request btn time extension
@@ -1493,6 +2216,15 @@
           clockIcon.className = "fa-solid fa-sun text-lg animate-spin-slow text-amber-505";
         } else {
           clockIcon.className = "fa-solid fa-moon text-lg text-indigo-400";
+        }
+      }
+
+      // Auto-trigger daily summary report in the evening (after 9 PM / 21:00) if not already sent today
+      if (today.getHours() >= 21) {
+        const todayStr = today.toISOString().split('T')[0];
+        if (localStorage.getItem(`daily_report_sent_${todayStr}`) !== 'true') {
+          localStorage.setItem(`daily_report_sent_${todayStr}`, 'true');
+          sendDailyReport(false);
         }
       }
     }
@@ -1612,7 +2344,8 @@
 
         speakEnglish(pomoMode === 'focus' 
           ? (isInitial ? "Focus session started, Hana! Study hard." : "Resuming focus time.") 
-          : (isInitial ? "Break time started! Rest well, Hana." : "Resuming break time.")
+          : (isInitial ? "Break time started! Rest well, Hana." : "Resuming break time."),
+          'pomodoro'
         );
 
         pomoInterval = setInterval(() => {
@@ -1623,7 +2356,7 @@
       } else {
         clearInterval(pomoInterval);
         isPomoRunning = false;
-        speakEnglish("Pomodoro paused.");
+        speakEnglish("Pomodoro paused.", 'pomodoro');
       }
       updatePomoUI();
     }
@@ -1642,8 +2375,13 @@
         localStorage.setItem('hana_pomo_completed', pomoCompleted);
         
         triggerStarReward(50, 'top-pomo-progress');
-        speakEnglish("Hana, focus time completed! You earned 50 stars! Take a 5-minute break.");
+        speakEnglish("Hana, focus time completed! You earned 50 stars! Take a 5-minute break.", 'pomodoro');
         showToast(currentLang === 'vi' ? 'Xuất sắc! Con được thưởng +50 ⭐. Nghỉ ngơi 5p nhé.' : 'Well done! You got +50 ⭐. Rest for 5 mins.', 'success');
+        
+        let pomoMsg = `🍅 <b>Hana đã hoàn thành một phiên tập trung Pomodoro!</b>\n\n` +
+                      `• <b>Thời gian tập trung:</b> ${pomoFocusMinutes} phút\n` +
+                      `• <b>Phần thưởng:</b> +50 ⭐. Giỏi lắm Hana! 🎉`;
+        sendTelegramNotification('habits', pomoMsg);
         
         // Auto check routine timeline check
         const chk1 = document.getElementById('tl-check-pomo1');
@@ -1659,7 +2397,7 @@
         
         setPomoMode('break');
       } else {
-        speakEnglish("Rest finished! Ready to focus again, Hana?");
+        speakEnglish("Rest finished! Ready to focus again, Hana?", 'pomodoro');
         showToast(currentLang === 'vi' ? 'Hết giờ giải lao rồi. Hãy bắt đầu phiên tập trung mới nào!' : 'Rest is over. Start a new focus session!', 'info');
         
         const waterChk = document.getElementById('tl-check-water');
@@ -1680,7 +2418,7 @@
       
       pomoSeconds = (pomoMode === 'focus' ? pomoFocusMinutes : pomoBreakMinutes) * 60;
       updatePomoUI();
-      speakEnglish("Pomodoro reset.");
+      speakEnglish("Pomodoro reset.", 'pomodoro');
     }
 
     // ==================== WATER CONTROLS ====================
@@ -1706,6 +2444,18 @@
         localStorage.setItem(`tl_check_${todayStr}_water`, 'true');
       }
 
+      if (waterMl >= waterGoalMl) {
+        const todayStr = new Date().toISOString().split('T')[0];
+        const sentKey = `tele_sent_water_goal_${todayStr}`;
+        if (!localStorage.getItem(sentKey)) {
+          localStorage.setItem(sentKey, 'true');
+          let waterGoalMsg = `💧 <b>Hana đã uống đủ mục tiêu nước lọc hôm nay!</b>\n\n` +
+                             `• <b>Tổng lượng nước:</b> ${waterMl}ml / ${waterGoalMl}ml\n` +
+                             `• <b>Phần thưởng:</b> +20 ⭐. Chúc mừng Hana duy trì thói quen tốt!`;
+          sendTelegramNotification('habits', waterGoalMsg);
+        }
+      }
+
       setTimeout(processOfflineQueue, 600);
     }
 
@@ -1729,6 +2479,43 @@
         triggerStarReward(20, 'steps-count');
         speakEnglish("Awesome stepping! Keep moving! +20 stars.");
       }
+    }
+
+    function addCustomSteps() {
+      const inputEl = document.getElementById('steps-custom-input');
+      if (!inputEl) return;
+      const val = parseInt(inputEl.value.trim());
+      if (isNaN(val) || val <= 0) {
+        showToast(currentLang === 'vi' ? 'Vui lòng nhập số bước hợp lệ!' : 'Please enter a valid number of steps!', 'error');
+        return;
+      }
+      
+      let steps = parseInt(localStorage.getItem('hana_steps') || '8450');
+      steps += val;
+      localStorage.setItem('hana_steps', steps);
+      
+      document.getElementById('steps-count').textContent = steps.toLocaleString('vi-VN');
+      
+      const pct = Math.min((steps / 10000) * 100, 100);
+      document.getElementById('steps-ring').setAttribute('stroke-dashoffset', 263.89 - (pct / 100) * 263.89);
+      
+      // Bouncing animation
+      const stepsCountEl = document.getElementById('steps-count');
+      stepsCountEl.classList.add('scale-110', 'text-emerald-600');
+      setTimeout(() => stepsCountEl.classList.remove('scale-110', 'text-emerald-600'), 200);
+      
+      // Star milestone calculations
+      const starsEarned = Math.floor(val / 150) * 2; // +2 stars per 150 steps added
+      if (starsEarned > 0) {
+        triggerStarReward(starsEarned, 'steps-count');
+        speakEnglish(`Added ${val} steps! Good job staying active! +${starsEarned} stars.`);
+        showToast(currentLang === 'vi' ? `Đã thêm ${val.toLocaleString('vi-VN')} bước! Nhận +${starsEarned} ⭐!` : `Added ${val.toLocaleString('en-US')} steps! Earned +${starsEarned} ⭐!`, 'success');
+      } else {
+        speakEnglish(`Added ${val} steps. Keep walking!`);
+        showToast(currentLang === 'vi' ? `Đã thêm ${val.toLocaleString('vi-VN')} bước!` : `Added ${val.toLocaleString('en-US')} steps!`, 'success');
+      }
+      
+      inputEl.value = '';
     }
 
     function initStepsUI() {
@@ -1785,10 +2572,453 @@
 
     function updateStudyTimerUI() {
       const timeEl = document.getElementById('study-time');
-      if (!timeEl) return;
-      const mins = Math.floor(studySeconds / 60);
-      const secs = studySeconds % 60;
-      timeEl.textContent = `${mins.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')}`;
+      if (timeEl) {
+        const mins = Math.floor(studySeconds / 60);
+        const secs = studySeconds % 60;
+        timeEl.textContent = `${mins.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')}`;
+      }
+      renderKanban();
+    }
+
+    // ==================== ENGLISH LMS HELPERS ====================
+    function mergeAssignedTasks() {
+      const localAssigned = localStorage.getItem('assigned_english_tasks');
+      if (localAssigned) {
+        try {
+          const tasks = JSON.parse(localAssigned);
+          tasks.forEach(lt => {
+            if (!todayTasks.some(t => t.id === lt.id)) {
+              todayTasks.push(lt);
+            } else {
+              const idx = todayTasks.findIndex(t => t.id === lt.id);
+              if (idx !== -1) {
+                todayTasks[idx].status = lt.status;
+                todayTasks[idx].student_answer = lt.student_answer;
+                todayTasks[idx].ai_feedback = lt.ai_feedback;
+                todayTasks[idx].quiz_answers = lt.quiz_answers;
+                todayTasks[idx].score = lt.score;
+              }
+            }
+          });
+        } catch (e) {
+          console.error("Error parsing assigned_english_tasks", e);
+        }
+      }
+    }
+
+    function saveAssignedTasks() {
+      const englishTasks = todayTasks.filter(t => t.id.startsWith('week-'));
+      localStorage.setItem('assigned_english_tasks', JSON.stringify(englishTasks));
+    }
+
+    function enrichTasks() {
+      if (!todayTasks) return;
+      todayTasks.forEach(task => {
+        let readingLesson = englishReadingLessons.find(l => l.id === task.id || task.title.toLowerCase().includes(l.title.toLowerCase()));
+        if (readingLesson) {
+          task.task_type = 'reading';
+          task.passage = readingLesson.passage;
+          task.vocabulary = readingLesson.vocabulary;
+          task.quiz = readingLesson.quiz;
+          task.imageUrl = readingLesson.imageUrl;
+          task.title = `Reading: ${readingLesson.title}`;
+          task.subject = 'Tiếng Anh';
+          return;
+        }
+
+        let writingPrompt = englishWritingPrompts.find(p => p.id === task.id || task.title.toLowerCase().includes(p.title.toLowerCase()));
+        if (writingPrompt) {
+          task.task_type = 'writing';
+          task.prompt = writingPrompt.prompt;
+          task.targetVocab = writingPrompt.targetVocab;
+          task.tips = writingPrompt.tips;
+          task.steps = writingPrompt.steps;
+          task.title = `Writing: ${writingPrompt.title}`;
+          task.subject = 'Tiếng Anh';
+          return;
+        }
+      });
+    }
+
+    function lookupWord(wordText, event) {
+      if (event) event.stopPropagation();
+      const taskIndex = todayTasks.findIndex(tk => tk.id === activeTaskId);
+      if (taskIndex === -1) return;
+      const task = todayTasks[taskIndex];
+      if (!task.vocabulary) return;
+
+      const vocab = task.vocabulary.find(v => v.word.toLowerCase() === wordText.toLowerCase());
+      if (!vocab) return;
+
+      const popup = document.getElementById('reading-word-popup');
+      if (!popup) return;
+
+      popup.innerHTML = `
+        <div class="flex items-center justify-between border-b border-purple-100 pb-1.5 mb-1 text-left">
+          <h5 class="text-xs font-black text-purple-700 flex items-center gap-1">
+            <span>🔍</span> <span class="capitalize">${vocab.word}</span>
+          </h5>
+          <button onclick="document.getElementById('reading-word-popup').classList.add('hidden')" class="text-purple-400 hover:text-purple-655 font-extrabold text-sm">&times;</button>
+        </div>
+        <div class="text-[10px] text-zinc-700 leading-normal text-left">
+          <span class="font-bold text-purple-650">Nghĩa:</span> ${vocab.translation}
+        </div>
+        <div class="text-[10px] text-zinc-700 leading-normal text-left">
+          <span class="font-bold text-purple-650">Định nghĩa:</span> ${vocab.definition}
+        </div>
+        <div class="text-[10px] text-zinc-650 italic mt-0.5 bg-white/60 p-1.5 rounded-lg border border-purple-100/30 text-left">
+          <span class="font-bold text-purple-650 not-italic">Ví dụ:</span> "${vocab.example}"
+        </div>
+      `;
+      popup.classList.remove('hidden');
+    }
+
+    function speakWord(word) {
+      speakEnglish(word, 'word');
+    }
+
+    function selectQuizOption(qIdx, optVal) {
+      const taskIndex = todayTasks.findIndex(tk => tk.id === activeTaskId);
+      if (taskIndex === -1) return;
+      const task = todayTasks[taskIndex];
+      
+      task.quiz_answers = task.quiz_answers || {};
+      task.quiz_answers[qIdx] = optVal;
+      
+      selectTask(taskIndex);
+    }
+
+    function submitReadingQuiz() {
+      const taskIndex = todayTasks.findIndex(tk => tk.id === activeTaskId);
+      if (taskIndex === -1) return;
+      const task = todayTasks[taskIndex];
+      
+      task.quiz_answers = task.quiz_answers || {};
+      const numQuestions = task.quiz.length;
+      const answeredKeys = Object.keys(task.quiz_answers);
+      
+      if (answeredKeys.length < numQuestions) {
+        showToast(currentLang === 'vi' ? 'Hana ơi, con hãy hoàn thành tất cả các câu hỏi trắc nghiệm nhé!' : 'Please answer all the quiz questions!', 'error');
+        speakEnglish("Hana, please complete all the quiz questions first.");
+        return;
+      }
+      
+      let correctCount = 0;
+      task.quiz.forEach((q, idx) => {
+        if (task.quiz_answers[idx] === q.correctAnswer) {
+          correctCount++;
+        }
+      });
+      
+      task.study_duration = studySeconds;
+      if (isStudyRunning) toggleStudyTimer();
+      task.status = 'done';
+      task.score = Math.round((correctCount / numQuestions) * 10);
+      
+      task.student_answer = JSON.stringify({
+        answers: task.quiz_answers,
+        score: task.score,
+        correctCount,
+        totalQuestions: numQuestions
+      });
+      
+      saveAssignedTasks();
+      
+      addToOfflineQueue({
+        type: 'submit_task',
+        taskId: task.id,
+        answer: task.student_answer
+      });
+      
+      const starsEarned = correctCount * 40;
+      triggerStarReward(starsEarned, 'reading-quiz-submit-btn');
+      
+      showToast(currentLang === 'vi' ? `Con trả lời đúng ${correctCount}/${numQuestions} câu hỏi! Nhận +${starsEarned} ⭐!` : `Correct answers: ${correctCount}/${numQuestions}! Earned +${starsEarned} ⭐!`, 'success');
+      speakEnglish(`Well done, Hana! You got ${correctCount} out of ${numQuestions} correct! You earned ${starsEarned} stars!`);
+      
+      // Send Telegram notification
+      let studyText = `📝 <b>Bài làm Trắc nghiệm mới được nộp bởi Hana</b>\n\n` +
+                      `• <b>Môn học:</b> ${task.subject}\n` +
+                      `• <b>Bài học:</b> ${task.title}\n` +
+                      `• <b>Kết quả:</b> ${correctCount}/${numQuestions} câu đúng (${task.score}/10 điểm)\n` +
+                      `• <b>Thời gian làm:</b> ${Math.floor(task.study_duration / 60)} phút ${task.study_duration % 60} giây\n\n` +
+                      `👉 <i>Vui lòng xem chi tiết trên Parent Dashboard.</i>`;
+      sendTelegramNotification('study', studyText);
+
+      // Auto check routine timeline check if it matches a Flyer test
+      if (task.id.includes('FLYER') || task.title.includes('Flyer') || task.title.includes('Mover')) {
+        const chk = document.getElementById('tl-check-flyer_test');
+        if (chk && !chk.checked) {
+          chk.checked = true;
+          const todayStr = new Date().toISOString().split('T')[0];
+          localStorage.setItem(`tl_check_${todayStr}_flyer_test`, 'true');
+          triggerStarReward(5, 'star-bank-card');
+          let habitsText = `☀️ <b>Hana đã hoàn thành hoạt động:</b> Luyện thi Flyer 📝\n` +
+                           `• <b>Trạng thái:</b> Tự động cập nhật từ bài làm trắc nghiệm`;
+          sendTelegramNotification('habits', habitsText);
+        }
+      }
+
+      selectTask(taskIndex);
+      setTimeout(processOfflineQueue, 800);
+    }
+
+    function renderWritingVocabIndicators(task) {
+      const container = document.getElementById('writing-vocab-indicator');
+      if (!container) return;
+      
+      if (!task.targetVocab || task.targetVocab.length === 0) {
+        container.innerHTML = `<span class="text-[10px] italic text-zinc-400">Không yêu cầu từ khóa.</span>`;
+        return;
+      }
+      
+      container.innerHTML = task.targetVocab.map(word => {
+        return `<span id="wv-${word.toLowerCase()}" class="px-2.5 py-1 text-[10px] font-bold border border-zinc-200 bg-zinc-50 text-zinc-400 rounded-lg transition-all duration-300 select-none uppercase tracking-wider">${word}</span>`;
+      }).join('');
+    }
+
+    function checkWritingKeywords() {
+      const textarea = document.getElementById('student-writing-answer');
+      if (!textarea) return;
+      const text = textarea.value.toLowerCase();
+      
+      const taskIndex = todayTasks.findIndex(tk => tk.id === activeTaskId);
+      if (taskIndex === -1) return;
+      const task = todayTasks[taskIndex];
+      if (!task.targetVocab) return;
+      
+      task.targetVocab.forEach(word => {
+        const wordEl = document.getElementById(`wv-${word.toLowerCase()}`);
+        if (!wordEl) return;
+        
+        const regex = new RegExp(`\\b${word.toLowerCase()}\\b`, 'i');
+        const isUsed = regex.test(text);
+        
+        if (isUsed) {
+          wordEl.className = "px-2.5 py-1 text-[10px] font-black border border-emerald-200 bg-emerald-500 text-white rounded-lg transition-all duration-300 select-none uppercase tracking-wider shadow-xs";
+        } else {
+          wordEl.className = "px-2.5 py-1 text-[10px] font-bold border border-zinc-200 bg-zinc-50 text-zinc-450 rounded-lg transition-all duration-300 select-none uppercase tracking-wider";
+        }
+      });
+    }
+
+    function handleImageUploadWriting(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      
+      if (!file.type.startsWith('image/')) {
+        showToast("Vui lòng tải lên file ảnh!", "error");
+        return;
+      }
+      
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        activeWritingImageBase64 = ev.target.result;
+        
+        const previewContainer = document.getElementById('writing-image-preview-container');
+        const previewImg = document.getElementById('writing-image-preview');
+        if (previewContainer && previewImg) {
+          previewImg.src = activeWritingImageBase64;
+          previewContainer.classList.remove('hidden');
+        }
+        showToast("Đã tải ảnh lên thành công! Sẵn sàng quét chữ viết tay.", "success");
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function clearWritingImage() {
+      activeWritingImageBase64 = "";
+      const previewContainer = document.getElementById('writing-image-preview-container');
+      if (previewContainer) {
+        previewContainer.classList.add('hidden');
+      }
+      const input = document.getElementById('image-upload-writing');
+      if (input) input.value = '';
+    }
+
+    function handleTxtUploadWriting(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        const textarea = document.getElementById("student-writing-answer");
+        if (textarea) {
+          textarea.value = ev.target.result;
+          checkWritingKeywords();
+        }
+        showToast("Đã tải nội dung file thành công!", "success");
+      };
+      reader.readAsText(file);
+    }
+
+    async function submitWritingToAI() {
+      const taskIndex = todayTasks.findIndex(tk => tk.id === activeTaskId);
+      if (taskIndex === -1) return;
+      const task = todayTasks[taskIndex];
+      
+      const textarea = document.getElementById('student-writing-answer');
+      const content = textarea.value.trim();
+      
+      if (!content && !activeWritingImageBase64) {
+        showToast(currentLang === 'vi' ? 'Hana hãy nhập bài viết hoặc chụp ảnh bài tập giấy trước nhé!' : 'Please write your response or upload a photo first!', 'error');
+        speakEnglish("Hana, please write something or take a photo of your writing paper.");
+        return;
+      }
+      
+      const loadingEl = document.getElementById('writing-ai-loading');
+      const submitBtn = document.getElementById('writing-submit-btn');
+      const feedbackContainer = document.getElementById('writing-ai-feedback');
+      
+      if (loadingEl) loadingEl.classList.remove('hidden');
+      if (submitBtn) submitBtn.classList.add('hidden');
+      if (feedbackContainer) {
+        feedbackContainer.classList.add('hidden');
+        feedbackContainer.innerHTML = '';
+      }
+      
+      speakEnglish("Teacher Julie is now reading your story. Just a moment!");
+      
+      const apiKey = localStorage.getItem('parent_gemini_key') || '';
+      const promptText = task.prompt || task.content;
+      const targetVocab = task.targetVocab || [];
+      
+      try {
+        const feedback = await evaluateWriting(content, promptText, targetVocab, apiKey, activeWritingImageBase64);
+        
+        task.study_duration = studySeconds;
+        if (isStudyRunning) toggleStudyTimer();
+        task.status = 'done';
+        task.score = feedback.score || 8;
+        task.ai_feedback = feedback;
+        if (feedback.transcription) {
+          task.student_answer = content ? `${content}\n\n[Transcription of Handwriting]:\n${feedback.transcription}` : feedback.transcription;
+        } else {
+          task.student_answer = content;
+        }
+        
+        saveAssignedTasks();
+        
+        addToOfflineQueue({
+          type: 'submit_task',
+          taskId: task.id,
+          answer: task.student_answer,
+          score: task.score,
+          ai_feedback: JSON.stringify(feedback)
+        });
+        
+        const scoreStars = task.score * 10;
+        const uploadBonus = activeWritingImageBase64 ? 50 : 0;
+        const totalStars = scoreStars + uploadBonus;
+        
+        triggerStarReward(totalStars, 'writing-vocab-indicator');
+        
+        let msg = `Tuyệt vời! Cô Julie chấm bài con đạt ${task.score}/10 điểm! Con nhận được +${totalStars} ⭐!`;
+        if (uploadBonus > 0) {
+          msg += " (Cộng 50⭐ thưởng viết tay!)";
+        }
+        
+        showToast(msg, 'success');
+        speakEnglish(`Congratulations, Hana! You scored ${task.score} out of 10! You earned ${totalStars} stars!`);
+        
+        // Send Telegram notification
+        let studyText = `📝 <b>Bài làm Viết (AI chấm) mới được nộp bởi Hana</b>\n\n` +
+                        `• <b>Môn học:</b> ${task.subject}\n` +
+                        `• <b>Bài học:</b> ${task.title}\n` +
+                        `• <b>Kết quả AI chấm:</b> ${task.score}/10 điểm\n` +
+                        `• <b>Từ vựng mục tiêu:</b> ${targetVocab.join(', ')}\n` +
+                        `• <b>AI Nhận xét:</b> ${feedback.overallFeedback || 'Xem chi tiết trên ứng dụng'}\n` +
+                        `• <b>Thời gian làm:</b> ${Math.floor(task.study_duration / 60)} phút ${task.study_duration % 60} giây\n\n` +
+                        `👉 <i>Vui lòng xem chi tiết trên Parent Dashboard.</i>`;
+        sendTelegramNotification('study', studyText);
+
+        // Auto check routine timeline check if it matches weekly essay
+        if (task.id === 'VIE_LIT_CK_WEEKLY' || task.title.includes('Chân Kiến')) {
+          const chkCK = document.getElementById('tl-check-chankien_deadline');
+          if (chkCK && !chkCK.checked) {
+            chkCK.checked = true;
+            const todayStr = new Date().toISOString().split('T')[0];
+            localStorage.setItem(`tl_check_${todayStr}_chankien_deadline`, 'true');
+            triggerStarReward(5, 'star-bank-card');
+            let habitsText = `☀️ <b>Hana đã hoàn thành hoạt động:</b> Nộp bài văn cô Chân Kiến ✍️\n` +
+                             `• <b>Trạng thái:</b> Tự động cập nhật từ bài viết`;
+            sendTelegramNotification('habits', habitsText);
+          }
+        }
+
+        clearWritingImage();
+        selectTask(taskIndex);
+        
+        setTimeout(() => {
+          const fb = document.getElementById('writing-ai-feedback');
+          if (fb) fb.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }, 300);
+        
+      } catch (error) {
+        console.error("AI evaluation failed", error);
+        showToast("Gặp lỗi khi kết nối với AI. Hệ thống đã lưu bài làm của con.", "error");
+      } finally {
+        if (loadingEl) loadingEl.classList.add('hidden');
+      }
+    }
+
+    function renderAIFeedbackCard(feedback) {
+      return `
+        <div class="glass-card border-2 border-purple-200 p-5 rounded-2xl text-left space-y-4 shadow-sm bg-gradient-to-br from-purple-50/30 to-rose-50/10">
+          <div class="flex items-center justify-between border-b border-purple-100/50 pb-3">
+            <div class="flex items-center gap-2">
+              <span style="font-size: 2rem">🦉</span>
+              <div>
+                <h4 class="font-extrabold text-xs text-purple-700">Đánh giá từ Cô Julie</h4>
+                <p class="text-[9px] text-zinc-400 font-semibold">Tuyệt vời, Hana hãy xem nhận xét nhé!</p>
+              </div>
+            </div>
+            <div class="text-center bg-gradient-to-br from-amber-400 to-orange-500 text-white px-3 py-1.5 rounded-2xl shadow-sm border border-amber-300">
+              <div class="text-[8px] uppercase tracking-wider font-extrabold">ĐIỂM SỐ</div>
+              <div class="text-lg font-black leading-none">${feedback.score || 8} <span class="text-[10px] font-bold">/10</span></div>
+            </div>
+          </div>
+
+          ${feedback.transcription ? `
+            <div class="bg-white/75 border border-purple-100 rounded-xl p-3.5">
+              <div class="text-[9px] uppercase font-bold text-purple-650 tracking-wider mb-1 flex items-center gap-1.5">
+                <i class="fa-solid fa-file-signature text-[10px]"></i> Bản chép chữ viết tay của con
+              </div>
+              <p class="text-xs leading-relaxed text-zinc-700 italic font-medium">"${feedback.transcription}"</p>
+            </div>
+          ` : ""}
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5 text-xs">
+            <div class="p-3.5 bg-sky-50/50 border border-sky-100/60 rounded-xl">
+              <h5 class="font-black text-sky-850 flex items-center gap-1.5 mb-1.5">
+                <i class="fa-solid fa-pen-nib text-[10px]"></i> Ngữ pháp & Chính tả
+              </h5>
+              <p class="text-[10px] text-zinc-700 font-semibold leading-relaxed">${feedback.grammarSpelling}</p>
+            </div>
+
+            <div class="p-3.5 bg-emerald-50/50 border border-emerald-100/60 rounded-xl">
+              <h5 class="font-black text-emerald-850 flex items-center gap-1.5 mb-1.5">
+                <i class="fa-solid fa-book-open text-[10px]"></i> Từ vựng
+              </h5>
+              <p class="text-[10px] text-zinc-700 font-semibold leading-relaxed">${feedback.vocabularyFeedback}</p>
+            </div>
+
+            <div class="p-3.5 bg-purple-50/50 border border-purple-100/60 rounded-xl md:col-span-2">
+              <h5 class="font-black text-purple-850 flex items-center gap-1.5 mb-1.5">
+                <i class="fa-solid fa-wand-magic-sparkles text-[10px]"></i> Trí tưởng tượng & Sáng tạo
+              </h5>
+              <p class="text-[10px] text-zinc-700 font-semibold leading-relaxed">${feedback.creativityFeedback}</p>
+            </div>
+          </div>
+
+          <div class="p-4 bg-gradient-to-r from-amber-50 to-orange-50 border border-orange-100 rounded-xl flex gap-3 text-xs">
+            <span style="font-size: 1.5rem">🌟</span>
+            <div>
+              <h5 class="font-black text-orange-850 mb-0.5">Lời khuyên của Cô Julie</h5>
+              <p class="text-[10px] text-zinc-700 font-semibold leading-relaxed">${feedback.generalComment}</p>
+            </div>
+          </div>
+        </div>
+      `;
     }
 
     // ==================== MISSION SELECTION ====================
@@ -1802,48 +3032,234 @@
         activeTaskId = task.id;
         studySeconds = 0;
         updateStudyTimerUI();
+        
+        if (task.status !== 'done' && !isStudyRunning) {
+          toggleStudyTimer();
+        }
       }
       
       document.getElementById('active-task-empty').classList.add('hidden');
       document.getElementById('active-task-details').classList.remove('hidden');
       
       document.getElementById('active-task-subject-title').textContent = `${task.subject}: ${task.title}`;
-      document.getElementById('active-task-instructions').textContent = task.content;
       
-      const textarea = document.getElementById('student-desk-answer');
-      textarea.value = task.student_answer || '';
+      // Hide all layouts first
+      document.getElementById('study-desk-generic').classList.add('hidden');
+      document.getElementById('study-desk-reading').classList.add('hidden');
+      document.getElementById('study-desk-writing').classList.add('hidden');
       
       const submitBtn = document.getElementById('desk-submit-btn');
       const startBtn = document.getElementById('study-start-btn');
       const timerContainer = document.getElementById('study-timer-container');
       const t = translations[currentLang];
       
-      if (task.status === 'done') {
-        textarea.disabled = true;
-        submitBtn.disabled = true;
-        submitBtn.className = "w-full py-3 bg-emerald-600 text-white rounded-2xl font-bold shadow-md cursor-not-allowed flex items-center justify-center gap-2 text-xs";
-        submitBtn.innerHTML = `<i class="fa-solid fa-circle-check"></i> <span>${t.submitBtnDone}</span>`;
+      if (task.task_type === 'reading') {
+        // Show reading corner
+        document.getElementById('study-desk-reading').classList.remove('hidden');
         
+        // Hide standard timers
         startBtn.classList.add('hidden');
         timerContainer.classList.add('hidden');
-      } else {
-        textarea.disabled = false;
-        submitBtn.disabled = false;
-        submitBtn.className = "w-full py-3 bg-gradient-to-r from-orange-500 to-rose-500 hover:from-orange-600 hover:to-rose-600 text-white rounded-2xl font-bold shadow-md transition-all flex items-center justify-center gap-2 text-xs";
-        submitBtn.innerHTML = `<i class="fa-solid fa-paper-plane"></i> <span>${t.submitBtn}</span>`;
         
-        startBtn.classList.remove('hidden');
-        if (studySeconds > 0) {
-          timerContainer.classList.remove('hidden');
+        // Show Image
+        const imgContainer = document.getElementById('reading-image-container');
+        const imgEl = document.getElementById('reading-passage-image');
+        if (imgContainer && imgEl) {
+          if (task.imageUrl) {
+            imgEl.src = task.imageUrl;
+            imgContainer.classList.remove('hidden');
+          } else {
+            imgContainer.classList.add('hidden');
+          }
+        }
+        
+        // Wrap clickable words in passage text
+        let passageHtml = task.passage || '';
+        if (task.vocabulary) {
+          task.vocabulary.forEach(vocab => {
+            const word = vocab.word;
+            const regex = new RegExp(`\\b(${word})\\b`, 'gi');
+            passageHtml = passageHtml.replace(regex, `<span class="clickable-word text-purple-750 font-bold underline decoration-dotted decoration-2 underline-offset-2 cursor-pointer hover:bg-purple-100 px-0.5 rounded transition-all" onclick="lookupWord('${word}', event)">$1</span>`);
+          });
+        }
+        document.getElementById('reading-passage-box').innerHTML = passageHtml;
+        
+        // Hide popup
+        const wordPopup = document.getElementById('reading-word-popup');
+        if (wordPopup) wordPopup.classList.add('hidden');
+        
+        // Render vocab grid
+        const vocabGrid = document.getElementById('reading-vocab-grid');
+        if (vocabGrid && task.vocabulary) {
+          vocabGrid.innerHTML = task.vocabulary.map(vocab => `
+            <div class="p-3 bg-purple-50/40 border border-purple-100/40 rounded-2xl text-left hover:bg-purple-50/60 transition-colors">
+              <div class="font-black text-xs text-purple-700 capitalize flex items-center justify-between">
+                <span>${vocab.word}</span>
+                <button onclick="speakWord('${vocab.word}')" class="text-[9px] w-5 h-5 bg-white rounded-full flex items-center justify-center text-purple-650 hover:bg-purple-100 shadow-xs border border-purple-100/30"><i class="fa-solid fa-volume-high"></i></button>
+              </div>
+              <div class="text-[10px] font-bold text-zinc-800 mt-1">${vocab.translation}</div>
+              <div class="text-[9px] text-zinc-450 mt-0.5 font-semibold">${vocab.definition}</div>
+              <div class="text-[9px] text-zinc-450 mt-1 italic leading-normal">ex: ${vocab.example}</div>
+            </div>
+          `).join('');
+        }
+        
+        // Render quiz
+        const questionsContainer = document.getElementById('reading-quiz-questions');
+        const isDone = task.status === 'done';
+        
+        if (questionsContainer && task.quiz) {
+          questionsContainer.innerHTML = task.quiz.map((q, qIdx) => {
+            const selectedOpt = (task.quiz_answers && task.quiz_answers[qIdx]) !== undefined ? task.quiz_answers[qIdx] : null;
+            
+            return `
+              <div class="p-4 bg-zinc-50 border border-zinc-150 rounded-2xl text-left">
+                <div class="font-bold text-xs text-zinc-900 leading-normal flex items-start gap-1.5">
+                  <span class="px-1.5 py-0.2 bg-purple-100 text-purple-700 rounded text-[9px] font-black mt-0.5">Q${qIdx + 1}</span>
+                  <span>${q.question}</span>
+                </div>
+                <div class="mt-3.5 space-y-2">
+                  ${q.options.map((opt, oIdx) => {
+                    const isSelected = selectedOpt === opt;
+                    let optClass = "border border-zinc-200 hover:border-purple-300 hover:bg-purple-50/20";
+                    let badgeHtml = "";
+                    
+                    if (isSelected) {
+                      if (isDone) {
+                        const isCorrect = opt === q.correctAnswer;
+                        optClass = isCorrect 
+                          ? "border-2 border-emerald-500 bg-emerald-50 text-emerald-900" 
+                          : "border-2 border-rose-500 bg-rose-50 text-rose-900";
+                        badgeHtml = isCorrect 
+                          ? `<span class="text-[9px] font-bold text-emerald-600 bg-emerald-100 px-1.5 py-0.2 rounded-md"><i class="fa-solid fa-circle-check mr-1"></i>Đúng</span>`
+                          : `<span class="text-[9px] font-bold text-rose-600 bg-rose-100 px-1.5 py-0.2 rounded-md"><i class="fa-solid fa-circle-xmark mr-1"></i>Sai</span>`;
+                      } else {
+                        optClass = "border-2 border-purple-500 bg-purple-50/50 text-purple-950 font-bold";
+                      }
+                    } else if (isDone && opt === q.correctAnswer) {
+                      optClass = "border-2 border-emerald-500 bg-emerald-50 text-emerald-900";
+                      badgeHtml = `<span class="text-[9px] font-bold text-emerald-600 bg-emerald-100 px-1.5 py-0.2 rounded-md"><i class="fa-solid fa-circle-check mr-1"></i>Đáp án đúng</span>`;
+                    }
+                    
+                    const disabledAttr = isDone ? "disabled" : "";
+                    const clickHandler = isDone ? "" : `onclick="selectQuizOption(${qIdx}, '${opt.replace(/'/g, "\\'")}')"`;
+                    
+                    return `
+                      <button ${disabledAttr} ${clickHandler} class="w-full text-left p-3 rounded-xl text-xs font-semibold transition-all flex items-center justify-between gap-3 ${optClass}">
+                        <span>${opt}</span>
+                        ${badgeHtml}
+                      </button>
+                    `;
+                  }).join('')}
+                </div>
+                ${isDone && q.explanation ? `
+                  <div class="mt-3 p-3 bg-emerald-50/50 border border-emerald-100 rounded-xl text-[10px] text-zinc-650 leading-normal">
+                    <strong class="text-emerald-700">Giải thích:</strong> ${q.explanation}
+                  </div>
+                ` : ""}
+              </div>
+            `;
+          }).join('');
+        }
+        
+        // Show/hide submit quiz button
+        const submitQuizBtn = document.getElementById('reading-quiz-submit-btn');
+        if (submitQuizBtn) {
+          if (isDone) submitQuizBtn.classList.add('hidden');
+          else submitQuizBtn.classList.remove('hidden');
+        }
+        
+      } else if (task.task_type === 'writing') {
+        // Show writing workspace
+        document.getElementById('study-desk-writing').classList.remove('hidden');
+        
+        // Hide standard timers
+        startBtn.classList.add('hidden');
+        timerContainer.classList.add('hidden');
+        
+        // Set prompt and tips
+        document.getElementById('writing-prompt-text').textContent = task.prompt || '';
+        const tipsList = document.getElementById('writing-tips-list');
+        if (tipsList && task.tips) {
+          tipsList.innerHTML = task.tips.map(tip => `<li>${tip}</li>`).join('');
+        }
+        
+        // Render indicators
+        renderWritingVocabIndicators(task);
+        
+        // Set text
+        const writingTextarea = document.getElementById('student-writing-answer');
+        writingTextarea.value = task.student_answer || '';
+        
+        // Clean loading state
+        document.getElementById('writing-ai-loading').classList.add('hidden');
+        
+        // Check keywords
+        checkWritingKeywords();
+        
+        const feedbackContainer = document.getElementById('writing-ai-feedback');
+        const submitWritingBtn = document.getElementById('writing-submit-btn');
+        const isDone = task.status === 'done';
+        
+        if (isDone) {
+          writingTextarea.disabled = true;
+          if (submitWritingBtn) submitWritingBtn.classList.add('hidden');
+          
+          if (task.ai_feedback) {
+            feedbackContainer.innerHTML = renderAIFeedbackCard(task.ai_feedback);
+            feedbackContainer.classList.remove('hidden');
+          } else {
+            feedbackContainer.innerHTML = `
+              <div class="p-4 bg-emerald-50 border border-emerald-100 rounded-2xl text-left text-xs font-semibold">
+                <h5 class="text-emerald-700 font-bold mb-1"><i class="fa-solid fa-circle-check mr-1.5"></i>Bài viết đã nộp</h5>
+                <p class="text-zinc-650 leading-relaxed">Con đã hoàn thành bài viết này. Điểm số: ${task.score || 10}/10. Nội dung bài làm:</p>
+                <div class="p-3 bg-white rounded-xl border border-zinc-150 mt-2 italic font-mono text-[10px] text-zinc-650">${task.student_answer}</div>
+              </div>
+            `;
+            feedbackContainer.classList.remove('hidden');
+          }
         } else {
-          timerContainer.classList.add('hidden');
+          writingTextarea.disabled = false;
+          if (submitWritingBtn) submitWritingBtn.classList.remove('hidden');
+          feedbackContainer.classList.add('hidden');
+          feedbackContainer.innerHTML = '';
         }
         
-        const playIcon = document.getElementById('study-btn-icon');
-        if (playIcon) {
-          playIcon.className = isStudyRunning ? 'fa-solid fa-pause' : 'fa-solid fa-play';
+      } else {
+        // Generic Layout
+        document.getElementById('study-desk-generic').classList.remove('hidden');
+        document.getElementById('active-task-instructions').textContent = task.content;
+        
+        const textarea = document.getElementById('student-desk-answer');
+        textarea.value = task.student_answer || '';
+        
+        if (task.status === 'done') {
+          textarea.disabled = true;
+          submitBtn.disabled = true;
+          submitBtn.className = "w-full py-3 bg-emerald-600 text-white rounded-2xl font-bold shadow-md cursor-not-allowed flex items-center justify-center gap-2 text-xs";
+          submitBtn.innerHTML = `<i class="fa-solid fa-circle-check"></i> <span>${t.submitBtnDone}</span>`;
+          
+          startBtn.classList.add('hidden');
+          timerContainer.classList.add('hidden');
+        } else {
+          textarea.disabled = false;
+          submitBtn.disabled = false;
+          submitBtn.className = "w-full py-3 bg-gradient-to-r from-orange-500 to-rose-500 hover:from-orange-600 hover:to-rose-600 text-white rounded-2xl font-bold shadow-md transition-all flex items-center justify-center gap-2 text-xs";
+          submitBtn.innerHTML = `<i class="fa-solid fa-paper-plane"></i> <span>${t.submitBtn}</span>`;
+          
+          startBtn.classList.remove('hidden');
+          if (studySeconds > 0) {
+            timerContainer.classList.remove('hidden');
+          } else {
+            timerContainer.classList.add('hidden');
+          }
+          
+          const playIcon = document.getElementById('study-btn-icon');
+          if (playIcon) {
+            playIcon.className = isStudyRunning ? 'fa-solid fa-pause' : 'fa-solid fa-play';
+          }
+          document.getElementById('study-btn-text').textContent = isStudyRunning ? t.deskTimerPause : (studySeconds === 0 ? t.deskTimerStart : t.deskTimerResume);
         }
-        document.getElementById('study-btn-text').textContent = isStudyRunning ? t.deskTimerPause : (studySeconds === 0 ? t.deskTimerStart : t.deskTimerResume);
       }
       
       updateResources(task.subject);
@@ -1851,7 +3267,7 @@
       
       // Auto voice-reading for English or Chinese tasks
       if (task.subject === 'Tiếng Anh' || task.subject === 'English') {
-        speakEnglish(task.content);
+        speakEnglish(task.title + ". " + (task.prompt || task.content || ''));
       } else if (task.subject === 'Tiếng Trung') {
         speakChinese(task.content);
       }
@@ -1873,6 +3289,7 @@
         return;
       }
       
+      task.study_duration = studySeconds;
       if (isStudyRunning) toggleStudyTimer();
       
       // Update local status
@@ -1889,13 +3306,89 @@
       triggerStarReward(100, 'desk-submit-btn');
       showToast(currentLang === 'vi' ? 'Bài nộp thành công! Con được thưởng +100 ⭐!' : 'Submission saved! You got +100 ⭐!', 'success');
       speakEnglish("Awesome job! Your assignment has been submitted. You earned 100 stars!");
+
+      // Send Telegram notification
+      let studyText = `📝 <b>Bài làm mới được nộp bởi Hana</b>\n\n` +
+                      `• <b>Môn học:</b> ${task.subject}\n` +
+                      `• <b>Bài học:</b> ${task.title}\n` +
+                      `• <b>Thời gian học:</b> ${Math.floor(task.study_duration / 60)} phút ${task.study_duration % 60} giây\n` +
+                      `• <b>Nội dung bài làm:</b>\n<pre>${answer.length > 200 ? answer.substring(0, 200) + '...' : answer}</pre>\n\n` +
+                      `👉 <i>Vui lòng xem chi tiết bài làm của Hana và AI feedback trên Parent Dashboard.</i>`;
+      sendTelegramNotification('study', studyText);
       
+      // Auto check routine timeline check if it matches weekly essay, flyer test, or coding
+      if (task.id === 'VIE_LIT_CK_WEEKLY' || task.title.includes('Chân Kiến')) {
+        const chkCK = document.getElementById('tl-check-chankien_deadline');
+        if (chkCK && !chkCK.checked) {
+          chkCK.checked = true;
+          const todayStr = new Date().toISOString().split('T')[0];
+          localStorage.setItem(`tl_check_${todayStr}_chankien_deadline`, 'true');
+          triggerStarReward(5, 'star-bank-card');
+          let habitsText = `☀️ <b>Hana đã hoàn thành hoạt động:</b> Nộp bài văn cô Chân Kiến ✍️\n` +
+                           `• <b>Trạng thái:</b> Tự động cập nhật từ bài làm`;
+          sendTelegramNotification('habits', habitsText);
+        }
+      } else if (task.id.includes('FLYER') || task.title.includes('Flyer') || task.title.includes('Mover')) {
+        const chk = document.getElementById('tl-check-flyer_test');
+        if (chk && !chk.checked) {
+          chk.checked = true;
+          const todayStr = new Date().toISOString().split('T')[0];
+          localStorage.setItem(`tl_check_${todayStr}_flyer_test`, 'true');
+          triggerStarReward(5, 'star-bank-card');
+          let habitsText = `☀️ <b>Hana đã hoàn thành hoạt động:</b> Luyện thi Flyer 📝\n` +
+                           `• <b>Trạng thái:</b> Tự động cập nhật từ bài làm`;
+          sendTelegramNotification('habits', habitsText);
+        }
+      } else if (task.id.includes('CODING') || task.title.includes('Coding') || task.title.includes('Code')) {
+        const chkCode = document.getElementById('tl-check-coding_practice') || document.getElementById('tl-check-coding');
+        if (chkCode && !chkCode.checked) {
+          chkCode.checked = true;
+          const todayStr = new Date().toISOString().split('T')[0];
+          localStorage.setItem(`tl_check_${todayStr}_${chkCode.id.replace('tl-check-', '')}`, 'true');
+          triggerStarReward(5, 'star-bank-card');
+          let habitsText = `☀️ <b>Hana đã hoàn thành hoạt động:</b> Học Coding / Luyện Coding 💻\n` +
+                           `• <b>Trạng thái:</b> Tự động cập nhật từ bài làm`;
+          sendTelegramNotification('habits', habitsText);
+        }
+      }
+
       selectTask(taskIndex);
       setTimeout(processOfflineQueue, 800);
     }
 
     // ==================== KHO ĐỀ BÀI MODAL ====================
+    // ==================== KHO ĐỀ BÀI MODAL & PORTAL ====================
     function showAllTasks() {
+      if (isParentUnlocked) {
+        openParentPortalActual();
+      } else {
+        document.getElementById('parent-passcode-modal').classList.remove('hidden');
+        const pinInput = document.getElementById('parent-passcode-input');
+        pinInput.value = '';
+        document.getElementById('passcode-error').classList.add('hidden');
+        pinInput.focus();
+      }
+    }
+
+    function closePasscodeModal() {
+      document.getElementById('parent-passcode-modal').classList.add('hidden');
+    }
+
+    function submitPasscode() {
+      const pinInput = document.getElementById('parent-passcode-input');
+      const code = pinInput.value.trim();
+      if (code === '1234') {
+        isParentUnlocked = true;
+        closePasscodeModal();
+        openParentPortalActual();
+      } else {
+        document.getElementById('passcode-error').classList.remove('hidden');
+        pinInput.value = '';
+        pinInput.focus();
+      }
+    }
+
+    function openParentPortalActual() {
       const modal = document.getElementById('all-tasks-modal');
       const container = document.getElementById('modal-all-tasks-list');
       if (!modal || !container) return;
@@ -1918,7 +3411,13 @@
         `).join('');
       }
 
+      renderParentEnglishLibrary();
+      
+      const savedKey = localStorage.getItem('parent_gemini_key') || '';
+      document.getElementById('parent-gemini-key-input').value = savedKey;
+
       modal.classList.remove('hidden');
+      switchParentTab('tasks');
     }
 
     function closeAllTasksModal() {
@@ -1929,6 +3428,145 @@
       closeAllTasksModal();
       selectTask(idx);
       document.getElementById('study-desk-container').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function switchParentTab(tabName) {
+      const tabs = ['tasks', 'english', 'config'];
+      tabs.forEach(tab => {
+        const btn = document.getElementById(`ptab-${tab}`);
+        const content = document.getElementById(`pcontent-${tab}`);
+        if (btn) {
+          if (tab === tabName) {
+            btn.className = "flex-1 py-2 rounded-lg bg-white shadow-xs text-orange-655 font-bold transition-all text-center";
+          } else {
+            btn.className = "flex-1 py-2 rounded-lg text-zinc-500 hover:text-zinc-805 font-bold transition-all text-center";
+          }
+        }
+        if (content) {
+          if (tab === tabName) {
+            content.classList.remove('hidden');
+          } else {
+            content.classList.add('hidden');
+          }
+        }
+      });
+    }
+
+    function renderParentEnglishLibrary() {
+      const readingList = document.getElementById('parent-reading-list');
+      const writingList = document.getElementById('parent-writing-list');
+      
+      if (readingList) {
+        readingList.innerHTML = englishReadingLessons.map(lesson => {
+          const assigned = todayTasks.find(t => t.id === lesson.id);
+          let btnHtml = '';
+          if (assigned) {
+            if (assigned.status === 'done') {
+              btnHtml = `<span class="px-2.5 py-1 text-[10px] bg-emerald-100 text-emerald-700 font-extrabold rounded-lg flex items-center gap-1"><i class="fa-solid fa-circle-check text-[10px]"></i> Đã làm</span>`;
+            } else {
+              btnHtml = `<span class="px-2.5 py-1 text-[10px] bg-amber-100 text-amber-700 font-extrabold rounded-lg flex items-center gap-1"><i class="fa-solid fa-clock text-[10px]"></i> Đang làm</span>`;
+            }
+          } else {
+            btnHtml = `<button onclick="assignEnglishTask('reading', '${lesson.id}')" class="px-3 py-1.5 bg-orange-500 hover:bg-orange-600 text-white rounded-lg text-[10px] font-bold shadow-xs transition-all">Giao bài</button>`;
+          }
+          
+          return `
+            <div class="flex items-center justify-between p-3 border border-zinc-100 bg-zinc-50 rounded-2xl">
+              <div>
+                <div class="font-extrabold text-xs text-zinc-900">${lesson.title}</div>
+                <div class="text-[9px] text-zinc-400 mt-0.5 font-bold">${lesson.level} • Topic: ${lesson.topic}</div>
+              </div>
+              <div>${btnHtml}</div>
+            </div>
+          `;
+        }).join('');
+      }
+      
+      if (writingList) {
+        writingList.innerHTML = englishWritingPrompts.map(prompt => {
+          const assigned = todayTasks.find(t => t.id === prompt.id);
+          let btnHtml = '';
+          if (assigned) {
+            if (assigned.status === 'done') {
+              btnHtml = `<span class="px-2.5 py-1 text-[10px] bg-emerald-100 text-emerald-700 font-extrabold rounded-lg flex items-center gap-1"><i class="fa-solid fa-circle-check text-[10px]"></i> Đã làm</span>`;
+            } else {
+              btnHtml = `<span class="px-2.5 py-1 text-[10px] bg-amber-100 text-amber-700 font-extrabold rounded-lg flex items-center gap-1"><i class="fa-solid fa-clock text-[10px]"></i> Đang làm</span>`;
+            }
+          } else {
+            btnHtml = `<button onclick="assignEnglishTask('writing', '${prompt.id}')" class="px-3 py-1.5 bg-rose-500 hover:bg-rose-600 text-white rounded-lg text-[10px] font-bold shadow-xs transition-all">Giao bài</button>`;
+          }
+          
+          return `
+            <div class="flex items-center justify-between p-3 border border-zinc-100 bg-zinc-50 rounded-2xl">
+              <div>
+                <div class="font-extrabold text-xs text-zinc-900">${prompt.title}</div>
+                <div class="text-[9px] text-zinc-400 mt-0.5 font-bold">${prompt.level} • Topic: ${prompt.topic}</div>
+              </div>
+              <div>${btnHtml}</div>
+            </div>
+          `;
+        }).join('');
+      }
+    }
+
+    function assignEnglishTask(type, id) {
+      if (todayTasks.some(t => t.id === id)) {
+        showToast(currentLang === 'vi' ? 'Bài học này đã được giao cho hôm nay rồi!' : 'This lesson is already assigned for today!', 'info');
+        return;
+      }
+
+      let newTask = null;
+      if (type === 'reading') {
+        const lesson = englishReadingLessons.find(l => l.id === id);
+        if (!lesson) return;
+        newTask = {
+          id: lesson.id,
+          title: `Reading: ${lesson.title}`,
+          subject: 'Tiếng Anh',
+          content: `Đọc câu chuyện "${lesson.title}" và trả lời câu hỏi trắc nghiệm đọc hiểu.`,
+          status: 'todo',
+          task_type: 'reading'
+        };
+      } else if (type === 'writing') {
+        const prompt = englishWritingPrompts.find(p => p.id === id);
+        if (!prompt) return;
+        newTask = {
+          id: prompt.id,
+          title: `Writing: ${prompt.title}`,
+          subject: 'Tiếng Anh',
+          content: `Viết bài luận ngắn về chủ đề: "${prompt.title}". Đề bài: ${prompt.prompt}`,
+          status: 'todo',
+          task_type: 'writing'
+        };
+      }
+
+      if (newTask) {
+        todayTasks.push(newTask);
+        saveAssignedTasks();
+        enrichTasks();
+        renderMissions();
+        renderParentEnglishLibrary();
+        
+        showToast(currentLang === 'vi' ? 'Đã giao bài thành công!' : 'Lesson assigned successfully!', 'success');
+        speakEnglish("New English lesson assigned for you, Hana!");
+      }
+    }
+
+    function saveGeminiKey() {
+      const keyInput = document.getElementById('parent-gemini-key-input');
+      const key = keyInput.value.trim();
+      if (key) {
+        localStorage.setItem('parent_gemini_key', key);
+        showToast('Đã lưu Gemini API Key thành công!', 'success');
+      } else {
+        showToast('Vui lòng nhập API Key trước khi lưu!', 'error');
+      }
+    }
+
+    function clearGeminiKey() {
+      localStorage.removeItem('parent_gemini_key');
+      document.getElementById('parent-gemini-key-input').value = '';
+      showToast('Đã xóa Gemini API Key!', 'info');
     }
 
     // ==================== REQUEST MODALS ====================
@@ -1948,6 +3586,7 @@
       const param = document.getElementById('request-param').value;
       const newVal = document.getElementById('request-new').value;
       const reason = document.getElementById('request-reason').value || "Con muốn học thêm bài tập";
+      const currentOldVal = param === 'Screen_GioiHanMoiNgay' ? String(screenLimitMinutes) : String(pomoFocusMinutes);
       
       closeRequestModal();
 
@@ -1955,7 +3594,7 @@
         try {
           const { error } = await supabaseClient.from('approval_requests').insert({
             param_key: param,
-            old_value: String(screenLimitMinutes),
+            old_value: currentOldVal,
             new_value: String(newVal),
             reason: reason,
             status: 'pending'
@@ -1964,6 +3603,16 @@
           if (!error) {
             showToast(currentLang === 'vi' ? 'Đã gửi yêu cầu thành công cho Bố Mẹ qua Telegram!' : 'Request successfully sent to parents!', 'success');
             speakEnglish("Permission request successfully sent to parents.");
+
+            // Send telegram notification
+            let paramText = param === 'Screen_GioiHanMoiNgay' ? 'Giới hạn màn hình' : 'Thời gian Pomodoro';
+            let formattedMsg = `🔔 <b>Yêu cầu phê duyệt mới từ Hana</b>\n\n` +
+                               `• <b>Nội dung:</b> ${paramText}\n` +
+                               `• <b>Mức cũ:</b> ${currentOldVal} phút\n` +
+                               `• <b>Mức đề xuất mới:</b> ${newVal} phút\n` +
+                               `• <b>Lý do:</b> ${reason}\n\n` +
+                               `👉 <i>Vui lòng truy cập Parent Dashboard để phê duyệt hoặc bác bỏ.</i>`;
+            sendTelegramNotification('approvals', formattedMsg);
           } else {
             throw error;
           }
@@ -1973,9 +3622,19 @@
             type: 'request_change',
             param,
             newVal,
+            oldVal: currentOldVal,
             reason
           });
         }
+      } else {
+        showToast(currentLang === 'vi' ? 'Đã lưu yêu cầu ngoại tuyến.' : 'Saved request offline.', 'info');
+        addToOfflineQueue({
+          type: 'request_change',
+          param,
+          newVal,
+          oldVal: currentOldVal,
+          reason
+        });
       }
     }
 
@@ -2048,22 +3707,148 @@
       reader.readAsText(file);
     }
 
+    let pendingActivityLog = null;
+
+    function isOnlineRoutine(id) {
+      const onlineIds = ['pomo1', 'pomo2', 'apos', 'flyer_test', 'coding', 'coding_practice', 'chankien_deadline'];
+      return onlineIds.includes(id);
+    }
+
     function toggleTimelineCheck(idx, el, itemId) {
       const isChecked = el ? el.checked : true;
       
-      // Save state to localStorage for the day
-      if (itemId) {
-        const todayStr = new Date().toISOString().split('T')[0];
-        localStorage.setItem(`tl_check_${todayStr}_${itemId}`, isChecked ? 'true' : 'false');
+      const today = new Date();
+      const dayOfWeek = today.getDay();
+      const dateStr = today.toISOString().split('T')[0];
+      const items = routineTemplates[dayOfWeek] || routineTemplates[1];
+      const item = items.find(it => it.id === itemId);
+
+      if (!item) return;
+
+      const isOffline = !isOnlineRoutine(itemId);
+
+      if (isChecked && isOffline) {
+        // Keep checkbox unchecked until user decides in the modal
+        if (el) el.checked = false;
+
+        pendingActivityLog = {
+          idx: idx,
+          el: el,
+          itemId: itemId,
+          item: item,
+          file: null
+        };
+
+        // Setup modal texts
+        document.getElementById('act-modal-title').innerHTML = `📸 Nhật ký hoạt động: ${item.labelVi}`;
+        document.getElementById('act-modal-desc').innerHTML = `Hana đang làm hoạt động <b>${item.labelVi}</b> bên ngoài máy đúng không?<br>Con hãy chụp ảnh hoặc chọn ảnh gửi cho Bố Mẹ xem nhé!`;
+        
+        // Reset modal state
+        document.getElementById('act-image-input').value = '';
+        document.getElementById('act-upload-placeholder').classList.remove('hidden');
+        document.getElementById('act-upload-preview-container').classList.add('hidden');
+        document.getElementById('act-submit-btn').disabled = true;
+        
+        // Open modal
+        document.getElementById('activity-log-modal').classList.remove('hidden');
+      } else {
+        // For online tasks checked manually or unchecking items
+        saveTimelineCheckState(itemId, isChecked, el);
       }
+    }
+
+    function saveTimelineCheckState(itemId, isChecked, el) {
+      const todayStr = new Date().toISOString().split('T')[0];
+      localStorage.setItem(`tl_check_${todayStr}_${itemId}`, isChecked ? 'true' : 'false');
 
       if (isChecked) {
         triggerStarReward(5, el || 'star-bank-card');
         showToast(currentLang === 'vi' ? 'Đã hoàn thành hoạt động! +5 ⭐' : 'Activity completed! +5 ⭐', 'success');
+        
+        // Send Telegram notification
+        const today = new Date();
+        const timeStr = today.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+        let label = '';
+        const dayOfWeek = today.getDay();
+        const items = routineTemplates[dayOfWeek] || routineTemplates[1];
+        const item = items.find(it => it.id === itemId);
+        if (item) {
+          label = item.labelVi;
+          let habitsText = `☀️ <b>Hana đã hoàn thành hoạt động:</b> ${label}\n` +
+                           `• <b>Thời gian:</b> ${timeStr}\n` +
+                           `• <b>Trạng thái:</b> Đã hoàn thành (Không kèm hình ảnh)`;
+          sendTelegramNotification('habits', habitsText);
+        }
       } else {
         triggerStarReward(-5, el || 'star-bank-card');
         showToast(currentLang === 'vi' ? 'Đã hủy hoàn thành hoạt động! -5 ⭐' : 'Activity unchecked! -5 ⭐', 'info');
       }
+    }
+
+    function handleActImageSelect(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      pendingActivityLog.file = file;
+
+      // Show preview
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        document.getElementById('act-upload-preview').src = e.target.result;
+        document.getElementById('act-upload-placeholder').classList.add('hidden');
+        document.getElementById('act-upload-preview-container').classList.remove('hidden');
+        document.getElementById('act-submit-btn').disabled = false;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    async function submitActivityWithImage() {
+      if (!pendingActivityLog) return;
+      const { idx, el, itemId, item, file } = pendingActivityLog;
+      
+      const today = new Date();
+      const todayStr = today.toISOString().split('T')[0];
+      const timeStr = today.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+
+      // 1. Mark checkbox as checked in UI and localStorage
+      if (el) el.checked = true;
+      localStorage.setItem(`tl_check_${todayStr}_${itemId}`, 'true');
+      triggerStarReward(15, el || 'star-bank-card'); // Extra stars reward for photo upload (+15)
+      showToast(currentLang === 'vi' ? 'Tuyệt vời! Ảnh đã được gửi và con nhận +15 ⭐!' : 'Awesome! Image sent and you got +15 ⭐!', 'success');
+
+      // 2. Send Telegram photo notification
+      const caption = `📸 <b>Nhật ký hoạt động ngoài máy của Hana</b>\n\n` +
+                      `• <b>Hoạt động:</b> ${item.labelVi}\n` +
+                      `• <b>Thời gian thực hiện:</b> ${timeStr}\n` +
+                      `• <b>Người gửi:</b> Bé Hana`;
+      
+      if (file) {
+        sendTelegramPhoto('habits', file, caption);
+      }
+
+      // 3. Close modal
+      document.getElementById('activity-log-modal').classList.add('hidden');
+      pendingActivityLog = null;
+    }
+
+    function skipActivityImage() {
+      if (!pendingActivityLog) return;
+      const { idx, el, itemId } = pendingActivityLog;
+      
+      if (el) el.checked = true;
+      saveTimelineCheckState(itemId, true, el);
+
+      document.getElementById('activity-log-modal').classList.add('hidden');
+      pendingActivityLog = null;
+    }
+
+    function cancelActivityLog() {
+      if (pendingActivityLog) {
+        const { el } = pendingActivityLog;
+        if (el) el.checked = false;
+      }
+      document.getElementById('activity-log-modal').classList.add('hidden');
+      pendingActivityLog = null;
     }
 
     function renderTimeline() {
@@ -2192,6 +3977,13 @@
       renderKanban();
     }
 
+    function formatDuration(totalSeconds) {
+      if (!totalSeconds) return "00:00";
+      const mins = Math.floor(totalSeconds / 60);
+      const secs = totalSeconds % 60;
+      return `${mins.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')}`;
+    }
+
     // ==================== KANBAN STATUS BOARD ====================
     function renderKanban() {
       const todoList = document.getElementById('kanban-todo-list');
@@ -2204,6 +3996,25 @@
       const doneArr = [];
 
       todayTasks.forEach((t, idx) => {
+        let timeBadgeHtml = "";
+        
+        if (t.status === 'done') {
+          const durationText = t.study_duration ? formatDuration(t.study_duration) : (t.duration ? formatDuration(t.duration) : "15:00");
+          timeBadgeHtml = `
+            <div class="flex items-center gap-1 text-[8px] text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded mt-1.5 w-fit font-bold">
+              <i class="fa-solid fa-clock text-[8px]"></i>
+              <span>Thời gian: ${durationText}</span>
+            </div>
+          `;
+        } else if (activeTaskId === t.id) {
+          timeBadgeHtml = `
+            <div class="flex items-center gap-1 text-[8px] text-orange-600 bg-orange-50 border border-orange-100 px-1.5 py-0.5 rounded mt-1.5 w-fit font-bold animate-pulse">
+              <i class="fa-solid fa-spinner animate-spin text-[8px]"></i>
+              <span>Đang học: ${formatDuration(studySeconds)}</span>
+            </div>
+          `;
+        }
+
         const cardHtml = `
           <div onclick="selectTask(${idx})" class="p-3 bg-white border border-zinc-150 hover:border-orange-300 rounded-xl shadow-xs cursor-pointer transition-all hover:translate-y-[-1px]">
             <div class="flex justify-between items-start gap-2">
@@ -2211,6 +4022,7 @@
               <span class="px-1.5 py-0.5 text-[7px] font-extrabold rounded uppercase flex-shrink-0 ${t.subject==='Toán'?'bg-sky-50 text-sky-700':t.subject==='Tiếng Anh'?'bg-orange-50 text-orange-700':'bg-emerald-50 text-emerald-700'}">${t.subject}</span>
             </div>
             <p class="text-[9px] text-zinc-400 mt-1 line-clamp-1">${t.content}</p>
+            ${timeBadgeHtml}
           </div>
         `;
 
@@ -2247,6 +4059,139 @@
       }
     }
 
+    async function sendTelegramNotification(type, messageText) {
+      const stored = localStorage.getItem('hana_telegram_settings');
+      if (!stored) return;
+      try {
+        const config = JSON.parse(stored);
+        const token = config.token;
+        const chatId = config.chatId;
+        if (!token || !chatId) return;
+
+        let threadId = null;
+        if (type === 'approvals') threadId = config.topicApprovals;
+        else if (type === 'study') threadId = config.topicStudy;
+        else if (type === 'warnings') threadId = config.topicWarnings;
+        else if (type === 'habits') threadId = config.topicHabits;
+
+        const url = `https://api.telegram.org/bot${token}/sendMessage`;
+        const payload = {
+          chat_id: chatId,
+          text: messageText,
+          parse_mode: 'HTML'
+        };
+        if (threadId) {
+          payload.message_thread_id = parseInt(threadId);
+        }
+
+        await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+      } catch (err) {
+        console.error("Error sending Telegram notification:", err);
+      }
+    }
+
+    async function sendTelegramPhoto(type, file, captionText) {
+      const stored = localStorage.getItem('hana_telegram_settings');
+      if (!stored) return;
+      try {
+        const config = JSON.parse(stored);
+        const token = config.token;
+        const chatId = config.chatId;
+        if (!token || !chatId) return;
+
+        let threadId = null;
+        if (type === 'approvals') threadId = config.topicApprovals;
+        else if (type === 'study') threadId = config.topicStudy;
+        else if (type === 'warnings') threadId = config.topicWarnings;
+        else if (type === 'habits') threadId = config.topicHabits;
+
+        const url = `https://api.telegram.org/bot${token}/sendPhoto`;
+        const formData = new FormData();
+        formData.append('chat_id', chatId);
+        formData.append('photo', file);
+        formData.append('caption', captionText);
+        formData.append('parse_mode', 'HTML');
+        if (threadId) {
+          formData.append('message_thread_id', threadId);
+        }
+
+        await fetch(url, {
+          method: 'POST',
+          body: formData
+        });
+      } catch (err) {
+        console.error("Error sending Telegram photo:", err);
+      }
+    }
+
+    function getStarsEarnedToday() {
+      const transactions = JSON.parse(localStorage.getItem('hana_star_transactions') || '[]');
+      const todayStr = new Date().toISOString().split('T')[0];
+      let total = 0;
+      transactions.forEach(t => {
+        if (t.date === todayStr && t.amount > 0) {
+          total += t.amount;
+        }
+      });
+      return total;
+    }
+
+    async function sendDailyReport(manual = false) {
+      const todayStr = new Date().toISOString().split('T')[0];
+      const todayFormatted = new Date().toLocaleDateString('vi-VN');
+      
+      const starsEarned = getStarsEarnedToday();
+      const currentStars = parseInt(localStorage.getItem('hana_stars') || '1250');
+      const pomoCompleted = parseInt(localStorage.getItem('hana_pomo_completed') || '0');
+      const waterConsumed = parseInt(localStorage.getItem('hana_water_consumed') || '0');
+      const todayWaterGoal = waterGoalMl;
+
+      const today = new Date();
+      const dayOfWeek = today.getDay();
+      const items = routineTemplates[dayOfWeek] || routineTemplates[1];
+      
+      let activitiesHtml = '';
+      let completedCount = 0;
+      
+      items.forEach(item => {
+        const storageKey = `tl_check_${todayStr}_${item.id}`;
+        const isChecked = localStorage.getItem(storageKey) === 'true';
+        if (isChecked) completedCount++;
+        const checkIcon = isChecked ? '✅' : '❌';
+        activitiesHtml += `• ${checkIcon} <b>${item.time}</b>: ${item.labelVi}\n`;
+      });
+      
+      const completionPct = Math.round((completedCount / items.length) * 100);
+
+      const reportMsg = `📊 <b>TỔNG KẾT HOẠT ĐỘNG TRONG NGÀY CỦA HANA</b> 🌟\n` +
+                        `📅 <b>Ngày:</b> ${todayFormatted}\n\n` +
+                        `• <b>Tổng sao đạt được hôm nay:</b> +${starsEarned} ⭐\n` +
+                        `• <b>Quỹ sao hiện tại của con:</b> ${currentStars} ⭐\n\n` +
+                        `✅ <b>Lịch trình sinh hoạt (${completedCount}/${items.length} - ${completionPct}%):</b>\n` +
+                        activitiesHtml + `\n` +
+                        `🍅 <b>Pomodoro đã hoàn thành:</b> ${pomoCompleted}/6 phiên\n` +
+                        `💧 <b>Nước lọc đã uống:</b> ${waterConsumed}/${todayWaterGoal} ml\n\n` +
+                        `🎉 <i>Hôm nay Hana đã hoạt động rất chăm chỉ! Chúc con ngủ ngon! 😴💤</i>`;
+
+      try {
+        await sendTelegramNotification('habits', reportMsg);
+        localStorage.setItem(`daily_report_sent_${todayStr}`, 'true');
+        if (manual) {
+          showToast(currentLang === 'vi' ? 'Đã gửi báo cáo tổng kết ngày cho Bố Mẹ thành công!' : 'Daily report sent to parents successfully!', 'success');
+          speakEnglish("Daily summary report sent to Mom and Dad!");
+        }
+      } catch (err) {
+        console.error("Failed to send daily report:", err);
+        if (manual) {
+          showToast(currentLang === 'vi' ? 'Lỗi khi gửi báo cáo.' : 'Error sending report.', 'error');
+        }
+      }
+    }
+
     async function loadTodayConfig() {
       if (!supabaseClient) return;
       try {
@@ -2267,6 +4212,8 @@
     async function loadTodayTasks() {
       if (!supabaseClient) {
         todayTasks = [...fallbackTasks];
+        mergeAssignedTasks();
+        enrichTasks();
         renderMissions();
         return;
       }
@@ -2278,10 +4225,14 @@
           // If no tasks scheduled today, use default templates
           todayTasks = [...fallbackTasks];
         }
+        mergeAssignedTasks();
+        enrichTasks();
         renderMissions();
       } catch (e) {
         console.warn("Could not query tasks, falling back:", e);
         todayTasks = [...fallbackTasks];
+        mergeAssignedTasks();
+        enrichTasks();
         renderMissions();
       }
     }
@@ -2295,7 +4246,30 @@
     }
 
     // ==================== CORE INITIALIZATION ====================
+    
+    function checkParentMessage() {
+      const msg = localStorage.getItem('hana_quick_message');
+      if (msg) {
+        document.getElementById('parent-message-text').textContent = msg;
+        document.getElementById('parent-message-container').classList.remove('hidden');
+        // Clear after showing? Maybe keep it for the session
+      } else {
+        document.getElementById('parent-message-container').classList.add('hidden');
+      }
+    }
+
     function init() {
+      // Migrate old localStorage data if present
+      const localAssigned = localStorage.getItem('assigned_english_tasks');
+      if (localAssigned) {
+        try {
+          let updated = localAssigned.replace(/Thầy Smarty/g, "Cô Julie").replace(/Mr\. Smarty/g, "Teacher Julie");
+          localStorage.setItem('assigned_english_tasks', updated);
+        } catch(e) {
+          console.warn("Migration failed:", e);
+        }
+      }
+
       // Setup initial Wallet stars
       if (!localStorage.getItem('hana_stars')) {
         localStorage.setItem('hana_stars', '1250');
@@ -2305,24 +4279,42 @@
       // Initialize steps
       initStepsUI();
 
+      // Passcode Enter key event
+      const pinInput = document.getElementById('parent-passcode-input');
+      if (pinInput) {
+        pinInput.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') submitPasscode();
+        });
+      }
+
       // Trigger standard clock updating
       updateFlipDateUI();
       setInterval(updateFlipDateUI, 1000);
 
-      // Hourly speech announcements reminder
+      // Water reminder every 20 minutes (conditional reminder based on Pomodoro mode)
       setInterval(() => {
-        speakEnglish("Hana, remember to keep your focus, sit straight, and drink water to stay healthy!");
-      }, 30 * 60 * 1000);
+        if (pomoMode === 'break') {
+          speakEnglish("Hana, remember to take your drinks.", "water");
+          showToast(currentLang === 'vi' ? 'Giờ giải lao rồi, con nhớ uống nước nhé! 💧' : 'It is break time, remember to take your drinks! 💧', 'info');
+        } else {
+          speakEnglish("Hana, take a sip to refresh your body, and remember to keep your back straight while sitting.", "water");
+          showToast(currentLang === 'vi' ? 'Hana ơi, uống một ngụm nước và nhớ ngồi thẳng lưng lên con nhé! 💧' : 'Take a sip of water and remember to sit straight, Hana! 💧', 'info');
+        }
+      }, 20 * 60 * 1000);
 
       // Hydrate views
       loadQueueFromStorage();
       initSupabase();
+      
+      // Auto-sync daily configs from parents database every 60 seconds
+      setInterval(loadTodayConfig, 60000);
       
       // Hook network triggers
       window.addEventListener('online', () => processOfflineQueue());
       
       // Set default language VI
       setLang('vi');
+      checkParentMessage();
     }
 
     window.onload = init;

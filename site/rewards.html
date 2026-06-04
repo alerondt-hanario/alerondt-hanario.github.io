@@ -109,25 +109,13 @@
   <!-- Top Navigation Bar -->
   <div class="max-w-[1200px] mx-auto px-6 pt-6">
     <div class="flex items-center justify-between py-4 px-6 bg-white/80 backdrop-blur-md rounded-3xl border border-white/50 shadow-sm">
-      <div class="flex flex-col">
-        <!-- Logo and App Name -->
-        <div class="flex items-center gap-x-2.5">
-          <div class="w-8 h-8 bg-gradient-to-br from-orange-400 via-amber-500 to-rose-500 rounded-xl flex items-center justify-center shadow-inner">
-            <i class="fa-solid fa-bolt text-white text-sm"></i>
-          </div>
-          <div>
-            <span class="font-extrabold text-lg tracking-tight heading">Hana's Life OS</span>
-          </div>
+      <!-- Logo and App Name -->
+      <div class="flex items-center gap-x-2.5">
+        <div class="w-8 h-8 bg-gradient-to-br from-orange-400 via-amber-500 to-rose-500 rounded-xl flex items-center justify-center shadow-inner">
+          <i class="fa-solid fa-bolt text-white text-sm"></i>
         </div>
-        <!-- Breadcrumbs -->
-        <div class="flex items-center gap-1.5 text-[10px] text-zinc-400 font-medium mt-1">
-          <span>🏠 Home</span>
-          <span>/</span>
-          <span>Hana's Life OS</span>
-          <span>/</span>
-          <a href="hana.html" class="hover:text-orange-500 transition-all font-semibold">Dashboard</a>
-          <span>/</span>
-          <a href="rewards.html" class="hover:text-orange-500 transition-all font-bold text-orange-500">Ngân hàng Quà</a>
+        <div>
+          <span class="font-extrabold text-lg tracking-tight heading">Hana's Life OS</span>
         </div>
       </div>
 
@@ -286,7 +274,8 @@
     let screenUsedMinutes = 47;
     let screenLimitMinutes = 120;
 
-    const gifts = [
+    let gifts = [];
+    const defaultGifts = [
       {
         id: "bubble_tea",
         titleVi: "1 cốc Trà sữa trân châu 🧋",
@@ -556,6 +545,12 @@
         localStorage.setItem('hana_redemptions', JSON.stringify(mockRedemptions));
       }
       redemptions = JSON.parse(localStorage.getItem('hana_redemptions'));
+
+      // Gifts catalog
+      if (!localStorage.getItem('hana_gifts')) {
+        localStorage.setItem('hana_gifts', JSON.stringify(defaultGifts));
+      }
+      gifts = JSON.parse(localStorage.getItem('hana_gifts'));
     }
 
     function saveData() {

@@ -6,7 +6,7 @@ import subprocess
 # Cấu hình Supabase
 SUPABASE_URL = "https://oytgbhytkddjlygafxjf.supabase.co"
 CURRICULUM_DIR = "/media/vpsg16gb/Workspace1/HanaApplication/curriculum"
-HTML_FILE = "/media/vpsg16gb/Workspace1/HanaApplication/frontend/hana.html"
+HTML_FILE = "/media/vpsg16gb/Workspace1/HanaApplication/frontend/index.html"
 
 def get_supabase_key():
     try:
@@ -48,7 +48,7 @@ def sync_curriculum():
                     "title": post.get('title', 'Không có tiêu đề'),
                     "content": post.content.strip(),
                     "system_prompt": post.get('system_prompt', ''),
-                    "scheduled_date": str(post.get('scheduled_date', ''))
+                    "scheduled_date": str(post.get('scheduled_date')) if post.get('scheduled_date') else "2026-06-04"
                 }
                 
                 print(f"Đang đồng bộ: {task_data['title']} ({task_id})...")
