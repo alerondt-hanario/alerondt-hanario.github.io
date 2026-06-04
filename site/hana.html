@@ -625,6 +625,20 @@
   <!-- Main Content Layout -->
   <div class="max-w-[1200px] mx-auto px-6 pt-6 grid grid-cols-1 gap-6">
 
+    
+        <!-- Message from Parents -->
+        <div id="parent-message-container" class="hidden bg-indigo-50 border border-indigo-100 p-4 rounded-3xl mb-6 shadow-sm animate-bounce">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 bg-white rounded-2xl flex items-center justify-center text-indigo-500 shadow-xs">
+              <i class="fa-solid fa-heart"></i>
+            </div>
+            <div>
+              <span class="text-[9px] font-extrabold text-indigo-500 uppercase tracking-widest">TIN NHẮN TỪ BỐ MẸ</span>
+              <p id="parent-message-text" class="text-xs font-bold text-indigo-900 mt-0.5 italic"></p>
+            </div>
+          </div>
+        </div>
+
     <!-- TOP SUMMARY WIDGETS ROW (Water Intake, Pomodoro, Mission Progress) -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
       
@@ -1198,6 +1212,77 @@
 
     </div>
 
+    <!-- CHORES & PHYSICAL ACTIVITY TRACKER ROW -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-2">
+      <!-- Card 1: Chores Tracker (Việc nhà của Hana) -->
+      <div class="bg-white rounded-3xl border border-zinc-100 p-6 shadow-sm flex flex-col justify-between min-h-[220px]">
+        <div>
+          <span class="text-[9px] font-extrabold text-orange-500 tracking-wider uppercase">VIỆC NHÀ HÀNG NGÀY</span>
+          <h3 class="text-base font-extrabold text-zinc-950 mt-0.5">Giặt đồ & Rửa bát</h3>
+          <p class="text-[10px] text-zinc-400 font-medium mt-1">Yêu cầu ít nhất 1 lần/ngày. Không làm trừ 5⭐. Làm được +2⭐, thêm mỗi lần +3⭐.</p>
+          
+          <div class="grid grid-cols-2 gap-4 mt-4">
+            <!-- Laundry status -->
+            <div class="bg-zinc-50 border border-zinc-150 rounded-2xl p-3 flex flex-col items-center">
+              <span class="text-xl">🧺</span>
+              <span class="text-[10px] font-bold text-zinc-700 mt-1">Giặt quần áo</span>
+              <div class="flex items-center gap-2 mt-2">
+                <span id="chore-laundry-count" class="text-lg font-black text-zinc-900">0</span>
+                <button onclick="logChore('laundry')" class="w-6 h-6 bg-orange-500 hover:bg-orange-600 text-white rounded-full flex items-center justify-center transition-all shadow-xs">+</button>
+              </div>
+            </div>
+            
+            <!-- Dishes status -->
+            <div class="bg-zinc-50 border border-zinc-150 rounded-2xl p-3 flex flex-col items-center">
+              <span class="text-xl">🍽️</span>
+              <span class="text-[10px] font-bold text-zinc-700 mt-1">Rửa bát đũa</span>
+              <div class="flex items-center gap-2 mt-2">
+                <span id="chore-dishes-count" class="text-lg font-black text-zinc-900">0</span>
+                <button onclick="logChore('dishes')" class="w-6 h-6 bg-orange-500 hover:bg-orange-600 text-white rounded-full flex items-center justify-center transition-all shadow-xs">+</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="border-t border-zinc-50 pt-3 mt-4 flex justify-between items-center text-xs">
+          <span class="text-zinc-500">Trạng thái sao việc nhà:</span>
+          <span id="chore-stars-badge" class="font-extrabold text-red-500">-5 ⭐ (Chưa làm)</span>
+        </div>
+      </div>
+
+      <!-- Card 2: Physical Activity Tracker (Hoạt động thể lực) -->
+      <div class="bg-white rounded-3xl border border-zinc-100 p-6 shadow-sm flex flex-col justify-between min-h-[220px]">
+        <div>
+          <span class="text-[9px] font-extrabold text-orange-500 tracking-wider uppercase">HOẠT ĐỘNG THỂ LỰC</span>
+          <h3 class="text-base font-extrabold text-zinc-950 mt-0.5">Rèn luyện thể chất</h3>
+          <p class="text-[10px] text-zinc-400 font-medium mt-1">Yêu cầu ít nhất 1 lần (30 phút)/ngày. Không tập trừ 3⭐. Tập được +2⭐, trên 30 phút +1⭐, thêm phiên +3⭐.</p>
+          
+          <div class="mt-4 flex items-center gap-3">
+            <div class="flex-1">
+              <input type="number" id="phys-duration-input" placeholder="Số phút..." class="w-full px-3 py-2 text-xs border border-zinc-200 rounded-xl outline-none focus:ring-1 focus:ring-orange-400 font-medium text-zinc-800" min="1" />
+            </div>
+            <button onclick="logPhysicalActivity()" class="bg-orange-500 hover:bg-orange-600 text-white text-xs px-4 py-2 rounded-xl font-bold transition-all shadow-md flex items-center gap-1">
+              <i class="fa-solid fa-plus"></i>
+              <span>Ghi nhận</span>
+            </button>
+          </div>
+          
+          <!-- Session logs list -->
+          <div class="mt-3 bg-zinc-50 border border-zinc-150 rounded-xl p-2.5 max-h-[85px] overflow-y-auto scrollbar-none">
+            <span class="text-[9px] font-bold text-zinc-400 uppercase tracking-wider block mb-1">Các phiên tập hôm nay:</span>
+            <div id="phys-sessions-list" class="space-y-1 text-[10px] font-semibold text-zinc-650">
+              <div class="italic text-zinc-400 font-medium">Chưa có phiên tập nào.</div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="border-t border-zinc-50 pt-3 mt-4 flex justify-between items-center text-xs">
+          <span class="text-zinc-500">Trạng thái sao thể lực:</span>
+          <span id="phys-stars-badge" class="font-extrabold text-red-500">-3 ⭐ (Chưa tập)</span>
+        </div>
+      </div>
+    </div>
+
   </div>
 
   <!-- STICKY FOOTER TIMELINE & REQUEST PERMISSION BAR -->
@@ -1213,7 +1298,11 @@
     </div>
 
     <!-- Right: Request Permission Button -->
-    <div class="flex-shrink-0">
+    <div class="flex-shrink-0 flex items-center gap-2">
+      <button onclick="sendDailyReport(true)" class="flex items-center gap-x-2 px-4 py-3 rounded-2xl border border-zinc-200 bg-white hover:bg-zinc-50 text-zinc-650 font-extrabold text-xs shadow-sm transition-all hover:scale-105 active:scale-95" title="Gửi báo cáo tổng kết ngày cho Bố Mẹ">
+        <i class="fa-solid fa-square-poll-horizontal text-sm"></i>
+        <span>Báo cáo ngày</span>
+      </button>
       <button onclick="showRequestModal()" class="flex items-center gap-x-2 px-5 py-3 rounded-2xl border border-amber-200 bg-white hover:bg-amber-50 text-amber-700 font-extrabold text-xs shadow-sm transition-all hover:scale-105 active:scale-95">
         <i class="fa-solid fa-handshake animate-pulse"></i>
         <span id="ask-parents-btn-text">Xin Bố Mẹ thêm giờ máy tính</span>
@@ -1237,6 +1326,39 @@
         <button onclick="closePasscodeModal()" class="flex-1 py-2.5 border border-zinc-150 text-zinc-650 hover:bg-zinc-50 rounded-xl font-bold transition-all text-xs">Hủy</button>
         <button onclick="submitPasscode()" class="flex-1 py-2.5 bg-gradient-to-r from-orange-500 to-rose-500 hover:from-orange-600 hover:to-rose-600 text-white rounded-xl font-bold shadow-md transition-all text-xs">XÁC NHẬN</button>
       </div>
+    </div>
+  </div>
+
+  <!-- OFFLINE ACTIVITY LOG MODAL -->
+  <div id="activity-log-modal" class="hidden fixed inset-0 bg-black/40 flex items-center justify-center z-[250] p-4">
+    <div onclick="event.stopPropagation()" class="bg-white w-full max-w-[380px] rounded-3xl shadow-xl border border-zinc-100 p-6 text-center">
+      <div class="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-3 text-amber-600">
+        <i class="fa-solid fa-camera text-lg"></i>
+      </div>
+      <h3 class="text-base font-extrabold text-zinc-900 heading" id="act-modal-title">📸 Nhật ký hoạt động ngoài máy</h3>
+      <p class="text-[11px] text-zinc-500 font-medium mt-2" id="act-modal-desc">
+        Hana đang làm hoạt động này bên ngoài máy đúng không?<br>Con hãy chụp ảnh hoặc chọn ảnh gửi cho Bố Mẹ xem nhé!
+      </p>
+      
+      <!-- Upload area -->
+      <div class="mt-4 border-2 border-dashed border-zinc-200 hover:border-orange-400 rounded-2xl p-4 cursor-pointer transition-colors relative" id="act-upload-area">
+        <input type="file" id="act-image-input" accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" onchange="handleActImageSelect(event)">
+        <div id="act-upload-placeholder" class="space-y-1">
+          <i class="fa-solid fa-cloud-arrow-up text-zinc-400 text-lg"></i>
+          <p class="text-[10px] font-bold text-zinc-500">Chụp ảnh hoặc Chọn file từ máy</p>
+          <p class="text-[8px] text-zinc-400">Hỗ trợ hình ảnh chụp trực tiếp</p>
+        </div>
+        <div id="act-upload-preview-container" class="hidden">
+          <img id="act-upload-preview" class="max-h-[140px] mx-auto rounded-xl object-contain shadow-xs">
+          <p class="text-[9px] text-emerald-600 font-bold mt-2">✨ Ảnh đã sẵn sàng gửi!</p>
+        </div>
+      </div>
+      
+      <div class="flex gap-2.5 mt-5">
+        <button onclick="skipActivityImage()" class="flex-1 py-2.5 border border-zinc-150 text-zinc-650 hover:bg-zinc-50 rounded-xl font-bold transition-all text-xs">Hoàn thành không ảnh</button>
+        <button onclick="submitActivityWithImage()" id="act-submit-btn" class="flex-1 py-2.5 bg-gradient-to-r from-orange-500 to-rose-500 hover:from-orange-600 hover:to-rose-600 text-white rounded-xl font-bold shadow-md transition-all text-xs" disabled>Tải lên & Gửi Bố Mẹ</button>
+      </div>
+      <button onclick="cancelActivityLog()" class="w-full mt-3 py-1.5 text-[10px] text-zinc-400 font-semibold hover:text-zinc-600">Đóng</button>
     </div>
   </div>
 
@@ -1412,9 +1534,10 @@
         { time: "11:00 AM", labelVi: "Giải lao & Uống nước", labelEn: "Rest & Drink Water", icon: "fa-glass-water", id: "water", isWater: true },
         { time: "12:30 PM", labelVi: "Ăn trưa & Nghỉ trưa", labelEn: "Lunch & Midday Nap", icon: "fa-bowl-food", id: "lunch" },
         { time: "02:00 PM", labelVi: "Đọc sách / Tự học", labelEn: "Reading & Study", icon: "fa-book-open", id: "pomo2", isPomo2: true },
-        { time: "03:00 PM", labelVi: "Học bơi 🏊‍♀️", labelEn: "Swimming Class 🏊‍♀️", icon: "fa-person-swimming", id: "swim" },
-        { time: "05:30 PM", labelVi: "Cảm thụ văn học ✍️", labelEn: "Literature Appreciation ✍️", icon: "fa-feather", id: "literature" },
-        { time: "07:00 PM", labelVi: "Nghỉ ngơi / Đi chơi", labelEn: "Free Play & Rest", icon: "fa-face-smile", id: "play" }
+        { time: "03:00 PM", labelVi: "Học bơi cô Hằng 🏊‍♀️", labelEn: "Swim with Ms. Hang 🏊‍♀️", icon: "fa-person-swimming", id: "swim" },
+        { time: "05:30 PM", labelVi: "Cảm thụ văn học cô Chân Kiến ✍️", labelEn: "Literature with Ms. Chan Kien ✍️", icon: "fa-feather", id: "literature" },
+        { time: "07:00 PM", labelVi: "Nghỉ ngơi / Đi chơi", labelEn: "Free Play & Rest", icon: "fa-face-smile", id: "play" },
+        { time: "08:00 PM", labelVi: "Học Apos (Apollo) 📱 (5 phút)", labelEn: "Apos App 📱 (5 mins)", icon: "fa-mobile-screen-button", id: "apos" }
       ],
       // 1 is Monday
       1: [
@@ -1425,7 +1548,8 @@
         { time: "12:30 PM", labelVi: "Ăn trưa & Nghỉ trưa", labelEn: "Lunch & Midday Nap", icon: "fa-bowl-food", id: "lunch" },
         { time: "02:00 PM", labelVi: "Đọc sách / Tự học", labelEn: "Reading & Study", icon: "fa-book-open", id: "reading" },
         { time: "04:30 PM", labelVi: "Thể thao & Vận động", labelEn: "Sports & Play", icon: "fa-dumbbell", id: "sports" },
-        { time: "07:30 PM", labelVi: "Học Coding 💻", labelEn: "Coding Class 💻", icon: "fa-code", id: "coding" }
+        { time: "07:30 PM", labelVi: "Học Coding 💻", labelEn: "Coding Class 💻", icon: "fa-code", id: "coding" },
+        { time: "08:30 PM", labelVi: "Học Apos (Apollo) 📱 (5 phút)", labelEn: "Apos App 📱 (5 mins)", icon: "fa-mobile-screen-button", id: "apos" }
       ],
       // 2 is Tuesday
       2: [
@@ -1434,19 +1558,23 @@
         { time: "09:30 AM", labelVi: "Giải lao & Uống nước lọc", labelEn: "Rest & Drink Water", icon: "fa-glass-water", id: "water", isWater: true },
         { time: "11:00 AM", labelVi: "Học tiếng Anh (Flyer.us)", labelEn: "Study English (Flyer.us)", icon: "fa-graduation-cap", id: "pomo2", isPomo2: true },
         { time: "12:30 PM", labelVi: "Ăn trưa & Nghỉ trưa", labelEn: "Lunch & Midday Nap", icon: "fa-bowl-food", id: "lunch" },
-        { time: "02:00 PM", labelVi: "Đọc sách / Tự học", labelEn: "Reading & Study", icon: "fa-book-open", id: "reading" },
-        { time: "05:00 PM", labelVi: "Apollo English 🇬🇧", labelEn: "Apollo English 🇬🇧", icon: "fa-language", id: "apollo" }
+        { time: "02:00 PM", labelVi: "Luyện thi Flyer (Movers: 2 test / Flyers: 1 test) 📝", labelEn: "Flyer Exam Prep (Movers: 2 tests / Flyers: 1 test) 📝", icon: "fa-file-signature", id: "flyer_test" },
+        { time: "03:30 PM", labelVi: "Chuẩn bị đi học Apollo (Nhớ uống sữa nhé!) 🥛🎒", labelEn: "Get ready for Apollo (Drink milk!) 🥛🎒", icon: "fa-suitcase", id: "prep_apollo" },
+        { time: "05:00 PM", labelVi: "Apollo English 🇬🇧", labelEn: "Apollo English 🇬🇧", icon: "fa-language", id: "apollo" },
+        { time: "07:00 PM", labelVi: "Tiếng Trung cô Nhi 🇨🇳", labelEn: "Chinese with Ms. Nhi 🇨🇳", icon: "fa-language", id: "chinese_nhi" },
+        { time: "08:00 PM", labelVi: "Học Apos (Apollo) 📱 (5 phút)", labelEn: "Apos App 📱 (5 mins)", icon: "fa-mobile-screen-button", id: "apos" }
       ],
       // 3 is Wednesday
       3: [
         { time: "07:00 AM", labelVi: "Thức dậy & Vệ sinh cá nhân", labelEn: "Wake up & Hygiene", icon: "fa-mug-saucer", id: "morning" },
         { time: "08:00 AM", labelVi: "Học bài phiên 1 (Pomodoro)", labelEn: "Study Session 1 (Pomo)", icon: "fa-laptop-code", id: "pomo1", isPomo1: true },
         { time: "09:30 AM", labelVi: "Giải lao & Uống nước lọc", labelEn: "Rest & Drink Water", icon: "fa-glass-water", id: "water", isWater: true },
-        { time: "11:00 AM", labelVi: "Học tiếng Anh (Flyer.us)", labelEn: "Study English (Flyer.us)", icon: "fa-graduation-cap", id: "pomo2", isPomo2: true },
+        { time: "11:00 AM", labelVi: "Ôn tập Tiếng Trung cô Nhi 🇨🇳", labelEn: "Review Chinese with Ms. Nhi 🇨🇳", icon: "fa-language", id: "chinese_review" },
         { time: "12:30 PM", labelVi: "Ăn trưa & Nghỉ trưa", labelEn: "Lunch & Midday Nap", icon: "fa-bowl-food", id: "lunch" },
         { time: "02:00 PM", labelVi: "Đọc sách / Tự học", labelEn: "Reading & Study", icon: "fa-book-open", id: "reading" },
         { time: "04:30 PM", labelVi: "Thể thao & Vận động", labelEn: "Sports & Play", icon: "fa-dumbbell", id: "sports" },
-        { time: "07:00 PM", labelVi: "Học Tiếng Trung 🇨🇳", labelEn: "Chinese Class 🇨🇳", icon: "fa-language", id: "chinese" }
+        { time: "08:00 PM", labelVi: "Nộp bài văn cô Chân Kiến ✍️ (Hạn chót!)", labelEn: "Submit Essay to Ms. Chan Kien ✍️ (Deadline!)", icon: "fa-clock", id: "chankien_deadline" },
+        { time: "08:30 PM", labelVi: "Học Apos (Apollo) 📱 (5 phút)", labelEn: "Apos App 📱 (5 mins)", icon: "fa-mobile-screen-button", id: "apos" }
       ],
       // 4 is Thursday
       4: [
@@ -1455,19 +1583,23 @@
         { time: "09:30 AM", labelVi: "Giải lao & Uống nước lọc", labelEn: "Rest & Drink Water", icon: "fa-glass-water", id: "water", isWater: true },
         { time: "11:00 AM", labelVi: "Học tiếng Anh (Flyer.us)", labelEn: "Study English (Flyer.us)", icon: "fa-graduation-cap", id: "pomo2", isPomo2: true },
         { time: "12:30 PM", labelVi: "Ăn trưa & Nghỉ trưa", labelEn: "Lunch & Midday Nap", icon: "fa-bowl-food", id: "lunch" },
-        { time: "02:00 PM", labelVi: "Đọc sách / Tự học", labelEn: "Reading & Study", icon: "fa-book-open", id: "reading" },
-        { time: "05:00 PM", labelVi: "Apollo English 🇬🇧", labelEn: "Apollo English 🇬🇧", icon: "fa-language", id: "apollo" }
+        { time: "02:00 PM", labelVi: "Luyện tập Coding 💻", labelEn: "Practice Coding 💻", icon: "fa-code", id: "coding_practice" },
+        { time: "03:30 PM", labelVi: "Chuẩn bị đi học Apollo (Nhớ uống sữa nhé!) 🥛🎒", labelEn: "Get ready for Apollo (Drink milk!) 🥛🎒", icon: "fa-suitcase", id: "prep_apollo" },
+        { time: "05:00 PM", labelVi: "Apollo English 🇬🇧", labelEn: "Apollo English 🇬🇧", icon: "fa-language", id: "apollo" },
+        { time: "07:00 PM", labelVi: "Tiếng Trung cô Nhi 🇨🇳", labelEn: "Chinese with Ms. Nhi 🇨🇳", icon: "fa-language", id: "chinese_nhi" },
+        { time: "08:00 PM", labelVi: "Học Apos (Apollo) 📱 (5 phút)", labelEn: "Apos App 📱 (5 mins)", icon: "fa-mobile-screen-button", id: "apos" }
       ],
       // 5 is Friday
       5: [
         { time: "07:00 AM", labelVi: "Thức dậy & Vệ sinh cá nhân", labelEn: "Wake up & Hygiene", icon: "fa-mug-saucer", id: "morning" },
         { time: "08:00 AM", labelVi: "Học bài phiên 1 (Pomodoro)", labelEn: "Study Session 1 (Pomo)", icon: "fa-laptop-code", id: "pomo1", isPomo1: true },
         { time: "09:30 AM", labelVi: "Giải lao & Uống nước lọc", labelEn: "Rest & Drink Water", icon: "fa-glass-water", id: "water", isWater: true },
-        { time: "11:00 AM", labelVi: "Học tiếng Anh (Flyer.us)", labelEn: "Study English (Flyer.us)", icon: "fa-graduation-cap", id: "pomo2", isPomo2: true },
+        { time: "11:00 AM", labelVi: "Ôn tập Tiếng Trung cô Nhi 🇨🇳", labelEn: "Review Chinese with Ms. Nhi 🇨🇳", icon: "fa-language", id: "chinese_review" },
         { time: "12:30 PM", labelVi: "Ăn trưa & Nghỉ trưa", labelEn: "Lunch & Midday Nap", icon: "fa-bowl-food", id: "lunch" },
         { time: "02:00 PM", labelVi: "Đọc sách / Tự học", labelEn: "Reading & Study", icon: "fa-book-open", id: "reading" },
+        { time: "03:30 PM", labelVi: "Luyện thi Flyer (Movers: 2 test / Flyers: 1 test) 📝", labelEn: "Flyer Exam Prep (Movers: 2 tests / Flyers: 1 test) 📝", icon: "fa-file-signature", id: "flyer_test" },
         { time: "04:30 PM", labelVi: "Thể thao & Vận động", labelEn: "Sports & Play", icon: "fa-dumbbell", id: "sports" },
-        { time: "07:00 PM", labelVi: "Học Tiếng Trung 🇨🇳", labelEn: "Chinese Class 🇨🇳", icon: "fa-language", id: "chinese" }
+        { time: "08:00 PM", labelVi: "Học Apos (Apollo) 📱 (5 phút)", labelEn: "Apos App 📱 (5 mins)", icon: "fa-mobile-screen-button", id: "apos" }
       ],
       // 6 is Saturday
       6: [
@@ -1477,8 +1609,9 @@
         { time: "11:00 AM", labelVi: "Học tiếng Anh (Flyer.us)", labelEn: "Study English (Flyer.us)", icon: "fa-graduation-cap", id: "pomo2", isPomo2: true },
         { time: "12:30 PM", labelVi: "Ăn trưa & Nghỉ trưa", labelEn: "Lunch & Midday Nap", icon: "fa-bowl-food", id: "lunch" },
         { time: "02:00 PM", labelVi: "Đọc sách / Tự học", labelEn: "Reading & Study", icon: "fa-book-open", id: "reading" },
-        { time: "03:00 PM", labelVi: "Học bơi 🏊‍♀️", labelEn: "Swimming Class 🏊‍♀️", icon: "fa-person-swimming", id: "swim" },
-        { time: "04:30 PM", labelVi: "Ngoại khóa / Chạy bộ", labelEn: "Sports & Play", icon: "fa-dumbbell", id: "sports" }
+        { time: "03:00 PM", labelVi: "Học bơi cô Hằng 🏊‍♀️", labelEn: "Swim with Ms. Hang 🏊‍♀️", icon: "fa-person-swimming", id: "swim" },
+        { time: "04:30 PM", labelVi: "Ngoại khóa / Chạy bộ", labelEn: "Sports & Play", icon: "fa-dumbbell", id: "sports" },
+        { time: "08:00 PM", labelVi: "Học Apos (Apollo) 📱 (5 phút)", labelEn: "Apos App 📱 (5 mins)", icon: "fa-mobile-screen-button", id: "apos" }
       ]
     };
 
@@ -2085,6 +2218,15 @@
           clockIcon.className = "fa-solid fa-moon text-lg text-indigo-400";
         }
       }
+
+      // Auto-trigger daily summary report in the evening (after 9 PM / 21:00) if not already sent today
+      if (today.getHours() >= 21) {
+        const todayStr = today.toISOString().split('T')[0];
+        if (localStorage.getItem(`daily_report_sent_${todayStr}`) !== 'true') {
+          localStorage.setItem(`daily_report_sent_${todayStr}`, 'true');
+          sendDailyReport(false);
+        }
+      }
     }
 
     // ==================== POMODORO CONTROLS ====================
@@ -2594,6 +2736,29 @@
       showToast(currentLang === 'vi' ? `Con trả lời đúng ${correctCount}/${numQuestions} câu hỏi! Nhận +${starsEarned} ⭐!` : `Correct answers: ${correctCount}/${numQuestions}! Earned +${starsEarned} ⭐!`, 'success');
       speakEnglish(`Well done, Hana! You got ${correctCount} out of ${numQuestions} correct! You earned ${starsEarned} stars!`);
       
+      // Send Telegram notification
+      let studyText = `📝 <b>Bài làm Trắc nghiệm mới được nộp bởi Hana</b>\n\n` +
+                      `• <b>Môn học:</b> ${task.subject}\n` +
+                      `• <b>Bài học:</b> ${task.title}\n` +
+                      `• <b>Kết quả:</b> ${correctCount}/${numQuestions} câu đúng (${task.score}/10 điểm)\n` +
+                      `• <b>Thời gian làm:</b> ${Math.floor(task.study_duration / 60)} phút ${task.study_duration % 60} giây\n\n` +
+                      `👉 <i>Vui lòng xem chi tiết trên Parent Dashboard.</i>`;
+      sendTelegramNotification('study', studyText);
+
+      // Auto check routine timeline check if it matches a Flyer test
+      if (task.id.includes('FLYER') || task.title.includes('Flyer') || task.title.includes('Mover')) {
+        const chk = document.getElementById('tl-check-flyer_test');
+        if (chk && !chk.checked) {
+          chk.checked = true;
+          const todayStr = new Date().toISOString().split('T')[0];
+          localStorage.setItem(`tl_check_${todayStr}_flyer_test`, 'true');
+          triggerStarReward(5, 'star-bank-card');
+          let habitsText = `☀️ <b>Hana đã hoàn thành hoạt động:</b> Luyện thi Flyer 📝\n` +
+                           `• <b>Trạng thái:</b> Tự động cập nhật từ bài làm trắc nghiệm`;
+          sendTelegramNotification('habits', habitsText);
+        }
+      }
+
       selectTask(taskIndex);
       setTimeout(processOfflineQueue, 800);
     }
@@ -2755,6 +2920,31 @@
         showToast(msg, 'success');
         speakEnglish(`Congratulations, Hana! You scored ${task.score} out of 10! You earned ${totalStars} stars!`);
         
+        // Send Telegram notification
+        let studyText = `📝 <b>Bài làm Viết (AI chấm) mới được nộp bởi Hana</b>\n\n` +
+                        `• <b>Môn học:</b> ${task.subject}\n` +
+                        `• <b>Bài học:</b> ${task.title}\n` +
+                        `• <b>Kết quả AI chấm:</b> ${task.score}/10 điểm\n` +
+                        `• <b>Từ vựng mục tiêu:</b> ${targetVocab.join(', ')}\n` +
+                        `• <b>AI Nhận xét:</b> ${feedback.overallFeedback || 'Xem chi tiết trên ứng dụng'}\n` +
+                        `• <b>Thời gian làm:</b> ${Math.floor(task.study_duration / 60)} phút ${task.study_duration % 60} giây\n\n` +
+                        `👉 <i>Vui lòng xem chi tiết trên Parent Dashboard.</i>`;
+        sendTelegramNotification('study', studyText);
+
+        // Auto check routine timeline check if it matches weekly essay
+        if (task.id === 'VIE_LIT_CK_WEEKLY' || task.title.includes('Chân Kiến')) {
+          const chkCK = document.getElementById('tl-check-chankien_deadline');
+          if (chkCK && !chkCK.checked) {
+            chkCK.checked = true;
+            const todayStr = new Date().toISOString().split('T')[0];
+            localStorage.setItem(`tl_check_${todayStr}_chankien_deadline`, 'true');
+            triggerStarReward(5, 'star-bank-card');
+            let habitsText = `☀️ <b>Hana đã hoàn thành hoạt động:</b> Nộp bài văn cô Chân Kiến ✍️\n` +
+                             `• <b>Trạng thái:</b> Tự động cập nhật từ bài viết`;
+            sendTelegramNotification('habits', habitsText);
+          }
+        }
+
         clearWritingImage();
         selectTask(taskIndex);
         
@@ -3126,6 +3316,42 @@
                       `👉 <i>Vui lòng xem chi tiết bài làm của Hana và AI feedback trên Parent Dashboard.</i>`;
       sendTelegramNotification('study', studyText);
       
+      // Auto check routine timeline check if it matches weekly essay, flyer test, or coding
+      if (task.id === 'VIE_LIT_CK_WEEKLY' || task.title.includes('Chân Kiến')) {
+        const chkCK = document.getElementById('tl-check-chankien_deadline');
+        if (chkCK && !chkCK.checked) {
+          chkCK.checked = true;
+          const todayStr = new Date().toISOString().split('T')[0];
+          localStorage.setItem(`tl_check_${todayStr}_chankien_deadline`, 'true');
+          triggerStarReward(5, 'star-bank-card');
+          let habitsText = `☀️ <b>Hana đã hoàn thành hoạt động:</b> Nộp bài văn cô Chân Kiến ✍️\n` +
+                           `• <b>Trạng thái:</b> Tự động cập nhật từ bài làm`;
+          sendTelegramNotification('habits', habitsText);
+        }
+      } else if (task.id.includes('FLYER') || task.title.includes('Flyer') || task.title.includes('Mover')) {
+        const chk = document.getElementById('tl-check-flyer_test');
+        if (chk && !chk.checked) {
+          chk.checked = true;
+          const todayStr = new Date().toISOString().split('T')[0];
+          localStorage.setItem(`tl_check_${todayStr}_flyer_test`, 'true');
+          triggerStarReward(5, 'star-bank-card');
+          let habitsText = `☀️ <b>Hana đã hoàn thành hoạt động:</b> Luyện thi Flyer 📝\n` +
+                           `• <b>Trạng thái:</b> Tự động cập nhật từ bài làm`;
+          sendTelegramNotification('habits', habitsText);
+        }
+      } else if (task.id.includes('CODING') || task.title.includes('Coding') || task.title.includes('Code')) {
+        const chkCode = document.getElementById('tl-check-coding_practice') || document.getElementById('tl-check-coding');
+        if (chkCode && !chkCode.checked) {
+          chkCode.checked = true;
+          const todayStr = new Date().toISOString().split('T')[0];
+          localStorage.setItem(`tl_check_${todayStr}_${chkCode.id.replace('tl-check-', '')}`, 'true');
+          triggerStarReward(5, 'star-bank-card');
+          let habitsText = `☀️ <b>Hana đã hoàn thành hoạt động:</b> Học Coding / Luyện Coding 💻\n` +
+                           `• <b>Trạng thái:</b> Tự động cập nhật từ bài làm`;
+          sendTelegramNotification('habits', habitsText);
+        }
+      }
+
       selectTask(taskIndex);
       setTimeout(processOfflineQueue, 800);
     }
@@ -3481,22 +3707,148 @@
       reader.readAsText(file);
     }
 
+    let pendingActivityLog = null;
+
+    function isOnlineRoutine(id) {
+      const onlineIds = ['pomo1', 'pomo2', 'apos', 'flyer_test', 'coding', 'coding_practice', 'chankien_deadline'];
+      return onlineIds.includes(id);
+    }
+
     function toggleTimelineCheck(idx, el, itemId) {
       const isChecked = el ? el.checked : true;
       
-      // Save state to localStorage for the day
-      if (itemId) {
-        const todayStr = new Date().toISOString().split('T')[0];
-        localStorage.setItem(`tl_check_${todayStr}_${itemId}`, isChecked ? 'true' : 'false');
+      const today = new Date();
+      const dayOfWeek = today.getDay();
+      const dateStr = today.toISOString().split('T')[0];
+      const items = routineTemplates[dayOfWeek] || routineTemplates[1];
+      const item = items.find(it => it.id === itemId);
+
+      if (!item) return;
+
+      const isOffline = !isOnlineRoutine(itemId);
+
+      if (isChecked && isOffline) {
+        // Keep checkbox unchecked until user decides in the modal
+        if (el) el.checked = false;
+
+        pendingActivityLog = {
+          idx: idx,
+          el: el,
+          itemId: itemId,
+          item: item,
+          file: null
+        };
+
+        // Setup modal texts
+        document.getElementById('act-modal-title').innerHTML = `📸 Nhật ký hoạt động: ${item.labelVi}`;
+        document.getElementById('act-modal-desc').innerHTML = `Hana đang làm hoạt động <b>${item.labelVi}</b> bên ngoài máy đúng không?<br>Con hãy chụp ảnh hoặc chọn ảnh gửi cho Bố Mẹ xem nhé!`;
+        
+        // Reset modal state
+        document.getElementById('act-image-input').value = '';
+        document.getElementById('act-upload-placeholder').classList.remove('hidden');
+        document.getElementById('act-upload-preview-container').classList.add('hidden');
+        document.getElementById('act-submit-btn').disabled = true;
+        
+        // Open modal
+        document.getElementById('activity-log-modal').classList.remove('hidden');
+      } else {
+        // For online tasks checked manually or unchecking items
+        saveTimelineCheckState(itemId, isChecked, el);
       }
+    }
+
+    function saveTimelineCheckState(itemId, isChecked, el) {
+      const todayStr = new Date().toISOString().split('T')[0];
+      localStorage.setItem(`tl_check_${todayStr}_${itemId}`, isChecked ? 'true' : 'false');
 
       if (isChecked) {
         triggerStarReward(5, el || 'star-bank-card');
         showToast(currentLang === 'vi' ? 'Đã hoàn thành hoạt động! +5 ⭐' : 'Activity completed! +5 ⭐', 'success');
+        
+        // Send Telegram notification
+        const today = new Date();
+        const timeStr = today.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+        let label = '';
+        const dayOfWeek = today.getDay();
+        const items = routineTemplates[dayOfWeek] || routineTemplates[1];
+        const item = items.find(it => it.id === itemId);
+        if (item) {
+          label = item.labelVi;
+          let habitsText = `☀️ <b>Hana đã hoàn thành hoạt động:</b> ${label}\n` +
+                           `• <b>Thời gian:</b> ${timeStr}\n` +
+                           `• <b>Trạng thái:</b> Đã hoàn thành (Không kèm hình ảnh)`;
+          sendTelegramNotification('habits', habitsText);
+        }
       } else {
         triggerStarReward(-5, el || 'star-bank-card');
         showToast(currentLang === 'vi' ? 'Đã hủy hoàn thành hoạt động! -5 ⭐' : 'Activity unchecked! -5 ⭐', 'info');
       }
+    }
+
+    function handleActImageSelect(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      pendingActivityLog.file = file;
+
+      // Show preview
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        document.getElementById('act-upload-preview').src = e.target.result;
+        document.getElementById('act-upload-placeholder').classList.add('hidden');
+        document.getElementById('act-upload-preview-container').classList.remove('hidden');
+        document.getElementById('act-submit-btn').disabled = false;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    async function submitActivityWithImage() {
+      if (!pendingActivityLog) return;
+      const { idx, el, itemId, item, file } = pendingActivityLog;
+      
+      const today = new Date();
+      const todayStr = today.toISOString().split('T')[0];
+      const timeStr = today.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+
+      // 1. Mark checkbox as checked in UI and localStorage
+      if (el) el.checked = true;
+      localStorage.setItem(`tl_check_${todayStr}_${itemId}`, 'true');
+      triggerStarReward(15, el || 'star-bank-card'); // Extra stars reward for photo upload (+15)
+      showToast(currentLang === 'vi' ? 'Tuyệt vời! Ảnh đã được gửi và con nhận +15 ⭐!' : 'Awesome! Image sent and you got +15 ⭐!', 'success');
+
+      // 2. Send Telegram photo notification
+      const caption = `📸 <b>Nhật ký hoạt động ngoài máy của Hana</b>\n\n` +
+                      `• <b>Hoạt động:</b> ${item.labelVi}\n` +
+                      `• <b>Thời gian thực hiện:</b> ${timeStr}\n` +
+                      `• <b>Người gửi:</b> Bé Hana`;
+      
+      if (file) {
+        sendTelegramPhoto('habits', file, caption);
+      }
+
+      // 3. Close modal
+      document.getElementById('activity-log-modal').classList.add('hidden');
+      pendingActivityLog = null;
+    }
+
+    function skipActivityImage() {
+      if (!pendingActivityLog) return;
+      const { idx, el, itemId } = pendingActivityLog;
+      
+      if (el) el.checked = true;
+      saveTimelineCheckState(itemId, true, el);
+
+      document.getElementById('activity-log-modal').classList.add('hidden');
+      pendingActivityLog = null;
+    }
+
+    function cancelActivityLog() {
+      if (pendingActivityLog) {
+        const { el } = pendingActivityLog;
+        if (el) el.checked = false;
+      }
+      document.getElementById('activity-log-modal').classList.add('hidden');
+      pendingActivityLog = null;
     }
 
     function renderTimeline() {
@@ -3742,6 +4094,104 @@
       }
     }
 
+    async function sendTelegramPhoto(type, file, captionText) {
+      const stored = localStorage.getItem('hana_telegram_settings');
+      if (!stored) return;
+      try {
+        const config = JSON.parse(stored);
+        const token = config.token;
+        const chatId = config.chatId;
+        if (!token || !chatId) return;
+
+        let threadId = null;
+        if (type === 'approvals') threadId = config.topicApprovals;
+        else if (type === 'study') threadId = config.topicStudy;
+        else if (type === 'warnings') threadId = config.topicWarnings;
+        else if (type === 'habits') threadId = config.topicHabits;
+
+        const url = `https://api.telegram.org/bot${token}/sendPhoto`;
+        const formData = new FormData();
+        formData.append('chat_id', chatId);
+        formData.append('photo', file);
+        formData.append('caption', captionText);
+        formData.append('parse_mode', 'HTML');
+        if (threadId) {
+          formData.append('message_thread_id', threadId);
+        }
+
+        await fetch(url, {
+          method: 'POST',
+          body: formData
+        });
+      } catch (err) {
+        console.error("Error sending Telegram photo:", err);
+      }
+    }
+
+    function getStarsEarnedToday() {
+      const transactions = JSON.parse(localStorage.getItem('hana_star_transactions') || '[]');
+      const todayStr = new Date().toISOString().split('T')[0];
+      let total = 0;
+      transactions.forEach(t => {
+        if (t.date === todayStr && t.amount > 0) {
+          total += t.amount;
+        }
+      });
+      return total;
+    }
+
+    async function sendDailyReport(manual = false) {
+      const todayStr = new Date().toISOString().split('T')[0];
+      const todayFormatted = new Date().toLocaleDateString('vi-VN');
+      
+      const starsEarned = getStarsEarnedToday();
+      const currentStars = parseInt(localStorage.getItem('hana_stars') || '1250');
+      const pomoCompleted = parseInt(localStorage.getItem('hana_pomo_completed') || '0');
+      const waterConsumed = parseInt(localStorage.getItem('hana_water_consumed') || '0');
+      const todayWaterGoal = waterGoalMl;
+
+      const today = new Date();
+      const dayOfWeek = today.getDay();
+      const items = routineTemplates[dayOfWeek] || routineTemplates[1];
+      
+      let activitiesHtml = '';
+      let completedCount = 0;
+      
+      items.forEach(item => {
+        const storageKey = `tl_check_${todayStr}_${item.id}`;
+        const isChecked = localStorage.getItem(storageKey) === 'true';
+        if (isChecked) completedCount++;
+        const checkIcon = isChecked ? '✅' : '❌';
+        activitiesHtml += `• ${checkIcon} <b>${item.time}</b>: ${item.labelVi}\n`;
+      });
+      
+      const completionPct = Math.round((completedCount / items.length) * 100);
+
+      const reportMsg = `📊 <b>TỔNG KẾT HOẠT ĐỘNG TRONG NGÀY CỦA HANA</b> 🌟\n` +
+                        `📅 <b>Ngày:</b> ${todayFormatted}\n\n` +
+                        `• <b>Tổng sao đạt được hôm nay:</b> +${starsEarned} ⭐\n` +
+                        `• <b>Quỹ sao hiện tại của con:</b> ${currentStars} ⭐\n\n` +
+                        `✅ <b>Lịch trình sinh hoạt (${completedCount}/${items.length} - ${completionPct}%):</b>\n` +
+                        activitiesHtml + `\n` +
+                        `🍅 <b>Pomodoro đã hoàn thành:</b> ${pomoCompleted}/6 phiên\n` +
+                        `💧 <b>Nước lọc đã uống:</b> ${waterConsumed}/${todayWaterGoal} ml\n\n` +
+                        `🎉 <i>Hôm nay Hana đã hoạt động rất chăm chỉ! Chúc con ngủ ngon! 😴💤</i>`;
+
+      try {
+        await sendTelegramNotification('habits', reportMsg);
+        localStorage.setItem(`daily_report_sent_${todayStr}`, 'true');
+        if (manual) {
+          showToast(currentLang === 'vi' ? 'Đã gửi báo cáo tổng kết ngày cho Bố Mẹ thành công!' : 'Daily report sent to parents successfully!', 'success');
+          speakEnglish("Daily summary report sent to Mom and Dad!");
+        }
+      } catch (err) {
+        console.error("Failed to send daily report:", err);
+        if (manual) {
+          showToast(currentLang === 'vi' ? 'Lỗi khi gửi báo cáo.' : 'Error sending report.', 'error');
+        }
+      }
+    }
+
     async function loadTodayConfig() {
       if (!supabaseClient) return;
       try {
@@ -3796,6 +4246,18 @@
     }
 
     // ==================== CORE INITIALIZATION ====================
+    
+    function checkParentMessage() {
+      const msg = localStorage.getItem('hana_quick_message');
+      if (msg) {
+        document.getElementById('parent-message-text').textContent = msg;
+        document.getElementById('parent-message-container').classList.remove('hidden');
+        // Clear after showing? Maybe keep it for the session
+      } else {
+        document.getElementById('parent-message-container').classList.add('hidden');
+      }
+    }
+
     function init() {
       // Migrate old localStorage data if present
       const localAssigned = localStorage.getItem('assigned_english_tasks');
@@ -3852,6 +4314,7 @@
       
       // Set default language VI
       setLang('vi');
+      checkParentMessage();
     }
 
     window.onload = init;
