@@ -772,6 +772,13 @@
     let currentTab = 'dashboard';
     let subjectFilter = 'all';
 
+    function getLocalDateString(d = new Date()) {
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    }
+
     // AI attached file references
     let attachedFile = { name: '', type: '', content: '' };
     let selectedAISubject = 'Tiếng Anh';
@@ -943,7 +950,7 @@
     }
 
     async function loadConfig() { 
-      const { data } = await supabaseClient.from('daily_configs').select('*').eq('config_date', new Date().toISOString().split('T')[0]).single(); 
+      const { data } = await supabaseClient.from('daily_configs').select('*').eq('config_date', getLocalDateString()).single(); 
       if(data) { 
         document.getElementById('config-pomo').value = data.pomo_focus_minutes; 
         document.getElementById('config-screen').value = data.screen_limit_minutes; 
@@ -953,7 +960,7 @@
 
     async function saveConfig() { 
       const payload = { 
-        config_date: new Date().toISOString().split('T')[0], 
+        config_date: getLocalDateString(), 
         pomo_focus_minutes: parseInt(document.getElementById('config-pomo').value), 
         screen_limit_minutes: parseInt(document.getElementById('config-screen').value), 
         water_goal_ml: parseInt(document.getElementById('config-water').value) 
@@ -964,7 +971,7 @@
     }
 
     async function loadStats() { 
-      const today = new Date().toISOString().split('T')[0]; 
+      const today = getLocalDateString(); 
       const { data: water } = await supabaseClient.from('daily_activities').select('value').eq('activity_date', today).eq('activity_type', 'water_intake'); 
       const totalWater = (water || []).reduce((s, r) => s + (r.value || 0), 0); 
       const { data: pomo } = await supabaseClient.from('daily_activities').select('id').eq('activity_date', today).eq('activity_type', 'pomodoro_complete'); 
@@ -1059,7 +1066,7 @@
       }
     }
 
-    let currentCalendarDate = new Date("2026-06-04");
+    let currentCalendarDate = new Date();
 
     async function loadTaskBank() {
       try {
@@ -1109,6 +1116,7 @@
       emptyEl.classList.add('hidden');
 
       filtered.forEach(task => {
+        const isScheduled = task.scheduled_date && task.scheduled_date !== 'None' && task.scheduled_date !== 'null';
         const card = document.createElement('div');
         card.className = 'bg-zinc-950 border border-zinc-800/80 rounded-2xl p-5 flex flex-col justify-between hover:border-zinc-700 transition-all duration-200 cursor-grab active:cursor-grabbing';
         card.setAttribute('draggable', 'true');
@@ -1117,7 +1125,13 @@
         card.innerHTML = `
           <div>
             <div class="flex items-center justify-between mb-3">
-              <span class="px-2 py-0.5 text-[9px] bg-indigo-955/60 text-indigo-400 font-bold rounded-lg border border-indigo-900/40 uppercase tracking-wider">${task.subject}</span>
+              <div class="flex items-center gap-1.5">
+                <span class="px-2 py-0.5 text-[9px] bg-indigo-955/60 text-indigo-400 font-bold rounded-lg border border-indigo-900/40 uppercase tracking-wider">${task.subject}</span>
+                ${isScheduled ? 
+                  `<span class="px-2 py-0.5 text-[9px] bg-amber-955/60 text-amber-400 font-bold rounded-lg border border-amber-900/40 uppercase tracking-wider">Đã giao</span>` :
+                  `<span class="px-2 py-0.5 text-[9px] bg-zinc-900 text-zinc-500 font-bold rounded-lg border border-zinc-850 uppercase tracking-wider">Chưa giao</span>`
+                }
+              </div>
               <span class="text-[9px] text-zinc-500 font-mono">${task.id}</span>
             </div>
             <h3 class="font-bold text-zinc-100 text-sm mb-1">${task.title}</h3>
@@ -1127,15 +1141,15 @@
           <div class="border-t border-zinc-900 pt-4 flex flex-col gap-2">
             <div class="flex items-center justify-between text-xs">
               <span class="text-zinc-500">Lịch giao bài:</span>
-              <span class="font-semibold ${task.scheduled_date ? 'text-amber-400' : 'text-zinc-500'}">${formatDate(task.scheduled_date)}</span>
+              <span class="font-semibold ${isScheduled ? 'text-amber-400' : 'text-zinc-500'}">${formatDate(task.scheduled_date)}</span>
             </div>
             
             <div class="flex items-center gap-1.5 mt-1.5">
-              <input type="date" id="date-${task.id}" value="${task.scheduled_date || ''}" class="bg-zinc-900 border border-zinc-750 rounded-xl px-2.5 py-1.5 text-xs text-zinc-200 focus:outline-none focus:border-indigo-500 flex-1 font-medium" />
+              <input type="date" id="date-${task.id}" value="${isScheduled ? task.scheduled_date : ''}" class="bg-zinc-900 border border-zinc-750 rounded-xl px-2.5 py-1.5 text-xs text-zinc-200 focus:outline-none focus:border-indigo-500 flex-1 font-medium" />
               <button onclick="scheduleTask('${task.id}')" class="bg-indigo-650 hover:bg-indigo-500 text-white font-bold text-xs px-3.5 py-1.5 rounded-xl transition-all shadow-sm">
                 Giao
               </button>
-              ${task.scheduled_date ? `
+              ${isScheduled ? `
                 <button onclick="unscheduleTask('${task.id}')" class="bg-zinc-850 hover:bg-zinc-700 text-zinc-400 hover:text-red-400 font-bold text-xs px-2.5 py-1.5 rounded-xl transition-all" title="Hủy giao bài">
                   <i class="fa-solid fa-trash-can"></i>
                 </button>
@@ -1156,11 +1170,42 @@
       ev.dataTransfer.setData("text/plain", ev.currentTarget.dataset.taskId);
     }
 
+    window.dragEnterCell = function(ev) {
+      const cell = ev.target.closest('[data-date]');
+      if (cell) {
+        cell.classList.add('border-indigo-500', 'bg-indigo-950/20');
+      }
+    }
+
+    window.dragLeaveCell = function(ev) {
+      const cell = ev.target.closest('[data-date]');
+      if (cell) {
+        cell.classList.remove('border-indigo-500', 'bg-indigo-950/20');
+      }
+    }
+
+    window.dragEnterUnschedule = function(ev) {
+      const zone = document.getElementById('unschedule-dropzone');
+      if (zone) {
+        zone.classList.add('border-red-500', 'bg-red-950/20', 'text-red-400');
+      }
+    }
+
+    window.dragLeaveUnschedule = function(ev) {
+      const zone = document.getElementById('unschedule-dropzone');
+      if (zone) {
+        zone.classList.remove('border-red-500', 'bg-red-950/20', 'text-red-400');
+      }
+    }
+
     window.drop = async function(ev) {
       ev.preventDefault();
-      const taskId = ev.dataTransfer.getData("text/plain");
       const cell = ev.target.closest('[data-date]');
-      if (!cell) return;
+      if (cell) {
+        cell.classList.remove('border-indigo-500', 'bg-indigo-950/20');
+      }
+      const taskId = ev.dataTransfer.getData("text/plain");
+      if (!cell || !taskId) return;
       
       const targetDate = cell.dataset.date;
       await scheduleTaskToDate(taskId, targetDate);
@@ -1168,7 +1213,12 @@
 
     window.dropUnschedule = async function(ev) {
       ev.preventDefault();
+      const zone = document.getElementById('unschedule-dropzone');
+      if (zone) {
+        zone.classList.remove('border-red-500', 'bg-red-950/20', 'text-red-400');
+      }
       const taskId = ev.dataTransfer.getData("text/plain");
+      if (!taskId) return;
       await unscheduleTask(taskId);
     }
 
@@ -1238,14 +1288,14 @@
       for (let i = startDayOfWeek - 1; i >= 0; i--) {
         const d = prevMonthTotalDays - i;
         const prevMonthDate = new Date(year, month - 1, d);
-        const dateStr = prevMonthDate.toISOString().split('T')[0];
+        const dateStr = getLocalDateString(prevMonthDate);
         html += renderCalendarCell(dateStr, d, false);
       }
 
       // Render days of current month
       for (let d = 1; d <= totalDays; d++) {
         const currentMonthDate = new Date(year, month, d);
-        const dateStr = currentMonthDate.toISOString().split('T')[0];
+        const dateStr = getLocalDateString(currentMonthDate);
         html += renderCalendarCell(dateStr, d, true);
       }
 
@@ -1254,7 +1304,7 @@
       const remainingCells = 42 - totalCellsRendered;
       for (let d = 1; d <= remainingCells; d++) {
         const nextMonthDate = new Date(year, month + 1, d);
-        const dateStr = nextMonthDate.toISOString().split('T')[0];
+        const dateStr = getLocalDateString(nextMonthDate);
         html += renderCalendarCell(dateStr, d, false);
       }
 
@@ -1264,7 +1314,7 @@
     function renderCalendarCell(dateStr, dayNum, isCurrentMonth) {
       const tasksOnDay = allTasks.filter(t => t.scheduled_date === dateStr);
       
-      const isToday = dateStr === new Date().toISOString().split('T')[0];
+      const isToday = dateStr === getLocalDateString();
       const todayClass = isToday ? 'border-amber-500 bg-amber-950/10' : 'border-zinc-800 bg-zinc-950';
       const opacityClass = isCurrentMonth ? 'text-zinc-200' : 'text-zinc-650 opacity-60';
 
@@ -1290,7 +1340,12 @@
       });
 
       return `
-        <div data-date="${dateStr}" ondragover="allowDrop(event)" ondrop="drop(event)" class="${todayClass} border rounded-2xl p-2.5 min-h-[95px] flex flex-col justify-between hover:border-zinc-700 transition-all select-none">
+        <div data-date="${dateStr}" 
+             ondragover="allowDrop(event)" 
+             ondragenter="dragEnterCell(event)" 
+             ondragleave="dragLeaveCell(event)" 
+             ondrop="drop(event)" 
+             class="${todayClass} border rounded-2xl p-2.5 min-h-[95px] flex flex-col justify-between hover:border-zinc-700 transition-all select-none">
           <div class="text-right text-[10px] font-bold ${opacityClass}">${dayNum}</div>
           <div class="space-y-1 mt-1.5 flex-1 flex flex-col justify-end">
             ${tasksHtml}
@@ -2232,7 +2287,7 @@ ${attachedFile.type === 'text' ? `Nội dung tài liệu đính kèm (Local file
 
         // 3. Update daily_configs if approved
         if (status === 'approved') {
-          const todayStr = new Date().toISOString().split('T')[0];
+          const todayStr = getLocalDateString();
           
           const { data: configData } = await supabaseClient
             .from('daily_configs')

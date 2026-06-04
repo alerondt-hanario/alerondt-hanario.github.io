@@ -1516,6 +1516,13 @@
 
     let supabaseClient = null;
 
+    function getLocalDateString(d = new Date()) {
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    }
+
     // ==================== STATE ====================
     let currentLang = 'vi';
     let waterMl = 680;
@@ -1725,7 +1732,7 @@
           let success = false;
           if (action.type === 'log_water') {
             const { error } = await supabaseClient.from('daily_activities').insert({
-              activity_date: new Date().toISOString().split('T')[0],
+              activity_date: getLocalDateString(),
               activity_type: 'water_intake',
               value: action.amount,
               note: 'log water from offline',
@@ -1736,7 +1743,7 @@
           } 
           else if (action.type === 'complete_pomodoro') {
             const { error } = await supabaseClient.from('daily_activities').insert({
-              activity_date: new Date().toISOString().split('T')[0],
+              activity_date: getLocalDateString(),
               activity_type: 'pomodoro_complete',
               value: 25,
               note: 'pomo completed from offline',
@@ -1814,7 +1821,7 @@
       // Log detailed transactions to localStorage
       try {
         const transactions = JSON.parse(localStorage.getItem('hana_star_transactions') || '[]');
-        const todayStr = new Date().toISOString().split('T')[0];
+        const todayStr = getLocalDateString();
         
         let reasonVi = "Hoạt động tích lũy";
         let reasonEn = "Activity reward";
@@ -2235,7 +2242,7 @@
 
       // Auto-trigger daily summary report in the evening (after 9 PM / 21:00) if not already sent today
       if (today.getHours() >= 21) {
-        const todayStr = today.toISOString().split('T')[0];
+        const todayStr = getLocalDateString(today);
         if (localStorage.getItem(`daily_report_sent_${todayStr}`) !== 'true') {
           localStorage.setItem(`daily_report_sent_${todayStr}`, 'true');
           sendDailyReport(false);
@@ -2400,7 +2407,7 @@
         // Auto check routine timeline check
         const chk1 = document.getElementById('tl-check-pomo1');
         const chk2 = document.getElementById('tl-check-pomo2');
-        const todayStr = new Date().toISOString().split('T')[0];
+        const todayStr = getLocalDateString();
         if (chk1 && !chk1.checked) {
           chk1.checked = true;
           localStorage.setItem(`tl_check_${todayStr}_pomo1`, 'true');
@@ -2417,7 +2424,7 @@
         const waterChk = document.getElementById('tl-check-water');
         if (waterChk && !waterChk.checked) {
           waterChk.checked = true;
-          const todayStr = new Date().toISOString().split('T')[0];
+          const todayStr = getLocalDateString();
           localStorage.setItem(`tl_check_${todayStr}_water`, 'true');
         }
         
@@ -2454,12 +2461,12 @@
       const waterChk = document.getElementById('tl-check-water');
       if (waterChk && !waterChk.checked) {
         waterChk.checked = true;
-        const todayStr = new Date().toISOString().split('T')[0];
+        const todayStr = getLocalDateString();
         localStorage.setItem(`tl_check_${todayStr}_water`, 'true');
       }
 
       if (waterMl >= waterGoalMl) {
-        const todayStr = new Date().toISOString().split('T')[0];
+        const todayStr = getLocalDateString();
         const sentKey = `tele_sent_water_goal_${todayStr}`;
         if (!localStorage.getItem(sentKey)) {
           localStorage.setItem(sentKey, 'true');
@@ -2764,7 +2771,7 @@
         const chk = document.getElementById('tl-check-flyer_test');
         if (chk && !chk.checked) {
           chk.checked = true;
-          const todayStr = new Date().toISOString().split('T')[0];
+          const todayStr = getLocalDateString();
           localStorage.setItem(`tl_check_${todayStr}_flyer_test`, 'true');
           triggerStarReward(5, 'star-bank-card');
           let habitsText = `☀️ <b>Hana đã hoàn thành hoạt động:</b> Luyện thi Flyer 📝\n` +
@@ -2950,7 +2957,7 @@
           const chkCK = document.getElementById('tl-check-chankien_deadline');
           if (chkCK && !chkCK.checked) {
             chkCK.checked = true;
-            const todayStr = new Date().toISOString().split('T')[0];
+            const todayStr = getLocalDateString();
             localStorage.setItem(`tl_check_${todayStr}_chankien_deadline`, 'true');
             triggerStarReward(5, 'star-bank-card');
             let habitsText = `☀️ <b>Hana đã hoàn thành hoạt động:</b> Nộp bài văn cô Chân Kiến ✍️\n` +
@@ -3335,7 +3342,7 @@
         const chkCK = document.getElementById('tl-check-chankien_deadline');
         if (chkCK && !chkCK.checked) {
           chkCK.checked = true;
-          const todayStr = new Date().toISOString().split('T')[0];
+          const todayStr = getLocalDateString();
           localStorage.setItem(`tl_check_${todayStr}_chankien_deadline`, 'true');
           triggerStarReward(5, 'star-bank-card');
           let habitsText = `☀️ <b>Hana đã hoàn thành hoạt động:</b> Nộp bài văn cô Chân Kiến ✍️\n` +
@@ -3346,7 +3353,7 @@
         const chk = document.getElementById('tl-check-flyer_test');
         if (chk && !chk.checked) {
           chk.checked = true;
-          const todayStr = new Date().toISOString().split('T')[0];
+          const todayStr = getLocalDateString();
           localStorage.setItem(`tl_check_${todayStr}_flyer_test`, 'true');
           triggerStarReward(5, 'star-bank-card');
           let habitsText = `☀️ <b>Hana đã hoàn thành hoạt động:</b> Luyện thi Flyer 📝\n` +
@@ -3357,7 +3364,7 @@
         const chkCode = document.getElementById('tl-check-coding_practice') || document.getElementById('tl-check-coding');
         if (chkCode && !chkCode.checked) {
           chkCode.checked = true;
-          const todayStr = new Date().toISOString().split('T')[0];
+          const todayStr = getLocalDateString();
           localStorage.setItem(`tl_check_${todayStr}_${chkCode.id.replace('tl-check-', '')}`, 'true');
           triggerStarReward(5, 'star-bank-card');
           let habitsText = `☀️ <b>Hana đã hoàn thành hoạt động:</b> Học Coding / Luyện Coding 💻\n` +
@@ -3733,7 +3740,7 @@
       
       const today = new Date();
       const dayOfWeek = today.getDay();
-      const dateStr = today.toISOString().split('T')[0];
+      const dateStr = getLocalDateString(today);
       const items = routineTemplates[dayOfWeek] || routineTemplates[1];
       const item = items.find(it => it.id === itemId);
 
@@ -3772,7 +3779,7 @@
     }
 
     function saveTimelineCheckState(itemId, isChecked, el) {
-      const todayStr = new Date().toISOString().split('T')[0];
+      const todayStr = getLocalDateString();
       localStorage.setItem(`tl_check_${todayStr}_${itemId}`, isChecked ? 'true' : 'false');
 
       if (isChecked) {
@@ -3821,7 +3828,7 @@
       const { idx, el, itemId, item, file } = pendingActivityLog;
       
       const today = new Date();
-      const todayStr = today.toISOString().split('T')[0];
+      const todayStr = getLocalDateString(today);
       const timeStr = today.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
 
       // 1. Mark checkbox as checked in UI and localStorage
@@ -3871,7 +3878,7 @@
       
       const today = new Date();
       const dayOfWeek = today.getDay();
-      const dateStr = today.toISOString().split('T')[0];
+      const dateStr = getLocalDateString(today);
       const items = routineTemplates[dayOfWeek] || routineTemplates[1]; // fallback to Monday
 
       container.innerHTML = items.map((item, idx) => {
@@ -4144,7 +4151,7 @@
 
     function getStarsEarnedToday() {
       const transactions = JSON.parse(localStorage.getItem('hana_star_transactions') || '[]');
-      const todayStr = new Date().toISOString().split('T')[0];
+      const todayStr = getLocalDateString();
       let total = 0;
       transactions.forEach(t => {
         if (t.date === todayStr && t.amount > 0) {
@@ -4155,7 +4162,7 @@
     }
 
     async function sendDailyReport(manual = false) {
-      const todayStr = new Date().toISOString().split('T')[0];
+      const todayStr = getLocalDateString();
       const todayFormatted = new Date().toLocaleDateString('vi-VN');
       
       const starsEarned = getStarsEarnedToday();
@@ -4209,7 +4216,7 @@
     async function loadTodayConfig() {
       if (!supabaseClient) return;
       try {
-        const { data } = await supabaseClient.from('daily_configs').select('*').eq('config_date', new Date().toISOString().split('T')[0]).single();
+        const { data } = await supabaseClient.from('daily_configs').select('*').eq('config_date', getLocalDateString()).single();
         if (data) {
           pomoFocusMinutes = data.pomo_focus_minutes || 25;
           waterGoalMl = data.water_goal_ml || 1200;
@@ -4232,7 +4239,7 @@
         return;
       }
       try {
-        const { data, error } = await supabaseClient.from('tasks').select('*').eq('scheduled_date', new Date().toISOString().split('T')[0]);
+        const { data, error } = await supabaseClient.from('tasks').select('*').eq('scheduled_date', getLocalDateString());
         if (!error && data && data.length > 0) {
           todayTasks = data.map(t => ({ ...t, status: t.status === 'submitted' || t.status === 'graded' ? 'done' : 'todo' }));
         } else {
