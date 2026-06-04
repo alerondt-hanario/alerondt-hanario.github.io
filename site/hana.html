@@ -625,34 +625,6 @@
   <!-- Main Content Layout -->
   <div class="max-w-[1200px] mx-auto px-6 pt-6 grid grid-cols-1 gap-6">
 
-    
-        <!-- Message from Parents -->
-        <div id="parent-message-container" class="hidden bg-indigo-50 border border-indigo-100 p-4 rounded-3xl mb-6 shadow-sm animate-bounce">
-          <div class="flex items-center gap-3">
-            <div class="w-10 h-10 bg-white rounded-2xl flex items-center justify-center text-indigo-500 shadow-xs">
-              <i class="fa-solid fa-heart"></i>
-            </div>
-            <div>
-              <span class="text-[9px] font-extrabold text-indigo-500 uppercase tracking-widest">TIN NHẮN TỪ BỐ MẸ</span>
-              <p id="parent-message-text" class="text-xs font-bold text-indigo-900 mt-0.5 italic"></p>
-            </div>
-          </div>
-        </div>
-
-    
-        <!-- Message from Parents -->
-        <div id="parent-message-container" class="hidden bg-indigo-50 border border-indigo-100 p-4 rounded-3xl mb-6 shadow-sm animate-bounce">
-          <div class="flex items-center gap-3">
-            <div class="w-10 h-10 bg-white rounded-2xl flex items-center justify-center text-indigo-500 shadow-xs">
-              <i class="fa-solid fa-heart"></i>
-            </div>
-            <div>
-              <span class="text-[9px] font-extrabold text-indigo-500 uppercase tracking-widest">TIN NHẮN TỪ BỐ MẸ</span>
-              <p id="parent-message-text" class="text-xs font-bold text-indigo-900 mt-0.5 italic"></p>
-            </div>
-          </div>
-        </div>
-
     <!-- TOP SUMMARY WIDGETS ROW (Water Intake, Pomodoro, Mission Progress) -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
       
@@ -1224,77 +1196,6 @@
         </div>
       </div>
 
-    </div>
-
-    <!-- CHORES & PHYSICAL ACTIVITY TRACKER ROW -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-2">
-      <!-- Card 1: Chores Tracker (Việc nhà của Hana) -->
-      <div class="bg-white rounded-3xl border border-zinc-100 p-6 shadow-sm flex flex-col justify-between min-h-[220px]">
-        <div>
-          <span class="text-[9px] font-extrabold text-orange-500 tracking-wider uppercase">VIỆC NHÀ HÀNG NGÀY</span>
-          <h3 class="text-base font-extrabold text-zinc-950 mt-0.5">Giặt đồ & Rửa bát</h3>
-          <p class="text-[10px] text-zinc-400 font-medium mt-1">Yêu cầu ít nhất 1 lần/ngày. Không làm trừ 5⭐. Làm được +2⭐, thêm mỗi lần +3⭐.</p>
-          
-          <div class="grid grid-cols-2 gap-4 mt-4">
-            <!-- Laundry status -->
-            <div class="bg-zinc-50 border border-zinc-150 rounded-2xl p-3 flex flex-col items-center">
-              <span class="text-xl">🧺</span>
-              <span class="text-[10px] font-bold text-zinc-700 mt-1">Giặt quần áo</span>
-              <div class="flex items-center gap-2 mt-2">
-                <span id="chore-laundry-count" class="text-lg font-black text-zinc-900">0</span>
-                <button onclick="logChore('laundry')" class="w-6 h-6 bg-orange-500 hover:bg-orange-600 text-white rounded-full flex items-center justify-center transition-all shadow-xs">+</button>
-              </div>
-            </div>
-            
-            <!-- Dishes status -->
-            <div class="bg-zinc-50 border border-zinc-150 rounded-2xl p-3 flex flex-col items-center">
-              <span class="text-xl">🍽️</span>
-              <span class="text-[10px] font-bold text-zinc-700 mt-1">Rửa bát đũa</span>
-              <div class="flex items-center gap-2 mt-2">
-                <span id="chore-dishes-count" class="text-lg font-black text-zinc-900">0</span>
-                <button onclick="logChore('dishes')" class="w-6 h-6 bg-orange-500 hover:bg-orange-600 text-white rounded-full flex items-center justify-center transition-all shadow-xs">+</button>
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        <div class="border-t border-zinc-50 pt-3 mt-4 flex justify-between items-center text-xs">
-          <span class="text-zinc-500">Trạng thái sao việc nhà:</span>
-          <span id="chore-stars-badge" class="font-extrabold text-red-500">-5 ⭐ (Chưa làm)</span>
-        </div>
-      </div>
-
-      <!-- Card 2: Physical Activity Tracker (Hoạt động thể lực) -->
-      <div class="bg-white rounded-3xl border border-zinc-100 p-6 shadow-sm flex flex-col justify-between min-h-[220px]">
-        <div>
-          <span class="text-[9px] font-extrabold text-orange-500 tracking-wider uppercase">HOẠT ĐỘNG THỂ LỰC</span>
-          <h3 class="text-base font-extrabold text-zinc-950 mt-0.5">Rèn luyện thể chất</h3>
-          <p class="text-[10px] text-zinc-400 font-medium mt-1">Yêu cầu ít nhất 1 lần (30 phút)/ngày. Không tập trừ 3⭐. Tập được +2⭐, trên 30 phút +1⭐, thêm phiên +3⭐.</p>
-          
-          <div class="mt-4 flex items-center gap-3">
-            <div class="flex-1">
-              <input type="number" id="phys-duration-input" placeholder="Số phút..." class="w-full px-3 py-2 text-xs border border-zinc-200 rounded-xl outline-none focus:ring-1 focus:ring-orange-400 font-medium text-zinc-800" min="1" />
-            </div>
-            <button onclick="logPhysicalActivity()" class="bg-orange-500 hover:bg-orange-600 text-white text-xs px-4 py-2 rounded-xl font-bold transition-all shadow-md flex items-center gap-1">
-              <i class="fa-solid fa-plus"></i>
-              <span>Ghi nhận</span>
-            </button>
-          </div>
-          
-          <!-- Session logs list -->
-          <div class="mt-3 bg-zinc-50 border border-zinc-150 rounded-xl p-2.5 max-h-[85px] overflow-y-auto scrollbar-none">
-            <span class="text-[9px] font-bold text-zinc-400 uppercase tracking-wider block mb-1">Các phiên tập hôm nay:</span>
-            <div id="phys-sessions-list" class="space-y-1 text-[10px] font-semibold text-zinc-650">
-              <div class="italic text-zinc-400 font-medium">Chưa có phiên tập nào.</div>
-            </div>
-          </div>
-        </div>
-        
-        <div class="border-t border-zinc-50 pt-3 mt-4 flex justify-between items-center text-xs">
-          <span class="text-zinc-500">Trạng thái sao thể lực:</span>
-          <span id="phys-stars-badge" class="font-extrabold text-red-500">-3 ⭐ (Chưa tập)</span>
-        </div>
-      </div>
     </div>
 
   </div>
@@ -4260,30 +4161,6 @@
     }
 
     // ==================== CORE INITIALIZATION ====================
-    
-    function checkParentMessage() {
-      const msg = localStorage.getItem('hana_quick_message');
-      if (msg) {
-        document.getElementById('parent-message-text').textContent = msg;
-        document.getElementById('parent-message-container').classList.remove('hidden');
-        // Clear after showing? Maybe keep it for the session
-      } else {
-        document.getElementById('parent-message-container').classList.add('hidden');
-      }
-    }
-
-    
-    function checkParentMessage() {
-      const msg = localStorage.getItem('hana_quick_message');
-      if (msg) {
-        document.getElementById('parent-message-text').textContent = msg;
-        document.getElementById('parent-message-container').classList.remove('hidden');
-        // Clear after showing? Maybe keep it for the session
-      } else {
-        document.getElementById('parent-message-container').classList.add('hidden');
-      }
-    }
-
     function init() {
       // Migrate old localStorage data if present
       const localAssigned = localStorage.getItem('assigned_english_tasks');
@@ -4340,8 +4217,6 @@
       
       // Set default language VI
       setLang('vi');
-      checkParentMessage();
-      checkParentMessage();
     }
 
     window.onload = init;
